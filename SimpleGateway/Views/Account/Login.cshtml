@@ -1,0 +1,46 @@
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Login</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+</head>
+<body>
+    <div class="container mt-5" style="max-width:350px;">
+        <h3 class="mb-3">Login</h3>
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger">@ViewBag.Error</div>
+        }
+        <form method="post">
+            <div class="mb-3">
+                <label>Username</label>
+                <input name="username" class="form-control" autofocus />
+            </div>
+            <div class="mb-3">
+                <label>Password</label>
+                <input name="password" type="password" class="form-control" />
+            </div>
+            <button class="btn btn-primary w-100">Login</button>
+        </form>
+        <hr />
+        <div>
+            <small>
+                Demo users:<br />
+                <strong>Performers:</strong><br />
+                performer1 / test123 (John Smith)<br />
+                performer2 / test123 (Sarah Johnson)<br />
+                performer3 / test123 (Mike Wilson)<br />
+                <strong>Staff:</strong><br />
+                supervisor / super123 (Dr. Emma Thompson)<br />
+                advisor / advise123 (Prof. David Brown)<br />
+                admin / admin123 (Administrator)<br />
+                superuser / test123 (Super User)
+            </small>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,116 @@
+@{
+    ViewBag.Title = "Uploads - " + ViewBag.PerformerName;
+    Layout = "_Layout";
+}
+
+<div class="row">
+    <div class="col-3">
+        <ul class="list-group">
+            <li class="list-group-item @(ViewBag.ActiveSection == "PerformerDetails" ? "active" : "")">
+                <a href="/Dashboard/PerformerDetails?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "PerformerDetails" ? "color: white;" : "")">Performer Details</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "PreviousExperience" ? "active" : "")">
+                <a href="/Dashboard/PreviousExperienceForm?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "PreviousExperience" ? "color: white;" : "")">Previous Experience</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "Uploads" ? "active" : "")">
+                <a href="/Dashboard/Uploads?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "Uploads" ? "color: white;" : "")">Uploads</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "LearningModules" ? "active" : "")">
+                <a href="/Dashboard/LearningModules?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "LearningModules" ? "color: white;" : "")">Learning Modules</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "LearningProgress" ? "active" : "")">
+                <a href="/Dashboard/LearningProgress?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "LearningProgress" ? "color: white;" : "")">Learning Progress</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "SupplementaryUploads" ? "active" : "")">
+                <a href="/Dashboard/SupplementaryUploads?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "SupplementaryUploads" ? "color: white;" : "")">Supplementary Uploads</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "ManagementPlan" ? "active" : "")">
+                <a href="/Dashboard/ManagementPlan?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "ManagementPlan" ? "color: white;" : "")">Management Plan</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "SkillsAssessment" ? "active" : "")">
+                <a href="/Dashboard/SkillsAssessment?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "SkillsAssessment" ? "color: white;" : "")">Skills Assessment</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "ClinicalNoteAudit" ? "active" : "")">
+                <a href="/Dashboard/ClinicalNoteAudit?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "ClinicalNoteAudit" ? "color: white;" : "")">Clinical Note Audit</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "HelpGuidance" ? "active" : "")">
+                <a href="/Dashboard/HelpGuidance?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "HelpGuidance" ? "color: white;" : "")">Help & Guidance</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "FinalSignOff" ? "active" : "")">
+                <a href="/Dashboard/FinalSignOff?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "FinalSignOff" ? "color: white;" : "")">Final Sign off</a>
+            </li>
+            @if (ViewBag.IsOwnDashboard == true)
+            {
+                <li class="list-group-item"><a href="/Account/Logout">Logout</a></li>
+            }
+            else
+            {
+                <li class="list-group-item"><a href="/Dashboard/Index">Back to List</a></li>
+            }
+        </ul>
+    </div>
+    
+    <div class="col-9">
+        <h2>File Uploads - @ViewBag.PerformerName</h2>
+        
+        <div class="card mb-4">
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-exclamation-triangle"></i> Required Upload: Indemnity/Insurance Evidence
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i> <strong>Required:</strong> You must upload your Indemnity/Insurance evidence.
+                </div>
+                
+                @if (ViewBag.CanEdit)
+                {
+                    <div class="mb-3">
+                        <label class="form-label"><strong>Upload Indemnity/Insurance Evidence:</strong></label>
+                        <input type="file" class="form-control" id="indemnity-file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" />
+                        <small class="form-text text-muted">Accepted formats: PDF, Word documents, Images</small>
+                    </div>
+                    <button class="btn btn-danger" onclick="alert('Upload functionality coming soon!')">
+                        <i class="fas fa-upload"></i> Upload Required Document
+                    </button>
+                }
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4 class="mb-0">Additional File Uploads</h4>
+                <small class="text-muted">Upload any additional supporting documents</small>
+            </div>
+            <div class="card-body">
+                @if (ViewBag.CanEdit)
+                {
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Description:</label>
+                            <input type="text" class="form-control" id="file-description" placeholder="Enter file description..." />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Choose File:</label>
+                            <input type="file" class="form-control" id="additional-file" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">&nbsp;</label><br>
+                            <button class="btn btn-primary" onclick="alert('Upload functionality coming soon!')">
+                                <i class="fas fa-plus"></i> Add Upload
+                            </button>
+                        </div>
+                    </div>
+                    <hr>
+                }
+
+                <div class="text-center text-muted">
+                    <i class="fas fa-folder-open fa-3x mb-3"></i>
+                    <p>No files uploaded yet.</p>
+                    <p><em>File upload functionality is under development.</em></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,88 @@
+@{
+    ViewBag.Title = "Advisor Dashboard";
+}
+
+@{
+    Layout = "_Layout";
+}
+
+<div class="row">
+    <div class="col-3">
+        <ul class="list-group">
+            <li class="list-group-item active"><a href="#" style="color: white;">Regional Performers</a></li>
+            <li class="list-group-item"><a href="#">Program Overview</a></li>
+            <li class="list-group-item"><a href="#">Advisory Notes</a></li>
+            <li class="list-group-item"><a href="#">Sign-offs</a></li>
+            <li class="list-group-item"><a href="/Account/Logout">Logout</a></li>
+        </ul>
+    </div>
+    <div class="col-9">
+        <h2>Advisor Dashboard</h2>
+        <p>Logged in as: <b>@ViewBag.DisplayName</b> (Role: @ViewBag.Role)</p>
+        <hr />
+        
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">Regional Performers</h4>
+                <small class="text-muted">Wider view of performers in your region</small>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Performer Name</th>
+                                <th>Supervisor</th>
+                                <th>Program Stage</th>
+                                <th>Status</th>
+                                <th>Advisory Required</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="/Dashboard/ViewPerformer?performerUsername=performer1" class="text-primary fw-bold">John Smith</a></td>
+                                <td>Dr. Emma Thompson</td>
+                                <td>Year 2</td>
+                                <td><span class="badge bg-success">On Track</span></td>
+                                <td><span class="badge bg-warning">Yes</span></td>
+                                <td>
+                                    <a href="/Dashboard/ViewPerformer?performerUsername=performer1" class="btn btn-sm btn-primary">View Dashboard</a>
+                                    <button class="btn btn-sm btn-info">Add Advisory Note</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><a href="/Dashboard/ViewPerformer?performerUsername=performer2" class="text-primary fw-bold">Sarah Johnson</a></td>
+                                <td>Unassigned</td>
+                                <td>Year 1</td>
+                                <td><span class="badge bg-warning">Needs Attention</span></td>
+                                <td><span class="badge bg-danger">Urgent</span></td>
+                                <td>
+                                    <a href="/Dashboard/ViewPerformer?performerUsername=performer2" class="btn btn-sm btn-primary">View Dashboard</a>
+                                    <button class="btn btn-sm btn-info">Add Advisory Note</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><a href="/Dashboard/ViewPerformer?performerUsername=performer3" class="text-primary fw-bold">Mike Wilson</a></td>
+                                <td>Unassigned</td>
+                                <td>Year 3</td>
+                                <td><span class="badge bg-success">On Track</span></td>
+                                <td><span class="badge bg-secondary">None</span></td>
+                                <td>
+                                    <a href="/Dashboard/ViewPerformer?performerUsername=performer3" class="btn btn-sm btn-primary">View Dashboard</a>
+                                    <button class="btn btn-sm btn-info">Add Advisory Note</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-3">
+            <div class="alert alert-info">
+                <strong>Advisory Role:</strong> You have wider access to regional performers and can add advisory notes and sign off on certain processes.
+            </div>
+        </div>
+    </div>
+</div>

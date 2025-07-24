@@ -1,0 +1,206 @@
+@model SimpleGateway.Models.PerformerDetailsModel
+@{
+    ViewData["Title"] = "Performer Details";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h2>Performer Details - @ViewBag.PerformerName</h2>
+            @if (!string.IsNullOrEmpty(ViewBag.SuccessMessage))
+            {
+                <div class="alert alert-success">@ViewBag.SuccessMessage</div>
+            }
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-3">
+            <ul class="list-group">
+                <li class="list-group-item @(ViewBag.ActiveSection == "PerformerDetails" ? "active" : "")">
+                    <a href="/Dashboard/PerformerDetails?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "PerformerDetails" ? "color: white;" : "")">Performer Details</a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "PreviousExperience" ? "active" : "")">
+                    <a href="/Dashboard/PreviousExperience?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "PreviousExperience" ? "color: white;" : "")">Previous Experience</a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "Uploads" ? "active" : "")">
+                    <a href="/Dashboard/Uploads?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "Uploads" ? "color: white;" : "")">Uploads</a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "StructuredConversation" ? "active" : "")">
+                    <a href="/Dashboard/StructuredConversation?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "StructuredConversation" ? "color: white;" : "")">Structured Conversation</a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "AgreementTerms" ? "active" : "")">
+                    <a href="/Dashboard/AgreementTerms?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "AgreementTerms" ? "color: white;" : "")">Agreement Terms</a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "WorkBasedAssessments" ? "active" : "")">
+                    <a href="/Dashboard/WorkBasedAssessments?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "WorkBasedAssessments" ? "color: white;" : "")">Work Based Assessments</a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "CPD" ? "active" : "")">
+                    <a href="/Dashboard/CPD?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "CPD" ? "color: white;" : "")">CPD</a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "MSF" ? "active" : "")">
+                    <a href="/Dashboard/MSF?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "MSF" ? "color: white;" : "")">MSF</a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "PSQ" ? "active" : "")">
+                    <a href="/Dashboard/PSQ?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "PSQ" ? "color: white;" : "")">PSQ</a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "ClinicalNoteAudit" ? "active" : "")">
+                    <a href="/Dashboard/ClinicalNoteAudit?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "ClinicalNoteAudit" ? "color: white;" : "")">Clinical Note Audit</a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "HelpGuidance" ? "active" : "")">
+                    <a href="/Dashboard/HelpGuidance?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "HelpGuidance" ? "color: white;" : "")">Help & Guidance</a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "FinalSignOff" ? "active" : "")">
+                    <a href="/Dashboard/FinalSignOff?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "FinalSignOff" ? "color: white;" : "")">Final Sign off</a>
+                </li>
+                @if (ViewBag.IsOwnDashboard == true)
+                {
+                    <li class="list-group-item"><a href="/Account/Logout">Logout</a></li>
+                }
+                else
+                {
+                    <li class="list-group-item"><a href="/Dashboard/Index">Back to List</a></li>
+                }
+            </ul>
+        </div>
+        
+        <div class="col-9">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Personal & Professional Information</h4>
+                    <p class="mb-0 text-muted">Please complete all required fields to set up your profile.</p>
+                </div>
+                <div class="card-body">
+                    <form asp-action="PerformerDetails" method="post">
+                        <input type="hidden" asp-for="Username" value="@ViewBag.PerformerUsername" />
+                        
+                        <!-- Personal Information Section -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="text-primary border-bottom pb-2">Personal Information</h5>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="FirstName" class="form-label"></label>
+                                <input asp-for="FirstName" class="form-control" />
+                                <span asp-validation-for="FirstName" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="LastName" class="form-label"></label>
+                                <input asp-for="LastName" class="form-control" />
+                                <span asp-validation-for="LastName" class="text-danger"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Email" class="form-label"></label>
+                                <input asp-for="Email" type="email" class="form-control" />
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="ContactNumber" class="form-label"></label>
+                                <input asp-for="ContactNumber" class="form-control" />
+                                <span asp-validation-for="ContactNumber" class="text-danger"></span>
+                            </div>
+                        </div>
+                        
+                        <!-- Professional Information Section -->
+                        <div class="row mb-4 mt-4">
+                            <div class="col-12">
+                                <h5 class="text-primary border-bottom pb-2">Professional Information</h5>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="GDCNumber" class="form-label"></label>
+                                <input asp-for="GDCNumber" class="form-control" />
+                                <span asp-validation-for="GDCNumber" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="DateOfUKRegistration" class="form-label"></label>
+                                <input asp-for="DateOfUKRegistration" type="date" class="form-control" />
+                                <span asp-validation-for="DateOfUKRegistration" class="text-danger"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="DateOfDentalQualification" class="form-label"></label>
+                                <input asp-for="DateOfDentalQualification" type="date" class="form-control" />
+                                <span asp-validation-for="DateOfDentalQualification" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="UniversityCountryOfQualification" class="form-label"></label>
+                                <input asp-for="UniversityCountryOfQualification" class="form-control" placeholder="e.g., University of London, UK" />
+                                <span asp-validation-for="UniversityCountryOfQualification" class="text-danger"></span>
+                            </div>
+                        </div>
+                        
+                        <!-- Practice Information Section -->
+                        <div class="row mb-4 mt-4">
+                            <div class="col-12">
+                                <h5 class="text-primary border-bottom pb-2">Practice Information</h5>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-8">
+                                <label asp-for="PracticeAddress" class="form-label"></label>
+                                <textarea asp-for="PracticeAddress" class="form-control" rows="3" placeholder="Full practice address"></textarea>
+                                <span asp-validation-for="PracticeAddress" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="PracticePostCode" class="form-label"></label>
+                                <input asp-for="PracticePostCode" class="form-control" placeholder="e.g., SW1A 1AA" />
+                                <span asp-validation-for="PracticePostCode" class="text-danger"></span>
+                            </div>
+                        </div>
+                        
+                        <!-- Supervision Information Section -->
+                        <div class="row mb-4 mt-4">
+                            <div class="col-12">
+                                <h5 class="text-primary border-bottom pb-2">Supervision Information</h5>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="SupportingDentist" class="form-label"></label>
+                                <input asp-for="SupportingDentist" class="form-control" placeholder="Dr. Name" />
+                                <span asp-validation-for="SupportingDentist" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="SupportingDentistContactNumber" class="form-label"></label>
+                                <input asp-for="SupportingDentistContactNumber" class="form-control" />
+                                <span asp-validation-for="SupportingDentistContactNumber" class="text-danger"></span>
+                            </div>
+                        </div>
+                        
+                        <!-- Submit Button -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <hr>
+                                <button type="submit" class="btn btn-primary btn-lg me-3">Save Details</button>
+                                @if (Model.IsCompleted)
+                                {
+                                    <span class="badge bg-success fs-6">✓ Profile Complete</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning fs-6">⚠ Profile Incomplete</span>
+                                }
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

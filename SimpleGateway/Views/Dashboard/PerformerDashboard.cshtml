@@ -1,0 +1,206 @@
+@{
+    ViewBag.Title = "Performer Dashboard";
+}
+
+@{
+    Layout = "_Layout";
+}
+
+<div class="row">
+    <div class="col-3">
+        <ul class="list-group">
+            <li class="list-group-item @(ViewBag.ActiveSection == "PerformerDetails" ? "active" : "")">
+                <a href="/Dashboard/PerformerDetails?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "PerformerDetails" ? "color: white;" : "")">Performer Details</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "PreviousExperience" ? "active" : "")">
+                <a href="/Dashboard/PreviousExperience?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "PreviousExperience" ? "color: white;" : "")">Previous Experience</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "Uploads" ? "active" : "")">
+                <a href="/Dashboard/Uploads?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "Uploads" ? "color: white;" : "")">Uploads</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "StructuredConversation" ? "active" : "")">
+                <a href="/Dashboard/StructuredConversation?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "StructuredConversation" ? "color: white;" : "")">Structured Conversation</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "AgreementTerms" ? "active" : "")">
+                <a href="/Dashboard/AgreementTerms?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "AgreementTerms" ? "color: white;" : "")">Agreement Terms</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "WorkBasedAssessments" ? "active" : "")">
+                <a href="/Dashboard/WorkBasedAssessments?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "WorkBasedAssessments" ? "color: white;" : "")">Work Based Assessments</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "CPD" ? "active" : "")">
+                <a href="/Dashboard/CPD?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "CPD" ? "color: white;" : "")">CPD</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "MSF" ? "active" : "")">
+                <a href="/Dashboard/MSF?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "MSF" ? "color: white;" : "")">MSF</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "PSQ" ? "active" : "")">
+                <a href="/Dashboard/PSQ?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "PSQ" ? "color: white;" : "")">PSQ</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "ClinicalNoteAudit" ? "active" : "")">
+                <a href="/Dashboard/ClinicalNoteAudit?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "ClinicalNoteAudit" ? "color: white;" : "")">Clinical Note Audit</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "HelpGuidance" ? "active" : "")">
+                <a href="/Dashboard/HelpGuidance?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "HelpGuidance" ? "color: white;" : "")">Help & Guidance</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "FinalSignOff" ? "active" : "")">
+                <a href="/Dashboard/FinalSignOff?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "FinalSignOff" ? "color: white;" : "")">Final Sign off</a>
+            </li>
+            @if (ViewBag.IsOwnDashboard == true)
+            {
+                <li class="list-group-item"><a href="/Account/Logout">Logout</a></li>
+            }
+            else
+            {
+                <li class="list-group-item"><a href="/Dashboard/Index">Back to List</a></li>
+            }
+        </ul>
+    </div>
+    <div class="col-9">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2>@(ViewBag.PerformerUsername ?? "Performer") Dashboard</h2>
+            @if (ViewBag.IsOwnDashboard != true)
+            {
+                <div>
+                    <span class="badge bg-info">Viewing as: @ViewBag.CurrentUserRole</span>
+                    @if (ViewBag.IsReadOnly == true)
+                    {
+                        <span class="badge bg-warning">Read Only</span>
+                    }
+                </div>
+            }
+        </div>
+        
+        @if (ViewBag.IsOwnDashboard == true)
+        {
+            <p>Welcome to your digital workbook: <b>@ViewBag.DisplayName</b></p>
+        }
+        else
+        {
+            <p>Viewing workbook for: <b>@ViewBag.PerformerUsername</b> | Your role: <b>@ViewBag.CurrentUserRole</b></p>
+        }
+        <hr />
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between">
+                        <h5>Personal Details Form</h5>
+                        @if (ViewBag.CanEdit == true)
+                        {
+                            <button class="btn btn-sm btn-primary">Edit</button>
+                        }
+                        @if (ViewBag.CanComment == true)
+                        {
+                            <button class="btn btn-sm btn-info">Add Comment</button>
+                        }
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Status:</strong> <span class="badge bg-warning">In Progress</span></p>
+                        <p><strong>Last Updated:</strong> 2 days ago</p>
+                        @if (ViewBag.CanComment == true)
+                        {
+                            <div class="mt-2">
+                                <small class="text-muted">Supervisor Comments:</small>
+                                <div class="border p-2 mt-1">
+                                    <em>Please complete sections 3-5 by Friday.</em>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between">
+                        <h5>Clinical Experience Log</h5>
+                        @if (ViewBag.CanEdit == true)
+                        {
+                            <button class="btn btn-sm btn-success">Add Entry</button>
+                        }
+                        @if (ViewBag.CanApprove == true)
+                        {
+                            <button class="btn btn-sm btn-warning">Review</button>
+                        }
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Total Entries:</strong> 12</p>
+                        <p><strong>Pending Review:</strong> 3</p>
+                        <p><strong>Approved:</strong> 9</p>
+                        @if (ViewBag.CanApprove == true)
+                        {
+                            <div class="mt-2">
+                                <button class="btn btn-sm btn-success">Approve All</button>
+                                <button class="btn btn-sm btn-secondary">View Details</button>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between">
+                        <h5>File Uploads</h5>
+                        @if (ViewBag.CanEdit == true)
+                        {
+                            <button class="btn btn-sm btn-primary">Upload</button>
+                        }
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between">
+                                Certificate.pdf 
+                                @if (ViewBag.CanComment == true)
+                                {
+                                    <button class="btn btn-sm btn-outline-info">Comment</button>
+                                }
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                Reflection_Jan.docx
+                                @if (ViewBag.CanComment == true)
+                                {
+                                    <button class="btn btn-sm btn-outline-info">Comment</button>
+                                }
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Progress Overview</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Overall Progress:</strong> 65%</p>
+                        <div class="progress mb-2">
+                            <div class="progress-bar" style="width: 65%"></div>
+                        </div>
+                        <p><strong>Next Milestone:</strong> Mid-term Review</p>
+                        
+                        @if (ViewBag.CanApprove == true && ViewBag.CurrentUserRole == "advisor")
+                        {
+                            <div class="mt-3">
+                                <button class="btn btn-sm btn-success">Sign Off</button>
+                                <button class="btn btn-sm btn-info">Add Advisory Note</button>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        @if (ViewBag.IsReadOnly == true)
+        {
+            <div class="mt-3">
+                <div class="alert alert-info">
+                    <strong>Admin View:</strong> You are viewing this dashboard for administrative purposes only.
+                </div>
+            </div>
+        }
+    </div>
+</div>

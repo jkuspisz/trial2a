@@ -1,0 +1,62 @@
+@{
+    ViewBag.Title = "Supervisor Dashboard";
+}
+
+@{
+    Layout = "_Layout";
+}
+
+<div class="row">
+    <div class="col-3">
+        <ul class="list-group">
+            <li class="list-group-item active"><a href="#" style="color: white;">My Performers</a></li>
+            <li class="list-group-item"><a href="#">Pending Reviews</a></li>
+            <li class="list-group-item"><a href="#">Completed Forms</a></li>
+            <li class="list-group-item"><a href="/Account/Logout">Logout</a></li>
+        </ul>
+    </div>
+    <div class="col-9">
+        <h2>Supervisor Dashboard</h2>
+        <p>Logged in as: <b>@ViewBag.DisplayName</b> (Role: @ViewBag.Role)</p>
+        <hr />
+        
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">Performers Assigned to You</h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Performer Name</th>
+                                <th>Status</th>
+                                <th>Pending Items</th>
+                                <th>Last Activity</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="/Dashboard/ViewPerformer?performerUsername=performer1" class="text-primary fw-bold">John Smith</a></td>
+                                <td><span class="badge bg-success">Active</span></td>
+                                <td>2 forms pending review</td>
+                                <td>2 hours ago</td>
+                                <td>
+                                    <a href="/Dashboard/ViewPerformer?performerUsername=performer1" class="btn btn-sm btn-primary">View Dashboard</a>
+                                    <button class="btn btn-sm btn-warning">Review Items</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-3">
+            <div class="alert alert-info">
+                <strong>Note:</strong> You can only view and interact with performers assigned to you.
+            </div>
+        </div>
+    </div>
+</div>

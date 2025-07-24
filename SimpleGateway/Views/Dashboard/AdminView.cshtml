@@ -1,0 +1,232 @@
+@{
+    ViewBag.Title = "Admin Dashboard";
+}
+
+@{
+    Layout = "_Layout";
+}
+
+<div class="row">
+    <div class="col-3">
+        <ul class="list-group">
+            <li class="list-group-item active"><a href="#" style="color: white;">User Management</a></li>
+            <li class="list-group-item"><a href="#">Assignments</a></li>
+            <li class="list-group-item"><a href="#">System Reports</a></li>
+            <li class="list-group-item"><a href="#">Settings</a></li>
+            <li class="list-group-item"><a href="/Account/Logout">Logout</a></li>
+        </ul>
+    </div>
+    <div class="col-9">
+        <h2>Admin Dashboard</h2>
+        <p>Logged in as: <b>@ViewBag.DisplayName</b> (Role: @ViewBag.Role)</p>
+        <p><small class="text-muted">System Stats: 7 Total Users (3 Performers, 1 Supervisor, 1 Advisor, 2 Admins)</small></p>
+        <hr />
+        
+        <div class="row mb-3">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Add New User</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="mb-2">
+                                    <label class="form-label">Username</label>
+                                    <input type="text" class="form-control form-control-sm" placeholder="Enter username">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-2">
+                                    <label class="form-label">Display Name</label>
+                                    <input type="text" class="form-control form-control-sm" placeholder="Enter display name">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="mb-2">
+                                    <label class="form-label">Role</label>
+                                    <select class="form-select form-select-sm">
+                                        <option value="">Select role...</option>
+                                        <option value="performer">Performer</option>
+                                        <option value="supervisor">Supervisor</option>
+                                        <option value="advisor">Advisor</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="mb-2">
+                                    <label class="form-label">Password</label>
+                                    <input type="password" class="form-control form-control-sm" placeholder="Enter password">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="mb-2">
+                                    <label class="form-label">&nbsp;</label>
+                                    <button type="submit" class="btn btn-success btn-sm d-block w-100">Add User</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">User Management & Assignments</h4>
+                <div class="d-flex gap-2">
+                    <input type="text" id="userSearch" class="form-control form-control-sm" style="width: 300px;" placeholder="Search users by name, username, or role...">
+                    <select id="roleFilter" class="form-select form-select-sm" style="width: 150px;">
+                        <option value="">All Roles</option>
+                        <option value="performer">Performers</option>
+                        <option value="supervisor">Supervisors</option>
+                        <option value="advisor">Advisors</option>
+                        <option value="admin">Admins</option>
+                    </select>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="userTable" class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Role</th>
+                                <th>Assigned To/Has Assigned</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="/Dashboard/ViewPerformer?performerUsername=performer1" class="text-primary fw-bold">John Smith</a></td>
+                                <td><span class="badge bg-primary">Performer</span></td>
+                                <td>
+                                    Supervised by: 
+                                    <select class="form-select form-select-sm d-inline-block" style="width: auto;">
+                                        <option value="">Select Supervisor...</option>
+                                        <option value="supervisor" selected>Dr. Emma Thompson</option>
+                                        <option value="supervisor2">Ms. Rachel Davis</option>
+                                    </select>
+                                    <br>Advised by: 
+                                    <select class="form-select form-select-sm d-inline-block" style="width: auto;">
+                                        <option value="">Select Advisor...</option>
+                                        <option value="advisor" selected>Mr. David Brown</option>
+                                    </select>
+                                </td>
+                                <td><span class="badge bg-success">Active</span></td>
+                                <td>
+                                    <a href="/Dashboard/ViewPerformer?performerUsername=performer1" class="btn btn-sm btn-secondary">View Dashboard</a>
+                                    <button class="btn btn-sm btn-warning">Save Assignment</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><a href="/Dashboard/ViewPerformer?performerUsername=performer2" class="text-primary fw-bold">Sarah Johnson</a></td>
+                                <td><span class="badge bg-primary">Performer</span></td>
+                                <td>
+                                    Supervised by: 
+                                    <select class="form-select form-select-sm d-inline-block" style="width: auto;">
+                                        <option value="" selected>Select Supervisor...</option>
+                                        <option value="supervisor">Dr. Emma Thompson</option>
+                                        <option value="supervisor2">Ms. Rachel Davis</option>
+                                    </select>
+                                    <br>Advised by: 
+                                    <select class="form-select form-select-sm d-inline-block" style="width: auto;">
+                                        <option value="">Select Advisor...</option>
+                                        <option value="advisor" selected>Mr. David Brown</option>
+                                    </select>
+                                </td>
+                                <td><span class="badge bg-warning">Needs Supervisor</span></td>
+                                <td>
+                                    <a href="/Dashboard/ViewPerformer?performerUsername=performer2" class="btn btn-sm btn-secondary">View Dashboard</a>
+                                    <button class="btn btn-sm btn-warning">Save Assignment</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><a href="/Dashboard/ViewPerformer?performerUsername=performer3" class="text-primary fw-bold">Mike Wilson</a></td>
+                                <td><span class="badge bg-primary">Performer</span></td>
+                                <td>
+                                    Supervised by: 
+                                    <select class="form-select form-select-sm d-inline-block" style="width: auto;">
+                                        <option value="" selected>Select Supervisor...</option>
+                                        <option value="supervisor">Dr. Emma Thompson</option>
+                                        <option value="supervisor2">Ms. Rachel Davis</option>
+                                    </select>
+                                    <br>Advised by: 
+                                    <select class="form-select form-select-sm d-inline-block" style="width: auto;">
+                                        <option value="">Select Advisor...</option>
+                                        <option value="advisor" selected>Mr. David Brown</option>
+                                    </select>
+                                </td>
+                                <td><span class="badge bg-warning">Needs Supervisor</span></td>
+                                <td>
+                                    <a href="/Dashboard/ViewPerformer?performerUsername=performer3" class="btn btn-sm btn-secondary">View Dashboard</a>
+                                    <button class="btn btn-sm btn-warning">Save Assignment</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Dr. Emma Thompson</td>
+                                <td><span class="badge bg-info">Supervisor</span></td>
+                                <td>Supervises: John Smith</td>
+                                <td><span class="badge bg-success">Active</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-secondary">View Assignments</button>
+                                    <button class="btn btn-sm btn-warning">Edit</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Mr. David Brown</td>
+                                <td><span class="badge bg-warning">Advisor</span></td>
+                                <td>Advises: 3 performers</td>
+                                <td><span class="badge bg-success">Active</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-secondary">View Assignments</button>
+                                    <button class="btn btn-sm btn-warning">Edit</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-3">
+            <div class="alert alert-warning">
+                <strong>Admin Note:</strong> You can add users and manage assignments but cannot complete workflows or add clinical notes.
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('userSearch');
+    const roleFilter = document.getElementById('roleFilter');
+    const table = document.getElementById('userTable');
+    const tbody = table.querySelector('tbody');
+
+    function filterTable() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const selectedRole = roleFilter.value.toLowerCase();
+        const rows = tbody.querySelectorAll('tr');
+
+        rows.forEach(row => {
+            const userCell = row.cells[0].textContent.toLowerCase();
+            const roleCell = row.cells[1].textContent.toLowerCase();
+            
+            const matchesSearch = userCell.includes(searchTerm) || 
+                                row.cells[0].querySelector('a')?.getAttribute('href')?.toLowerCase().includes(searchTerm);
+            const matchesRole = selectedRole === '' || roleCell.includes(selectedRole);
+
+            if (matchesSearch && matchesRole) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    searchInput.addEventListener('input', filterTable);
+    roleFilter.addEventListener('change', filterTable);
+});
+</script>

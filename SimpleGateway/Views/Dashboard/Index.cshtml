@@ -1,0 +1,25 @@
+@{
+    ViewBag.Title = "Dashboard";
+}
+
+@{
+    Layout = "_Layout";
+}
+
+<div class="row">
+    <div class="col-3">
+        <ul class="list-group">
+            <li class="list-group-item"><a href="#">Performer Details</a></li>
+            <li class="list-group-item"><a href="#">Clinical Experience Log</a></li>
+            <li class="list-group-item"><a href="#">Uploads</a></li>
+            <li class="list-group-item"><a href="#">Help & Guidance</a></li>
+            <li class="list-group-item"><a href="/Account/Logout">Logout</a></li>
+        </ul>
+    </div>
+    <div class="col-9">
+        <h2>Welcome to the performer gateway</h2>
+        <p>Logged in as: <b>@ViewBag.DisplayName</b></p>
+        <hr />
+        <p>This is your dashboard. Add more pages and features as you grow!</p>
+    </div>
+</div>
