@@ -5,19 +5,15 @@ namespace SimpleGateway.Controllers
 {
     public class DashboardController : Controller
     {
+        private readonly ApplicationDbContext _context;
+
+        public DashboardController(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+
         // Static storage for performer details (in production, this would be a database)
         private static Dictionary<string, PerformerDetailsModel> performerDetailsStore = new();
-        
-        // Static storage for user data (in production, this would be a database)
-        private static Dictionary<string, UserModel> userStore = new()
-        {
-            {"performer1", new UserModel { Username = "performer1", Password = "password123", Role = "performer", FirstName = "John", LastName = "Smith" }},
-            {"performer2", new UserModel { Username = "performer2", Password = "password123", Role = "performer", FirstName = "Jane", LastName = "Johnson" }},
-            {"performer3", new UserModel { Username = "performer3", Password = "password123", Role = "performer", FirstName = "Mike", LastName = "Wilson" }},
-            {"advisor1", new UserModel { Username = "advisor1", Password = "password123", Role = "advisor", FirstName = "Dr. Sarah", LastName = "Davis" }},
-            {"supervisor1", new UserModel { Username = "supervisor1", Password = "password123", Role = "supervisor", FirstName = "Prof. Robert", LastName = "Brown" }},
-            {"admin1", new UserModel { Username = "admin1", Password = "password123", Role = "admin", FirstName = "Admin", LastName = "User" }}
-        };
 
         public IActionResult Index()
         {
@@ -40,7 +36,7 @@ namespace SimpleGateway.Controllers
             else
             {
                 // Show list of performers for advisors, supervisors, and admins
-                ViewBag.Users = userStore.Values.Where(u => u.Role == "performer").ToList();
+                ViewBag.Users = _context.Users.Where(u => u.Role == "performer").ToList();
                 return View();
             }
         }
@@ -73,9 +69,10 @@ namespace SimpleGateway.Controllers
             ViewBag.ActiveSection = "PerformerDetails";
 
             // Get performer's name for display
-            if (userStore.ContainsKey(performerUsername))
+            var performer = _context.Users.FirstOrDefault(u => u.Username == performerUsername);
+            if (performer != null)
             {
-                ViewBag.PerformerName = $"{userStore[performerUsername].FirstName} {userStore[performerUsername].LastName}";
+                ViewBag.PerformerName = $"{performer.FirstName} {performer.LastName}";
             }
 
             // Get or create performer details
@@ -112,9 +109,10 @@ namespace SimpleGateway.Controllers
             ViewBag.IsOwnDashboard = (currentUser == model.Username);
             ViewBag.ActiveSection = "PerformerDetails";
             
-            if (userStore.ContainsKey(model.Username))
+            var performer2 = _context.Users.FirstOrDefault(u => u.Username == model.Username);
+            if (performer2 != null)
             {
-                ViewBag.PerformerName = $"{userStore[model.Username].FirstName} {userStore[model.Username].LastName}";
+                ViewBag.PerformerName = $"{performer2.FirstName} {performer2.LastName}";
             }
             
             return View("Performer/PerformerDetails", model);
@@ -229,9 +227,10 @@ namespace SimpleGateway.Controllers
             ViewBag.ActiveSection = sectionName;
 
             // Get performer's name for display
-            if (userStore.ContainsKey(performerUsername))
+            var performer3 = _context.Users.FirstOrDefault(u => u.Username == performerUsername);
+            if (performer3 != null)
             {
-                ViewBag.PerformerName = $"{userStore[performerUsername].FirstName} {userStore[performerUsername].LastName}";
+                ViewBag.PerformerName = $"{performer3.FirstName} {performer3.LastName}";
             }
 
             return View($"Performer/{sectionName}");
