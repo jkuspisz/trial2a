@@ -1,0 +1,44 @@
+# Build results
+bin/
+obj/
+publish/
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build artifacts
+*.dll
+*.exe
+*.pdb
+*.cache
+
+# SQLite database files
+*.db
+*.db-shm
+*.db-wal
+
+# Deployment packages
+*.zip
+*.7z
+
+# Visual Studio cache files
+.vs/
+
+# Runtime files
+runtimes/
+
+# Logs
+*.log
+
+# PowerShell scripts (deployment specific)
+deploy-*.ps1
+*.ps1
+
+# Markdown files that are deployment specific
+*-deploy*.md
+ftp-deploy.md
+visual-studio-deploy.md
