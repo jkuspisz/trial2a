@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SimpleGateway.Models;
 
 namespace SimpleGateway.Controllers
@@ -203,6 +204,16 @@ namespace SimpleGateway.Controllers
             ViewBag.Supervisors = _context.Users.Where(u => u.Role == "supervisor").ToList();
             ViewBag.Advisors = _context.Users.Where(u => u.Role == "advisor").ToList();
 
+            // Get current assignments with related data
+            var assignments = _context.Assignments
+                .Include(a => a.Performer)
+                .Include(a => a.Supervisor)
+                .Include(a => a.Advisor)
+                .Where(a => a.IsActive)
+                .ToList();
+            
+            ViewBag.Assignments = assignments;
+
             return View();
         }
 
@@ -224,40 +235,77 @@ namespace SimpleGateway.Controllers
                     return RedirectToAction("AssignmentManagement");
                 }
 
-                // In a full implementation, you would save assignment relationships to a separate table
-                // For now, we'll just show a success message as the basic user structure exists
-                
-                var assignmentDetails = new List<string>();
-                assignmentDetails.Add($"Performer: {performer.DisplayName}");
-                
-                if (SupervisorId.HasValue)
-                {
-                    var supervisor = _context.Users.FirstOrDefault(u => u.Id == SupervisorId.Value);
-                    if (supervisor != null)
-                    {
-                        assignmentDetails.Add($"Supervisor: {supervisor.DisplayName}");
-                    }
-                }
-                
-                if (AdvisorId.HasValue)
-                {
-                    var advisor = _context.Users.FirstOrDefault(u => u.Id == AdvisorId.Value);
-                    if (advisor != null)
-                    {
-                        assignmentDetails.Add($"Advisor: {advisor.DisplayName}");
-                    }
-                }
+                // Check if performer already has an active assignment
+                var existingAssignment = _context.Assignments
+                    .FirstOrDefault(a => a.PerformerId == PerformerId && a.IsActive);
 
-                if (!string.IsNullOrEmpty(Notes))
+                if (existingAssignment != null)
                 {
-                    assignmentDetails.Add($"Notes: {Notes}");
+                    // Update existing assignment
+                    existingAssignment.SupervisorId = SupervisorId;
+                    existingAssignment.AdvisorId = AdvisorId;
+                    existingAssignment.Notes = Notes;
+                    existingAssignment.ModifiedDate = DateTime.UtcNow;
+                    
+                    _context.SaveChanges();
+                    TempData["SuccessMessage"] = $"Assignment updated for {performer.DisplayName}";
                 }
+                else
+                {
+                    // Create new assignment
+                    var newAssignment = new AssignmentModel
+                    {
+                        PerformerId = PerformerId,
+                        SupervisorId = SupervisorId,
+                        AdvisorId = AdvisorId,
+                        Notes = Notes,
+                        CreatedDate = DateTime.UtcNow,
+                        IsActive = true
+                    };
 
-                TempData["SuccessMessage"] = $"Assignment created successfully! {string.Join(", ", assignmentDetails)}";
+                    _context.Assignments.Add(newAssignment);
+                    _context.SaveChanges();
+                    
+                    TempData["SuccessMessage"] = $"Assignment created for {performer.DisplayName}";
+                }
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = $"Error creating assignment: {ex.Message}";
+                TempData["ErrorMessage"] = $"Error managing assignment: {ex.Message}";
+            }
+
+            return RedirectToAction("AssignmentManagement");
+        }
+
+        // Delete Assignment
+        [HttpPost]
+        public IActionResult DeleteAssignment(int id)
+        {
+            if (!HasAdminAccess())
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            try
+            {
+                var assignment = _context.Assignments
+                    .Include(a => a.Performer)
+                    .FirstOrDefault(a => a.Id == id);
+
+                if (assignment != null)
+                {
+                    _context.Assignments.Remove(assignment);
+                    _context.SaveChanges();
+                    TempData["SuccessMessage"] = $"Assignment for {assignment.Performer?.DisplayName} has been removed.";
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "Assignment not found.";
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Error deleting assignment: {ex.Message}";
             }
 
             return RedirectToAction("AssignmentManagement");
