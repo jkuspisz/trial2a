@@ -17,7 +17,10 @@
                         <div class="col-md-4">
                             <h5><i class="fas fa-user-graduate text-primary"></i> Performers</h5>
                             <div class="list-group">
-                                @foreach (var performer in ViewBag.Performers)
+                                @{
+                                    var performers = ViewBag.Performers as List<SimpleGateway.Models.UserModel> ?? new List<SimpleGateway.Models.UserModel>();
+                                }
+                                @foreach (var performer in performers)
                                 {
                                     <div class="list-group-item">
                                         <div class="d-flex w-100 justify-content-between">
@@ -28,7 +31,7 @@
                                         <small class="text-muted">Role: @performer.Role</small>
                                     </div>
                                 }
-                                @if (!ViewBag.Performers.Any())
+                                @if (!performers.Any())
                                 {
                                     <div class="list-group-item text-center text-muted">
                                         <i class="fas fa-info-circle"></i> No performers found
@@ -41,7 +44,10 @@
                         <div class="col-md-4">
                             <h5><i class="fas fa-user-tie text-success"></i> Supervisors</h5>
                             <div class="list-group">
-                                @foreach (var supervisor in ViewBag.Supervisors)
+                                @{
+                                    var supervisors = ViewBag.Supervisors as List<SimpleGateway.Models.UserModel> ?? new List<SimpleGateway.Models.UserModel>();
+                                }
+                                @foreach (var supervisor in supervisors)
                                 {
                                     <div class="list-group-item">
                                         <div class="d-flex w-100 justify-content-between">
@@ -52,7 +58,7 @@
                                         <small class="text-muted">Role: @supervisor.Role</small>
                                     </div>
                                 }
-                                @if (!ViewBag.Supervisors.Any())
+                                @if (!supervisors.Any())
                                 {
                                     <div class="list-group-item text-center text-muted">
                                         <i class="fas fa-info-circle"></i> No supervisors found
@@ -65,7 +71,10 @@
                         <div class="col-md-4">
                             <h5><i class="fas fa-user-md text-info"></i> Advisors</h5>
                             <div class="list-group">
-                                @foreach (var advisor in ViewBag.Advisors)
+                                @{
+                                    var advisors = ViewBag.Advisors as List<SimpleGateway.Models.UserModel> ?? new List<SimpleGateway.Models.UserModel>();
+                                }
+                                @foreach (var advisor in advisors)
                                 {
                                     <div class="list-group-item">
                                         <div class="d-flex w-100 justify-content-between">
@@ -76,7 +85,7 @@
                                         <small class="text-muted">Role: @advisor.Role</small>
                                     </div>
                                 }
-                                @if (!ViewBag.Advisors.Any())
+                                @if (!advisors.Any())
                                 {
                                     <div class="list-group-item text-center text-muted">
                                         <i class="fas fa-info-circle"></i> No advisors found
@@ -103,7 +112,7 @@
                                                     </label>
                                                     <select name="PerformerId" class="form-control" required>
                                                         <option value="">Choose performer...</option>
-                                                        @foreach (var performer in ViewBag.Performers)
+                                                        @foreach (var performer in performers)
                                                         {
                                                             <option value="@performer.Id">@performer.DisplayName (@performer.Username)</option>
                                                         }
@@ -117,7 +126,7 @@
                                                     </label>
                                                     <select name="SupervisorId" class="form-control">
                                                         <option value="">Choose supervisor (optional)...</option>
-                                                        @foreach (var supervisor in ViewBag.Supervisors)
+                                                        @foreach (var supervisor in supervisors)
                                                         {
                                                             <option value="@supervisor.Id">@supervisor.DisplayName (@supervisor.Username)</option>
                                                         }
@@ -131,7 +140,7 @@
                                                     </label>
                                                     <select name="AdvisorId" class="form-control">
                                                         <option value="">Choose advisor (optional)...</option>
-                                                        @foreach (var advisor in ViewBag.Advisors)
+                                                        @foreach (var advisor in advisors)
                                                         {
                                                             <option value="@advisor.Id">@advisor.DisplayName (@advisor.Username)</option>
                                                         }
@@ -186,7 +195,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach (var performer in ViewBag.Performers)
+                                        @foreach (var performer in performers)
                                         {
                                             <tr>
                                                 <td>
@@ -204,7 +213,7 @@
                                                 </td>
                                             </tr>
                                         }
-                                        @if (!ViewBag.Performers.Any())
+                                        @if (!performers.Any())
                                         {
                                             <tr>
                                                 <td colspan="4" class="text-center text-muted">

@@ -1,0 +1,181 @@
+@model SimpleGateway.Models.UserModel
+
+@{
+    ViewBag.Title = "Edit User";
+    Layout = "_Layout";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h4><i class="fas fa-user-edit"></i> Edit User: @Model.Username</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" asp-action="EditUser">
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="CreatedDate" />
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Username" class="form-label">
+                                        <i class="fas fa-user"></i> Username *
+                                    </label>
+                                    <input asp-for="Username" class="form-control" placeholder="Enter username" required />
+                                    <span asp-validation-for="Username" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Password" class="form-label">
+                                        <i class="fas fa-lock"></i> Password *
+                                    </label>
+                                    <input asp-for="Password" type="password" class="form-control" placeholder="Enter password" required />
+                                    <small class="form-text text-muted">Leave unchanged to keep current password</small>
+                                    <span asp-validation-for="Password" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="FirstName" class="form-label">
+                                        <i class="fas fa-id-card"></i> First Name *
+                                    </label>
+                                    <input asp-for="FirstName" class="form-control" placeholder="Enter first name" required />
+                                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="LastName" class="form-label">
+                                        <i class="fas fa-id-card"></i> Last Name *
+                                    </label>
+                                    <input asp-for="LastName" class="form-control" placeholder="Enter last name" required />
+                                    <span asp-validation-for="LastName" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Email" class="form-label">
+                                        <i class="fas fa-envelope"></i> Email
+                                    </label>
+                                    <input asp-for="Email" type="email" class="form-control" placeholder="Enter email address" />
+                                    <span asp-validation-for="Email" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Role" class="form-label">
+                                        <i class="fas fa-user-tag"></i> Role *
+                                    </label>
+                                    <select asp-for="Role" class="form-control" required>
+                                        <option value="">Select role...</option>
+                                        <option value="performer">Performer</option>
+                                        <option value="supervisor">Supervisor</option>
+                                        <option value="advisor">Advisor</option>
+                                        @if (ViewBag.CurrentRole == "superuser")
+                                        {
+                                            <option value="admin">Admin</option>
+                                            <option value="superuser">Super User</option>
+                                        }
+                                    </select>
+                                    <span asp-validation-for="Role" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="DisplayName" class="form-label">
+                                <i class="fas fa-signature"></i> Display Name
+                            </label>
+                            <input asp-for="DisplayName" class="form-control" placeholder="Display name (optional)" />
+                            <small class="form-text text-muted">If left empty, will be auto-generated from first and last name.</small>
+                            <span asp-validation-for="DisplayName" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                            <label asp-for="IsActive" class="form-check-label">
+                                <i class="fas fa-toggle-on text-success"></i> Account Active
+                            </label>
+                        </div>
+
+                        <div class="form-group d-flex justify-content-between">
+                            <a href="@Url.Action("UserManagement", "Admin")" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Back to User Management
+                            </a>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fas fa-save"></i> Update User
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            @if (ViewData.ModelState.ErrorCount > 0)
+            {
+                <div class="alert alert-danger mt-3">
+                    <h6><i class="fas fa-exclamation-triangle"></i> Please fix the following errors:</h6>
+                    <ul class="mb-0">
+                        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                        {
+                            <li>@error.ErrorMessage</li>
+                        }
+                    </ul>
+                </div>
+            }
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success mt-3">
+                    <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+                </div>
+            }
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger mt-3">
+                    <i class="fas fa-times-circle"></i> @TempData["ErrorMessage"]
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5><i class="fas fa-info-circle"></i> User Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>User ID:</strong> @Model.Id</p>
+                        <p><strong>Current Role:</strong> <span class="badge bg-primary">@Model.Role</span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Created:</strong> @Model.CreatedDate.ToString("dd/MM/yyyy HH:mm")</p>
+                        <p><strong>Status:</strong> 
+                            @if (Model.IsActive)
+                            {
+                                <span class="badge bg-success">Active</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">Inactive</span>
+                            }
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
