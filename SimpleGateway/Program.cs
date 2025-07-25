@@ -40,9 +40,19 @@ try
         // Debug: Check what users actually exist in the database
         var existingUsers = context.Users.ToList();
         Console.WriteLine($"Database has {existingUsers.Count} users:");
-        foreach (var user in existingUsers)
+        var seedUsers = existingUsers.Where(u => u.CreatedDate.Year == 2024 && u.CreatedDate.Month == 1 && u.CreatedDate.Day == 1).ToList();
+        var newUsers = existingUsers.Where(u => !(u.CreatedDate.Year == 2024 && u.CreatedDate.Month == 1 && u.CreatedDate.Day == 1)).ToList();
+        
+        Console.WriteLine($"Seed users ({seedUsers.Count}):");
+        foreach (var user in seedUsers)
         {
-            Console.WriteLine($"- {user.Username} ({user.Role})");
+            Console.WriteLine($"- {user.Username} ({user.Role}) - Created: {user.CreatedDate}");
+        }
+        
+        Console.WriteLine($"User-created users ({newUsers.Count}):");
+        foreach (var user in newUsers)
+        {
+            Console.WriteLine($"- {user.Username} ({user.Role}) - Created: {user.CreatedDate}");
         }
         
         // Add missing users if they don't exist
