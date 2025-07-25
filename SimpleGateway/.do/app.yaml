@@ -1,0 +1,17 @@
+name: healthcare-gateway
+services:
+- name: web
+  source_dir: /
+  github:
+    repo: jkuspisz/trial2a
+    branch: main
+  run_command: dotnet SimpleGateway.dll
+  environment_slug: dotnet-core
+  instance_count: 1
+  instance_size_slug: basic-xxs
+  http_port: 8080
+  env:
+  - key: ASPNETCORE_ENVIRONMENT
+    value: Production
+  - key: ASPNETCORE_URLS
+    value: http://+:8080

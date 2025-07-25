@@ -1,0 +1,1 @@
+web: dotnet SimpleGateway.dll --server.urls http://+:$PORT

@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: healthcare-gateway
+    env: dotnet
+    plan: free
+    buildCommand: dotnet publish --configuration Release --output ./publish
+    startCommand: dotnet ./publish/SimpleGateway.dll
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ASPNETCORE_URLS  
+        value: http://+:10000
