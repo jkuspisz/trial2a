@@ -35,17 +35,58 @@ try
     using (var scope = app.Services.CreateScope())
     {
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        
-        // For Railway deployment - recreate database with fresh seed data
-        context.Database.EnsureDeleted();
         context.Database.EnsureCreated();
         
-        Console.WriteLine("Database recreated with fresh seed data successfully");
+        // Debug: Check what users actually exist in the database
+        var existingUsers = context.Users.ToList();
+        Console.WriteLine($"Database has {existingUsers.Count} users:");
+        foreach (var user in existingUsers)
+        {
+            Console.WriteLine($"- {user.Username} ({user.Role})");
+        }
+        
+        // Add missing users if they don't exist
+        var usersToAdd = new[]
+        {
+            new { Username = "admin1", Role = "admin", FirstName = "Admin", LastName = "User", DisplayName = "Admin User", Email = "admin@example.com" },
+            new { Username = "superuser", Role = "superuser", FirstName = "Super", LastName = "User", DisplayName = "Super User", Email = "superuser@example.com" }
+        };
+        
+        bool addedUsers = false;
+        foreach (var userTemplate in usersToAdd)
+        {
+            if (!context.Users.Any(u => u.Username == userTemplate.Username))
+            {
+                context.Users.Add(new UserModel
+                {
+                    Username = userTemplate.Username,
+                    Password = "password123",
+                    Role = userTemplate.Role,
+                    FirstName = userTemplate.FirstName,
+                    LastName = userTemplate.LastName,
+                    DisplayName = userTemplate.DisplayName,
+                    Email = userTemplate.Email,
+                    CreatedDate = DateTime.UtcNow,
+                    IsActive = true
+                });
+                addedUsers = true;
+                Console.WriteLine($"Added missing user: {userTemplate.Username}");
+            }
+        }
+        
+        if (addedUsers)
+        {
+            context.SaveChanges();
+            Console.WriteLine("Missing users added successfully");
+        }
+        
+        Console.WriteLine("Database initialization completed");
     }
 }
 catch (Exception ex)
 {
     Console.WriteLine($"Database initialization failed: {ex.Message}");
+    Console.WriteLine($"Stack trace: {ex.StackTrace}");
     // Don't crash the app, continue without database
 }
 
