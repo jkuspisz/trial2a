@@ -1,0 +1,198 @@
+@{
+    ViewBag.Title = "Admin Dashboard";
+    Layout = "_Layout";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1>
+                @if (ViewBag.CurrentRole == "superuser")
+                {
+                    <i class="fas fa-crown text-warning"></i> <span>Super User Dashboard</span>
+                }
+                else
+                {
+                    <i class="fas fa-shield-alt text-primary"></i> <span>Admin Dashboard</span>
+                }
+            </h1>
+            <p class="lead">Welcome, <strong>@ViewBag.CurrentUser</strong> - Complete system management</p>
+            <hr />
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-4">
+                            <i class="fas fa-users fa-3x"></i>
+                        </div>
+                        <div class="col-8 text-right">
+                            <div class="huge">@ViewBag.TotalUsers</div>
+                            <div>Total Users</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-4">
+                            <i class="fas fa-user-graduate fa-3x"></i>
+                        </div>
+                        <div class="col-8 text-right">
+                            <div class="huge">@ViewBag.TotalPerformers</div>
+                            <div>Performers</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-4">
+                            <i class="fas fa-user-tie fa-3x"></i>
+                        </div>
+                        <div class="col-8 text-right">
+                            <div class="huge">@ViewBag.TotalSupervisors</div>
+                            <div>Supervisors</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-4">
+                            <i class="fas fa-user-md fa-3x"></i>
+                        </div>
+                        <div class="col-8 text-right">
+                            <div class="huge">@ViewBag.TotalAdvisors</div>
+                            <div>Advisors</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Management Functions -->
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5><i class="fas fa-users-cog"></i> User Management</h5>
+                </div>
+                <div class="card-body">
+                    <p>Create, edit, and manage all system users including performers, supervisors, and advisors.</p>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check text-success"></i> Create new users</li>
+                        <li><i class="fas fa-check text-success"></i> Edit user details</li>
+                        <li><i class="fas fa-check text-success"></i> Activate/deactivate accounts</li>
+                        <li><i class="fas fa-check text-success"></i> Delete users</li>
+                    </ul>
+                </div>
+                <div class="card-footer">
+                    <a href="@Url.Action("UserManagement", "Admin")" class="btn btn-primary btn-block">
+                        <i class="fas fa-users"></i> Manage Users
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header bg-success text-white">
+                    <h5><i class="fas fa-user-plus"></i> Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <p>Quickly perform common administrative tasks.</p>
+                    <div class="d-grid gap-2">
+                        <a href="@Url.Action("CreateUser", "Admin")" class="btn btn-success">
+                            <i class="fas fa-plus"></i> Create New User
+                        </a>
+                        <a href="@Url.Action("AssignmentManagement", "Admin")" class="btn btn-warning">
+                            <i class="fas fa-link"></i> Manage Assignments
+                        </a>
+                        <a href="@Url.Action("Index", "Dashboard")" class="btn btn-info">
+                            <i class="fas fa-list"></i> View All Performers
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header bg-info text-white">
+                    <h5><i class="fas fa-chart-bar"></i> System Overview</h5>
+                </div>
+                <div class="card-body">
+                    <p>Monitor system activity and user engagement.</p>
+                    <ul class="list-unstyled">
+                        <li><strong>Active Users:</strong> @ViewBag.TotalUsers</li>
+                        <li><strong>System Status:</strong> <span class="text-success">Online</span></li>
+                        <li><strong>Last Updated:</strong> @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</li>
+                    </ul>
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted">
+                        @if (ViewBag.CurrentRole == "superuser")
+                        {
+                            <span>Full system access granted</span>
+                        }
+                        else
+                        {
+                            <span>Administrative access level</span>
+                        }
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>System Navigation</h5>
+                </div>
+                <div class="card-body">
+                    <div class="btn-group-vertical w-100" role="group">
+                        <a href="@Url.Action("UserManagement", "Admin")" class="btn btn-outline-primary mb-2">
+                            <i class="fas fa-users"></i> Complete User Management
+                        </a>
+                        <a href="@Url.Action("AssignmentManagement", "Admin")" class="btn btn-outline-success mb-2">
+                            <i class="fas fa-link"></i> Supervisor/Advisor Assignments
+                        </a>
+                        <a href="@Url.Action("Index", "Dashboard")" class="btn btn-outline-info mb-2">
+                            <i class="fas fa-dashboard"></i> Standard Dashboard View
+                        </a>
+                        <a href="/Account/Logout" class="btn btn-outline-danger">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.huge {
+    font-size: 40px;
+}
+
+.card {
+    margin-bottom: 20px;
+}
+</style>

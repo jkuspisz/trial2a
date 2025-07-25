@@ -33,9 +33,14 @@ namespace SimpleGateway.Controllers
                 // Redirect performers to their own dashboard
                 return RedirectToAction("PerformerDetails", new { performerUsername = currentUser });
             }
+            else if (currentRole == "admin" || currentRole == "superuser")
+            {
+                // Redirect admin/superuser to dedicated admin dashboard
+                return RedirectToAction("Dashboard", "Admin");
+            }
             else
             {
-                // Show list of performers for advisors, supervisors, and admins
+                // Show list of performers for advisors and supervisors
                 ViewBag.Users = _context.Users.Where(u => u.Role == "performer").ToList();
                 return View();
             }
