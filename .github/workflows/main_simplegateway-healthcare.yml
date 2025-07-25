@@ -22,11 +22,11 @@ jobs:
           dotnet-version: '9.x'
 
       - name: Build with dotnet
-        run: dotnet build --configuration Release
+        run: dotnet build SimpleGateway.csproj --configuration Release
         working-directory: ./SimpleGateway
 
       - name: dotnet publish
-        run: dotnet publish -c Release -o "${{env.DOTNET_ROOT}}/myapp"
+        run: dotnet publish SimpleGateway.csproj -c Release -o "${{env.DOTNET_ROOT}}/myapp"
         working-directory: ./SimpleGateway
 
       - name: Upload artifact for deployment job
