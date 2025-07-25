@@ -117,11 +117,16 @@ namespace SimpleGateway.Controllers
             var model = _context.PerformerDetails.FirstOrDefault(p => p.Username == performerUsername);
             if (model == null)
             {
+                Console.WriteLine($"DASHBOARD DEBUG: No existing details found for {performerUsername}, creating new");
                 // Create new performer details if not exists
                 model = new PerformerDetailsModel
                 {
                     Username = performerUsername
                 };
+            }
+            else
+            {
+                Console.WriteLine($"DASHBOARD DEBUG: Found existing details for {performerUsername} - FirstName: {model.FirstName}, LastName: {model.LastName}");
             }
 
             return View("Performer/PerformerDetails", model);
@@ -144,6 +149,7 @@ namespace SimpleGateway.Controllers
                 
                 if (existingDetails != null)
                 {
+                    Console.WriteLine($"DASHBOARD DEBUG: Updating existing performer details for {model.Username}");
                     // Update existing record
                     existingDetails.FirstName = model.FirstName;
                     existingDetails.LastName = model.LastName;
@@ -163,11 +169,13 @@ namespace SimpleGateway.Controllers
                 }
                 else
                 {
+                    Console.WriteLine($"DASHBOARD DEBUG: Creating new performer details for {model.Username}");
                     // Add new record
                     _context.PerformerDetails.Add(model);
                 }
                 
-                _context.SaveChanges();
+                var savedRows = _context.SaveChanges();
+                Console.WriteLine($"DASHBOARD DEBUG: SaveChanges() affected {savedRows} rows for {model.Username}");
                 TempData["SuccessMessage"] = "Details saved successfully!";
                 return RedirectToAction("PerformerDetails", new { performerUsername = model.Username });
             }
