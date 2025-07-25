@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SimpleGateway.Models;
 
 namespace SimpleGateway.Controllers
@@ -41,7 +42,42 @@ namespace SimpleGateway.Controllers
             else
             {
                 // Show list of performers for advisors and supervisors
-                ViewBag.Users = _context.Users.Where(u => u.Role == "performer").ToList();
+                List<UserModel> assignedPerformers = new List<UserModel>();
+                
+                if (currentRole == "supervisor")
+                {
+                    // Supervisors can only see performers assigned to them
+                    var currentUserId = _context.Users.FirstOrDefault(u => u.Username == currentUser)?.Id;
+                    Console.WriteLine($"DEBUG: Supervisor {currentUser} has ID: {currentUserId}");
+                    
+                    if (currentUserId.HasValue)
+                    {
+                        assignedPerformers = _context.Assignments
+                            .Include(a => a.Performer)
+                            .Where(a => a.SupervisorId == currentUserId.Value && a.IsActive)
+                            .Select(a => a.Performer)
+                            .Where(p => p != null)
+                            .ToList()!;
+                        
+                        Console.WriteLine($"DEBUG: Found {assignedPerformers.Count} assigned performers for supervisor {currentUser}");
+                    }
+                }
+                else if (currentRole == "advisor")
+                {
+                    // Advisors can only see performers assigned to them
+                    var currentUserId = _context.Users.FirstOrDefault(u => u.Username == currentUser)?.Id;
+                    if (currentUserId.HasValue)
+                    {
+                        assignedPerformers = _context.Assignments
+                            .Include(a => a.Performer)
+                            .Where(a => a.AdvisorId == currentUserId.Value && a.IsActive)
+                            .Select(a => a.Performer)
+                            .Where(p => p != null)
+                            .ToList()!;
+                    }
+                }
+                
+                ViewBag.Users = assignedPerformers;
                 return View();
             }
         }
