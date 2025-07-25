@@ -13,9 +13,6 @@ namespace SimpleGateway.Controllers
             _context = context;
         }
 
-        // Static storage for performer details (in production, this would be a database)
-        private static Dictionary<string, PerformerDetailsModel> performerDetailsStore = new();
-
         public IActionResult Index()
         {
             var currentUser = HttpContext.Session.GetString("username");
@@ -116,11 +113,16 @@ namespace SimpleGateway.Controllers
                 ViewBag.PerformerName = $"{performer.FirstName} {performer.LastName}";
             }
 
-            // Get or create performer details
-            var model = performerDetailsStore.GetValueOrDefault(performerUsername) ?? new PerformerDetailsModel
+            // Get or create performer details from database
+            var model = _context.PerformerDetails.FirstOrDefault(p => p.Username == performerUsername);
+            if (model == null)
             {
-                Username = performerUsername
-            };
+                // Create new performer details if not exists
+                model = new PerformerDetailsModel
+                {
+                    Username = performerUsername
+                };
+            }
 
             return View("Performer/PerformerDetails", model);
         }
@@ -137,8 +139,35 @@ namespace SimpleGateway.Controllers
 
             if (ModelState.IsValid)
             {
-                // Store the model
-                performerDetailsStore[model.Username] = model;
+                // Check if performer details already exists
+                var existingDetails = _context.PerformerDetails.FirstOrDefault(p => p.Username == model.Username);
+                
+                if (existingDetails != null)
+                {
+                    // Update existing record
+                    existingDetails.FirstName = model.FirstName;
+                    existingDetails.LastName = model.LastName;
+                    existingDetails.GDCNumber = model.GDCNumber;
+                    existingDetails.Email = model.Email;
+                    existingDetails.ContactNumber = model.ContactNumber;
+                    existingDetails.SupportingDentist = model.SupportingDentist;
+                    existingDetails.SupportingDentistContactNumber = model.SupportingDentistContactNumber;
+                    existingDetails.PracticeAddress = model.PracticeAddress;
+                    existingDetails.PracticePostCode = model.PracticePostCode;
+                    existingDetails.UniversityCountryOfQualification = model.UniversityCountryOfQualification;
+                    existingDetails.DateOfDentalQualification = model.DateOfDentalQualification;
+                    existingDetails.DateOfUKRegistration = model.DateOfUKRegistration;
+                    existingDetails.IsCompleted = model.IsCompleted;
+                    
+                    _context.PerformerDetails.Update(existingDetails);
+                }
+                else
+                {
+                    // Add new record
+                    _context.PerformerDetails.Add(model);
+                }
+                
+                _context.SaveChanges();
                 TempData["SuccessMessage"] = "Details saved successfully!";
                 return RedirectToAction("PerformerDetails", new { performerUsername = model.Username });
             }

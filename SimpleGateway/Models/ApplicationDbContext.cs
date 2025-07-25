@@ -37,10 +37,18 @@ namespace SimpleGateway.Models
             modelBuilder.Entity<PerformerDetailsModel>(entity =>
             {
                 entity.HasKey(e => e.Id);
+                entity.HasIndex(e => e.Username).IsUnique();
+                entity.Property(e => e.Username).IsRequired().HasMaxLength(50);
                 entity.Property(e => e.FirstName).IsRequired().HasMaxLength(50);
                 entity.Property(e => e.LastName).IsRequired().HasMaxLength(50);
                 entity.Property(e => e.GDCNumber).IsRequired().HasMaxLength(20);
                 entity.Property(e => e.Email).IsRequired().HasMaxLength(255);
+                entity.Property(e => e.ContactNumber).IsRequired().HasMaxLength(20);
+                entity.Property(e => e.SupportingDentist).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.SupportingDentistContactNumber).IsRequired().HasMaxLength(20);
+                entity.Property(e => e.PracticeAddress).IsRequired().HasMaxLength(200);
+                entity.Property(e => e.PracticePostCode).IsRequired().HasMaxLength(10);
+                entity.Property(e => e.UniversityCountryOfQualification).IsRequired().HasMaxLength(100);
             });
 
             // Configure FileUploadModel
