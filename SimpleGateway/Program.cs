@@ -7,6 +7,10 @@ var builder = WebApplication.CreateBuilder(args);
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
+// Add logging
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddSession();
@@ -17,19 +21,40 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 var app = builder.Build();
 
-// Ensure database is created and seeded on startup
-using (var scope = app.Services.CreateScope())
+// Add error handling
+if (!app.Environment.IsDevelopment())
 {
-    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    context.Database.EnsureCreated();
+    app.UseExceptionHandler("/Home/Error");
+}
+
+Console.WriteLine($"Starting application on port {port}");
+
+// Ensure database is created and seeded on startup
+try
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        context.Database.EnsureCreated();
+        Console.WriteLine("Database created successfully");
+    }
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Database initialization failed: {ex.Message}");
+    // Don't crash the app, continue without database
 }
 
 app.UseStaticFiles();
 app.UseRouting();
 app.UseSession();
 
+// Add health check endpoint for Railway
+app.MapGet("/health", () => "OK");
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Account}/{action=Login}/{id?}");
 
+Console.WriteLine("Application configured, starting server...");
 app.Run();
