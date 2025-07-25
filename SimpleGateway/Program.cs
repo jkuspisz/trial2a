@@ -35,44 +35,12 @@ try
     using (var scope = app.Services.CreateScope())
     {
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        
+        // For Railway deployment - recreate database with fresh seed data
+        context.Database.EnsureDeleted();
         context.Database.EnsureCreated();
         
-        // Check if we need to add missing users (like superuser)
-        if (!context.Users.Any(u => u.Username == "superuser"))
-        {
-            context.Users.Add(new UserModel 
-            { 
-                Username = "superuser", 
-                Password = "password123", 
-                Role = "superuser", 
-                FirstName = "Super", 
-                LastName = "User", 
-                DisplayName = "Super User", 
-                Email = "superuser@example.com", 
-                CreatedDate = DateTime.UtcNow, 
-                IsActive = true 
-            });
-        }
-        
-        // Check if admin1 exists (in case it was missed)
-        if (!context.Users.Any(u => u.Username == "admin1"))
-        {
-            context.Users.Add(new UserModel 
-            { 
-                Username = "admin1", 
-                Password = "password123", 
-                Role = "admin", 
-                FirstName = "Admin", 
-                LastName = "User", 
-                DisplayName = "Admin User", 
-                Email = "admin@example.com", 
-                CreatedDate = DateTime.UtcNow, 
-                IsActive = true 
-            });
-        }
-        
-        context.SaveChanges();
-        Console.WriteLine("Database created and users verified successfully");
+        Console.WriteLine("Database recreated with fresh seed data successfully");
     }
 }
 catch (Exception ex)
