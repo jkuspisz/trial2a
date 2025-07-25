@@ -1,0 +1,238 @@
+@{
+    ViewBag.Title = "Assignment Management";
+    Layout = "_Layout";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h4><i class="fas fa-link"></i> Assignment Management</h4>
+                    <p class="mb-0">Manage supervisor and advisor assignments to performers</p>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Performers Column -->
+                        <div class="col-md-4">
+                            <h5><i class="fas fa-user-graduate text-primary"></i> Performers</h5>
+                            <div class="list-group">
+                                @foreach (var performer in ViewBag.Performers)
+                                {
+                                    <div class="list-group-item">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">@performer.DisplayName</h6>
+                                            <small>@performer.Username</small>
+                                        </div>
+                                        <p class="mb-1">@performer.Email</p>
+                                        <small class="text-muted">Role: @performer.Role</small>
+                                    </div>
+                                }
+                                @if (!ViewBag.Performers.Any())
+                                {
+                                    <div class="list-group-item text-center text-muted">
+                                        <i class="fas fa-info-circle"></i> No performers found
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Supervisors Column -->
+                        <div class="col-md-4">
+                            <h5><i class="fas fa-user-tie text-success"></i> Supervisors</h5>
+                            <div class="list-group">
+                                @foreach (var supervisor in ViewBag.Supervisors)
+                                {
+                                    <div class="list-group-item">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">@supervisor.DisplayName</h6>
+                                            <small>@supervisor.Username</small>
+                                        </div>
+                                        <p class="mb-1">@supervisor.Email</p>
+                                        <small class="text-muted">Role: @supervisor.Role</small>
+                                    </div>
+                                }
+                                @if (!ViewBag.Supervisors.Any())
+                                {
+                                    <div class="list-group-item text-center text-muted">
+                                        <i class="fas fa-info-circle"></i> No supervisors found
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Advisors Column -->
+                        <div class="col-md-4">
+                            <h5><i class="fas fa-user-md text-info"></i> Advisors</h5>
+                            <div class="list-group">
+                                @foreach (var advisor in ViewBag.Advisors)
+                                {
+                                    <div class="list-group-item">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">@advisor.DisplayName</h6>
+                                            <small>@advisor.Username</small>
+                                        </div>
+                                        <p class="mb-1">@advisor.Email</p>
+                                        <small class="text-muted">Role: @advisor.Role</small>
+                                    </div>
+                                }
+                                @if (!ViewBag.Advisors.Any())
+                                {
+                                    <div class="list-group-item text-center text-muted">
+                                        <i class="fas fa-info-circle"></i> No advisors found
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <!-- Assignment Management Form -->
+                    <div class="row">
+                        <div class="col-12">
+                            <h5><i class="fas fa-cogs"></i> Create Assignment</h5>
+                            <div class="card">
+                                <div class="card-body">
+                                    <form method="post" asp-action="CreateAssignment">
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label class="form-label">
+                                                        <i class="fas fa-user-graduate"></i> Select Performer
+                                                    </label>
+                                                    <select name="PerformerId" class="form-control" required>
+                                                        <option value="">Choose performer...</option>
+                                                        @foreach (var performer in ViewBag.Performers)
+                                                        {
+                                                            <option value="@performer.Id">@performer.DisplayName (@performer.Username)</option>
+                                                        }
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label class="form-label">
+                                                        <i class="fas fa-user-tie"></i> Select Supervisor
+                                                    </label>
+                                                    <select name="SupervisorId" class="form-control">
+                                                        <option value="">Choose supervisor (optional)...</option>
+                                                        @foreach (var supervisor in ViewBag.Supervisors)
+                                                        {
+                                                            <option value="@supervisor.Id">@supervisor.DisplayName (@supervisor.Username)</option>
+                                                        }
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label class="form-label">
+                                                        <i class="fas fa-user-md"></i> Select Advisor
+                                                    </label>
+                                                    <select name="AdvisorId" class="form-control">
+                                                        <option value="">Choose advisor (optional)...</option>
+                                                        @foreach (var advisor in ViewBag.Advisors)
+                                                        {
+                                                            <option value="@advisor.Id">@advisor.DisplayName (@advisor.Username)</option>
+                                                        }
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <div class="form-group">
+                                                    <label class="form-label">
+                                                        <i class="fas fa-sticky-note"></i> Assignment Notes
+                                                    </label>
+                                                    <textarea name="Notes" class="form-control" rows="3" placeholder="Optional notes about this assignment..."></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group d-flex justify-content-between">
+                                            <a href="@Url.Action("Dashboard", "Admin")" class="btn btn-secondary">
+                                                <i class="fas fa-arrow-left"></i> Back to Dashboard
+                                            </a>
+                                            <button type="submit" class="btn btn-warning">
+                                                <i class="fas fa-link"></i> Create Assignment
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Current Assignments Display -->
+                    <hr class="my-4">
+                    <div class="row">
+                        <div class="col-12">
+                            <h5><i class="fas fa-list"></i> Current Assignments</h5>
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i>
+                                <strong>Assignment System Status:</strong> This feature displays current user relationships.
+                                In a full implementation, assignments would be stored in a separate database table to track 
+                                supervisor-performer and advisor-performer relationships with timestamps and notes.
+                            </div>
+                            
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th><i class="fas fa-user-graduate"></i> Performer</th>
+                                            <th><i class="fas fa-user-tie"></i> Assigned Supervisor</th>
+                                            <th><i class="fas fa-user-md"></i> Assigned Advisor</th>
+                                            <th><i class="fas fa-calendar"></i> Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var performer in ViewBag.Performers)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <strong>@performer.DisplayName</strong><br>
+                                                    <small class="text-muted">@performer.Username</small>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-secondary">To be assigned</span>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-secondary">To be assigned</span>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-warning">Pending Assignment</span>
+                                                </td>
+                                            </tr>
+                                        }
+                                        @if (!ViewBag.Performers.Any())
+                                        {
+                                            <tr>
+                                                <td colspan="4" class="text-center text-muted">
+                                                    <i class="fas fa-info-circle"></i> No performers available for assignment
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success mt-3">
+                    <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+                </div>
+            }
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger mt-3">
+                    <i class="fas fa-times-circle"></i> @TempData["ErrorMessage"]
+                </div>
+            }
+        </div>
+    </div>
+</div>

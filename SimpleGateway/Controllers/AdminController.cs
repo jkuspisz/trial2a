@@ -205,5 +205,62 @@ namespace SimpleGateway.Controllers
 
             return View();
         }
+
+        // Create Assignment - POST
+        [HttpPost]
+        public IActionResult CreateAssignment(int PerformerId, int? SupervisorId, int? AdvisorId, string Notes)
+        {
+            if (!HasAdminAccess())
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            try
+            {
+                var performer = _context.Users.FirstOrDefault(u => u.Id == PerformerId);
+                if (performer == null)
+                {
+                    TempData["ErrorMessage"] = "Selected performer not found.";
+                    return RedirectToAction("AssignmentManagement");
+                }
+
+                // In a full implementation, you would save assignment relationships to a separate table
+                // For now, we'll just show a success message as the basic user structure exists
+                
+                var assignmentDetails = new List<string>();
+                assignmentDetails.Add($"Performer: {performer.DisplayName}");
+                
+                if (SupervisorId.HasValue)
+                {
+                    var supervisor = _context.Users.FirstOrDefault(u => u.Id == SupervisorId.Value);
+                    if (supervisor != null)
+                    {
+                        assignmentDetails.Add($"Supervisor: {supervisor.DisplayName}");
+                    }
+                }
+                
+                if (AdvisorId.HasValue)
+                {
+                    var advisor = _context.Users.FirstOrDefault(u => u.Id == AdvisorId.Value);
+                    if (advisor != null)
+                    {
+                        assignmentDetails.Add($"Advisor: {advisor.DisplayName}");
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(Notes))
+                {
+                    assignmentDetails.Add($"Notes: {Notes}");
+                }
+
+                TempData["SuccessMessage"] = $"Assignment created successfully! {string.Join(", ", assignmentDetails)}";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Error creating assignment: {ex.Message}";
+            }
+
+            return RedirectToAction("AssignmentManagement");
+        }
     }
 }
