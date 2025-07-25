@@ -1,25 +1,85 @@
 @{
     ViewBag.Title = "Dashboard";
-}
-
-@{
     Layout = "_Layout";
 }
 
-<div class="row">
-    <div class="col-3">
-        <ul class="list-group">
-            <li class="list-group-item"><a href="#">Performer Details</a></li>
-            <li class="list-group-item"><a href="#">Clinical Experience Log</a></li>
-            <li class="list-group-item"><a href="#">Uploads</a></li>
-            <li class="list-group-item"><a href="#">Help & Guidance</a></li>
-            <li class="list-group-item"><a href="/Account/Logout">Logout</a></li>
-        </ul>
+@if (ViewBag.CurrentRole == "performer")
+{
+    <!-- Performers shouldn't see this page - they get redirected to their own dashboard -->
+    <p>Redirecting to your dashboard...</p>
+}
+else
+{
+    <!-- Supervisors, Advisors, Admins, and Superusers see list of performers -->
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <h2>
+                    @if (ViewBag.CurrentRole == "supervisor")
+                    {
+                        <span>Performers Under Your Supervision</span>
+                    }
+                    else if (ViewBag.CurrentRole == "advisor")
+                    {
+                        <span>Performers You Can Advise</span>
+                    }
+                    else if (ViewBag.CurrentRole == "admin" || ViewBag.CurrentRole == "superuser")
+                    {
+                        <span>All Performers - Admin Management</span>
+                    }
+                </h2>
+                
+                <p>Logged in as: <strong>@ViewBag.DisplayName</strong> (@ViewBag.CurrentRole)</p>
+                
+                @if (ViewBag.CurrentRole == "admin" || ViewBag.CurrentRole == "superuser")
+                {
+                    <div class="alert alert-info">
+                        <strong>Admin Functions:</strong> You can view all performers and manage supervisor/advisor assignments.
+                    </div>
+                }
+                
+                <hr />
+                
+                <div class="row">
+                    @if (ViewBag.Users != null)
+                    {
+                        @foreach (var user in ViewBag.Users)
+                        {
+                            <div class="col-md-4 mb-3">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5>@user.DisplayName</h5>
+                                        <small class="text-muted">@user.Username</small>
+                                    </div>
+                                    <div class="card-body">
+                                        <p><strong>Email:</strong> @user.Email</p>
+                                        <p><strong>Role:</strong> @user.Role</p>
+                                        <a href="@Url.Action("PerformerDetails", new { performerUsername = user.Username })" 
+                                           class="btn btn-primary">View Dashboard</a>
+                                        
+                                        @if (ViewBag.CurrentRole == "admin" || ViewBag.CurrentRole == "superuser")
+                                        {
+                                            <a href="#" class="btn btn-secondary btn-sm">Manage Assignments</a>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="col-12">
+                            <div class="alert alert-warning">
+                                No performers found.
+                            </div>
+                        </div>
+                    }
+                </div>
+                
+                <div class="mt-4">
+                    <a href="/Account/Logout" class="btn btn-outline-danger">Logout</a>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="col-9">
-        <h2>Welcome to the performer gateway</h2>
-        <p>Logged in as: <b>@ViewBag.DisplayName</b></p>
-        <hr />
-        <p>This is your dashboard. Add more pages and features as you grow!</p>
-    </div>
-</div>
+}
