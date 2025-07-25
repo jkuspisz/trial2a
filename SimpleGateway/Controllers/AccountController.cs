@@ -5,17 +5,12 @@ namespace SimpleGateway.Controllers
 {
     public class AccountController : Controller
     {
-        // Hardcoded users
-        private static List<UserModel> demoUsers = new()
+        private readonly ApplicationDbContext _context;
+
+        public AccountController(ApplicationDbContext context)
         {
-            new UserModel { Username = "performer1", Password = "test123", DisplayName = "John Smith", Role = "performer" },
-            new UserModel { Username = "performer2", Password = "test123", DisplayName = "Sarah Johnson", Role = "performer" },
-            new UserModel { Username = "performer3", Password = "test123", DisplayName = "Mike Wilson", Role = "performer" },
-            new UserModel { Username = "superuser", Password = "test123", DisplayName = "Super User", Role = "superuser" },
-            new UserModel { Username = "admin", Password = "admin123", DisplayName = "Administrator", Role = "admin" },
-            new UserModel { Username = "supervisor", Password = "super123", DisplayName = "Dr. Emma Thompson", Role = "supervisor" },
-            new UserModel { Username = "advisor", Password = "advise123", DisplayName = "Prof. David Brown", Role = "advisor" }
-        };
+            _context = context;
+        }
 
         [HttpGet]
         public IActionResult Login()
@@ -26,7 +21,7 @@ namespace SimpleGateway.Controllers
         [HttpPost]
         public IActionResult Login(string username, string password)
         {
-            var user = demoUsers.FirstOrDefault(u => u.Username == username && u.Password == password);
+            var user = _context.Users.FirstOrDefault(u => u.Username == username && u.Password == password && u.IsActive);
             if (user != null)
             {
                 // Save username, displayName, and role in session
