@@ -36,7 +36,43 @@ try
     {
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         context.Database.EnsureCreated();
-        Console.WriteLine("Database created successfully");
+        
+        // Check if we need to add missing users (like superuser)
+        if (!context.Users.Any(u => u.Username == "superuser"))
+        {
+            context.Users.Add(new UserModel 
+            { 
+                Username = "superuser", 
+                Password = "password123", 
+                Role = "superuser", 
+                FirstName = "Super", 
+                LastName = "User", 
+                DisplayName = "Super User", 
+                Email = "superuser@example.com", 
+                CreatedDate = DateTime.UtcNow, 
+                IsActive = true 
+            });
+        }
+        
+        // Check if admin1 exists (in case it was missed)
+        if (!context.Users.Any(u => u.Username == "admin1"))
+        {
+            context.Users.Add(new UserModel 
+            { 
+                Username = "admin1", 
+                Password = "password123", 
+                Role = "admin", 
+                FirstName = "Admin", 
+                LastName = "User", 
+                DisplayName = "Admin User", 
+                Email = "admin@example.com", 
+                CreatedDate = DateTime.UtcNow, 
+                IsActive = true 
+            });
+        }
+        
+        context.SaveChanges();
+        Console.WriteLine("Database created and users verified successfully");
     }
 }
 catch (Exception ex)
