@@ -4,6 +4,8 @@ namespace SimpleGateway.Models
 {
     public class PerformerDetailsModel
     {
+        public int Id { get; set; }
+
         [Required(ErrorMessage = "First Name is required")]
         [Display(Name = "First Name")]
         public string FirstName { get; set; } = string.Empty;
