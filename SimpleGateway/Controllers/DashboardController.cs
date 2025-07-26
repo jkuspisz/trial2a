@@ -203,7 +203,49 @@ namespace SimpleGateway.Controllers
 
         public IActionResult PreviousExperienceForm(string performerUsername)
         {
-            return HandlePerformerSection(performerUsername, "PreviousExperience");
+            var currentUser = HttpContext.Session.GetString("username");
+            var currentRole = HttpContext.Session.GetString("role");
+            
+            if (string.IsNullOrEmpty(currentUser))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            // Check permissions
+            if (currentRole == "performer" && currentUser != performerUsername)
+            {
+                return RedirectToAction("Index");
+            }
+
+            // Set common ViewBag properties
+            ViewBag.PerformerUsername = performerUsername;
+            ViewBag.CurrentUserRole = currentRole;
+            ViewBag.CurrentUser = currentUser;
+            ViewBag.IsOwnDashboard = (currentUser == performerUsername);
+            ViewBag.CanEdit = (currentRole == "performer" && currentUser == performerUsername);
+            ViewBag.CanComment = (currentRole == "supervisor" || currentRole == "advisor" || currentRole == "superuser");
+            ViewBag.CanApprove = (currentRole == "supervisor" || currentRole == "advisor" || currentRole == "superuser");
+            ViewBag.IsReadOnly = (currentRole == "admin");
+            ViewBag.ActiveSection = "PreviousExperience";
+            ViewBag.IsAdvisor = (currentRole == "advisor");
+
+            // Get performer's name for display
+            var performer = _context.Users.FirstOrDefault(u => u.Username == performerUsername);
+            if (performer != null)
+            {
+                ViewBag.PerformerName = $"{performer.FirstName} {performer.LastName}";
+            }
+
+            // Initialize empty previous experience model (you can load from database later)
+            ViewBag.PreviousExperience = new PreviousExperienceModel { Username = performerUsername };
+            
+            // Initialize clinical entries as empty list for now
+            ViewBag.ClinicalEntries = new List<ClinicalExperienceEntry>();
+            
+            // Initialize procedure sections from static data
+            ViewBag.ProcedureSections = ProcedureSections.All;
+
+            return View("Performer/PreviousExperienceForm");
         }
 
         // Other section methods (simplified for brevity)
