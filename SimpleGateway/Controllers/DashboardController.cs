@@ -299,15 +299,25 @@ namespace SimpleGateway.Controllers
             }
 
             // Load existing previous experience data from database
-            var existingData = _context.PreviousExperiences.FirstOrDefault(p => p.Username == performerUsername);
-            if (existingData != null)
+            try
             {
-                ViewBag.PreviousExperience = existingData;
+                var existingData = _context.PreviousExperiences.FirstOrDefault(p => p.Username == performerUsername);
+                if (existingData != null)
+                {
+                    ViewBag.PreviousExperience = existingData;
+                }
+                else
+                {
+                    // Initialize empty previous experience model
+                    ViewBag.PreviousExperience = new PreviousExperienceModel { Username = performerUsername };
+                }
             }
-            else
+            catch (Exception ex)
             {
-                // Initialize empty previous experience model
+                // If PreviousExperiences table doesn't exist, just show empty form
+                Console.WriteLine($"PreviousExperience database error: {ex.Message}");
                 ViewBag.PreviousExperience = new PreviousExperienceModel { Username = performerUsername };
+                ViewBag.DatabaseError = "Previous Experience data is being set up. You can still fill out the form.";
             }
             
             // Load qualifications and employment history from separate tables
