@@ -304,20 +304,24 @@ namespace SimpleGateway.Controllers
 
             // Get uploaded files for this performer
             var fileUpload = _context.FileUploads
-                .Include(f => f.UploadedFiles)
-                .FirstOrDefault(f => f.Username == performerUsername);
+                .Where(f => f.Username == performerUsername)
+                .FirstOrDefault();
 
             if (fileUpload != null)
             {
-                // Separate files by category
-                ViewBag.IndemnityFiles = fileUpload.UploadedFiles
-                    .Where(f => f.Category == "IndemnityEvidence")
+                // Get file entries for this FileUpload
+                var allFiles = _context.FileUploadEntries
+                    .Where(f => f.FileUploadModelId == fileUpload.Id)
                     .OrderByDescending(f => f.UploadedAt)
                     .ToList();
+
+                // Separate files by category
+                ViewBag.IndemnityFiles = allFiles
+                    .Where(f => f.Category == "IndemnityEvidence")
+                    .ToList();
                 
-                ViewBag.AdditionalFiles = fileUpload.UploadedFiles
+                ViewBag.AdditionalFiles = allFiles
                     .Where(f => f.Category == "Additional")
-                    .OrderByDescending(f => f.UploadedAt)
                     .ToList();
             }
             else
@@ -449,7 +453,6 @@ namespace SimpleGateway.Controllers
             }
 
             var fileEntry = _context.FileUploadEntries
-                .Include(f => f.FileUploadModel)
                 .FirstOrDefault(f => f.Id == id);
 
             if (fileEntry == null)
@@ -457,8 +460,12 @@ namespace SimpleGateway.Controllers
                 return NotFound("File not found.");
             }
 
+            // Get the associated FileUpload to check permissions
+            var fileUpload = _context.FileUploads
+                .FirstOrDefault(f => f.Id == fileEntry.FileUploadModelId);
+
             // Check permissions
-            var performerUsername = fileEntry.FileUploadModel?.Username;
+            var performerUsername = fileUpload?.Username;
             if (currentRole == "performer" && currentUser != performerUsername)
             {
                 return Forbid("You don't have permission to download this file.");
@@ -493,7 +500,6 @@ namespace SimpleGateway.Controllers
             }
 
             var fileEntry = _context.FileUploadEntries
-                .Include(f => f.FileUploadModel)
                 .FirstOrDefault(f => f.Id == id);
 
             if (fileEntry == null)
@@ -501,7 +507,11 @@ namespace SimpleGateway.Controllers
                 return NotFound("File not found.");
             }
 
-            var performerUsername = fileEntry.FileUploadModel?.Username;
+            // Get the associated FileUpload to check permissions
+            var fileUpload = _context.FileUploads
+                .FirstOrDefault(f => f.Id == fileEntry.FileUploadModelId);
+
+            var performerUsername = fileUpload?.Username;
 
             // Check permissions - only performers can delete their own files
             if (currentRole != "performer" || currentUser != performerUsername)
@@ -526,12 +536,12 @@ namespace SimpleGateway.Controllers
                 if (fileEntry.Category == "IndemnityEvidence")
                 {
                     var remainingIndemnityFiles = _context.FileUploadEntries
-                        .Where(f => f.FileUploadModel.Username == performerUsername && f.Category == "IndemnityEvidence" && f.Id != id)
+                        .Where(f => f.FileUploadModelId == fileEntry.FileUploadModelId && f.Category == "IndemnityEvidence" && f.Id != id)
                         .Any();
                     
-                    if (!remainingIndemnityFiles && fileEntry.FileUploadModel != null)
+                    if (!remainingIndemnityFiles && fileUpload != null)
                     {
-                        fileEntry.FileUploadModel.HasIndemnityEvidence = false;
+                        fileUpload.HasIndemnityEvidence = false;
                     }
                 }
 
