@@ -93,7 +93,7 @@
                             <a href="/Dashboard/PerformerDetails" class="btn btn-outline-primary">
                                 <i class="bi bi-person-fill"></i> Complete Profile
                             </a>
-                            <a href="/Dashboard/PreviousExperience" class="btn btn-outline-success">
+                            <a href="/Dashboard/PreviousExperience?performerUsername=@ViewBag.PerformerUsername" class="btn btn-outline-success">
                                 <i class="bi bi-journal-plus"></i> Log Experience
                             </a>
                             <a href="/Dashboard/Uploads" class="btn btn-outline-info">
@@ -138,7 +138,7 @@
                         <p class="card-text">Clinical experiences logged</p>
                         @if (ViewBag.CanEdit == true)
                         {
-                            <a href="/Dashboard/PreviousExperience" class="btn btn-sm btn-success">Add Experience</a>
+                            <a href="/Dashboard/PreviousExperience?performerUsername=@ViewBag.PerformerUsername" class="btn btn-sm btn-success">Add Experience</a>
                         }
                     </div>
                 </div>
