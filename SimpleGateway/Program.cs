@@ -39,12 +39,23 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
                    ?? Environment.GetEnvironmentVariable("POSTGRES_URL")
                    ?? Environment.GetEnvironmentVariable("POSTGRESQL_URL");
     
-    // If no environment variable, use the Railway PostgreSQL connection string directly
-    var connectionString = databaseUrl ?? "postgresql://postgres:JqzUsDviTmzGBwiuibsJFPMflWkgiGAS@postgres.railway.internal:5432/railway";
+    string connectionString;
+    
+    if (!string.IsNullOrEmpty(databaseUrl))
+    {
+        // Use environment variable if available
+        connectionString = databaseUrl;
+        Console.WriteLine($"Using connection string from: Environment Variable ({databaseUrl.Substring(0, Math.Min(20, databaseUrl.Length))}...)");
+    }
+    else
+    {
+        // Convert Railway PostgreSQL URL to proper Npgsql connection string format
+        connectionString = "Host=postgres.railway.internal;Database=railway;Username=postgres;Password=JqzUsDviTmzGBwiuibsJFPMflWkgiGAS;Port=5432;";
+        Console.WriteLine($"Using connection string from: Converted Railway PostgreSQL format");
+    }
     
     Console.WriteLine($"DATABASE_URL exists: {!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DATABASE_URL"))}");
     Console.WriteLine($"POSTGRES_URL exists: {!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("POSTGRES_URL"))}");
-    Console.WriteLine($"Using connection string from: {(!string.IsNullOrEmpty(databaseUrl) ? "Environment Variable" : "Hardcoded Railway PostgreSQL")}");
     Console.WriteLine($"Connection string: {connectionString}");
     
     if (string.IsNullOrEmpty(connectionString))
