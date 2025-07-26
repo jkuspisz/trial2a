@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SimpleGateway")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f1e435f604f2af0c91e94e62847ff8e3d6783312")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f6ce44420a16d73f387f8a9e28d9ff1cca1dfc11")]
 [assembly: System.Reflection.AssemblyProductAttribute("SimpleGateway")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SimpleGateway")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

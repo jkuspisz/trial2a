@@ -256,3 +256,4 @@ C:\Users\james\Desktop\trial2\SimpleGateway\obj\Debug\net9.0\SimpleGateway.genru
 C:\Users\james\Desktop\trial2\SimpleGateway\obj\Debug\net9.0\ref\SimpleGateway.dll
 C:\Users\james\Desktop\trial2\SimpleGateway\bin\Debug\net9.0\Npgsql.dll
 C:\Users\james\Desktop\trial2\SimpleGateway\bin\Debug\net9.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll
+C:\Users\james\Desktop\trial2\SimpleGateway\bin\Debug\net9.0\railway.json

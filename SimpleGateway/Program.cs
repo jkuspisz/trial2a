@@ -8,6 +8,19 @@ var port = Environment.GetEnvironmentVariable("PORT") ?? Environment.GetEnvironm
 Console.WriteLine($"Starting application on port {port}");
 Console.WriteLine($"PORT environment variable: {Environment.GetEnvironmentVariable("PORT")}");
 Console.WriteLine($"HTTP_PORT environment variable: {Environment.GetEnvironmentVariable("HTTP_PORT")}");
+
+// Debug: Print ALL environment variables to see what Railway provides
+Console.WriteLine("=== ALL ENVIRONMENT VARIABLES ===");
+foreach (System.Collections.DictionaryEntry env in Environment.GetEnvironmentVariables())
+{
+    var key = env.Key?.ToString() ?? "";
+    var value = env.Value?.ToString() ?? "";
+    if (key.Contains("DATABASE") || key.Contains("POSTGRES") || key.Contains("PORT") || key.Contains("RAILWAY"))
+    {
+        Console.WriteLine($"{key}: {value}");
+    }
+}
+Console.WriteLine("=== END ENVIRONMENT VARIABLES ===");
 builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
 // Add logging
