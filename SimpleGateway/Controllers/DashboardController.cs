@@ -344,11 +344,32 @@ namespace SimpleGateway.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
+            // Debug: Log what we received
+            Console.WriteLine($"DASHBOARD DEBUG: POST received - Username: {model?.Username}");
+            Console.WriteLine($"DASHBOARD DEBUG: ModelState.IsValid: {ModelState.IsValid}");
+            Console.WriteLine($"DASHBOARD DEBUG: ModelState errors:");
+            foreach (var error in ModelState)
+            {
+                Console.WriteLine($"DASHBOARD DEBUG: {error.Key}: {string.Join(", ", error.Value.Errors.Select(e => e.ErrorMessage))}");
+            }
+
             // Always allow saving, even with empty fields - skip model validation
-            Console.WriteLine($"DASHBOARD DEBUG: Attempting to save PreviousExperience for {model.Username}");
+            Console.WriteLine($"DASHBOARD DEBUG: Attempting to save PreviousExperience for {model?.Username ?? "null"}");
 
             try
             {
+                // Ensure model has username
+                if (string.IsNullOrEmpty(model?.Username))
+                {
+                    if (model != null)
+                        model.Username = currentUser;
+                    else
+                    {
+                        Console.WriteLine($"DASHBOARD DEBUG: Model is null, creating new model");
+                        model = new PreviousExperienceModel { Username = currentUser };
+                    }
+                }
+
                 // Check if record already exists
                 var existingRecord = _context.PreviousExperiences.FirstOrDefault(p => p.Username == model.Username);
                 
@@ -438,7 +459,7 @@ namespace SimpleGateway.Controllers
             }
             
             // Redirect back to the form
-            return RedirectToAction("PreviousExperience", new { performerUsername = model.Username });
+            return RedirectToAction("PreviousExperience", new { performerUsername = model?.Username ?? currentUser });
         }
 
         // Other section methods (simplified for brevity)
