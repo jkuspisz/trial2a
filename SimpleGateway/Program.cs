@@ -66,23 +66,68 @@ try
         var connectionString = context.Database.GetConnectionString();
         Console.WriteLine($"Database connection string: {connectionString}");
         
+        // Test database connection first
+        Console.WriteLine("Testing database connection...");
+        var canConnect = context.Database.CanConnect();
+        Console.WriteLine($"Database connection test: {(canConnect ? "SUCCESS" : "FAILED")}");
+        
+        if (!canConnect)
+        {
+            Console.WriteLine("Database connection failed. Attempting to create database...");
+            context.Database.EnsureCreated();
+            Console.WriteLine("Database creation attempted");
+        }
+        
         // Use migrations to ensure database is up to date
         Console.WriteLine("Running database migrations...");
-        context.Database.Migrate();
-        Console.WriteLine("Database migrations completed successfully");
-        
-        // Check database content
-        var performerDetailsCount = context.PerformerDetails.Count();
-        Console.WriteLine($"PerformerDetails records in database: {performerDetailsCount}");
-        
-        if (performerDetailsCount > 0)
+        try 
         {
-            var performerDetails = context.PerformerDetails.ToList();
-            Console.WriteLine($"Existing PerformerDetails:");
-            foreach (var detail in performerDetails)
+            context.Database.Migrate();
+            Console.WriteLine("Database migrations completed successfully");
+        }
+        catch (Exception migrationEx)
+        {
+            Console.WriteLine($"Migration error: {migrationEx.Message}");
+            Console.WriteLine("Attempting to ensure database is created...");
+            context.Database.EnsureCreated();
+            Console.WriteLine("Database ensure created completed");
+        }
+        
+        // Verify tables exist
+        Console.WriteLine("Verifying database tables...");
+        try
+        {
+            var usersCount = context.Users.Count();
+            var performerDetailsCount = context.PerformerDetails.Count();
+            var assignmentsCount = context.Assignments.Count();
+            
+            Console.WriteLine($"Database table verification:");
+            Console.WriteLine($"  Users: {usersCount} records");
+            Console.WriteLine($"  PerformerDetails: {performerDetailsCount} records");
+            Console.WriteLine($"  Assignments: {assignmentsCount} records");
+        }
+        catch (Exception tableEx)
+        {
+            Console.WriteLine($"Table verification error: {tableEx.Message}");
+            Console.WriteLine("Database tables may not exist properly");
+        }
+        
+        // Additional data verification
+        try
+        {
+            var performerDetailsData = context.PerformerDetails.ToList();
+            if (performerDetailsData.Count > 0)
             {
-                Console.WriteLine($"- Username: {detail.Username}, FirstName: {detail.FirstName}, LastName: {detail.LastName}, GDC: {detail.GDCNumber}");
+                Console.WriteLine($"Existing PerformerDetails:");
+                foreach (var detail in performerDetailsData)
+                {
+                    Console.WriteLine($"- Username: {detail.Username}, FirstName: {detail.FirstName}, LastName: {detail.LastName}, GDC: {detail.GDCNumber}");
+                }
             }
+        }
+        catch (Exception dataEx)
+        {
+            Console.WriteLine($"Error reading performer details: {dataEx.Message}");
         }
         
         // Debug: Check what users actually exist in the database

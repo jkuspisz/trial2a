@@ -11,8 +11,8 @@ using SimpleGateway.Models;
 namespace SimpleGateway.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250726095410_UnifiedDatabaseMigration")]
-    partial class UnifiedDatabaseMigration
+    [Migration("20250726101954_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
