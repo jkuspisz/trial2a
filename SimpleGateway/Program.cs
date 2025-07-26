@@ -181,4 +181,5 @@ app.MapControllerRoute(
     pattern: "{controller=Account}/{action=Login}/{id?}");
 
 Console.WriteLine("Application configured, starting server...");
+Console.WriteLine("Data persistence test: Database should survive this deployment");
 app.Run();
