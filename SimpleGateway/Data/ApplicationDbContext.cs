@@ -17,8 +17,6 @@ namespace SimpleGateway
         // public DbSet<FileUploadEntry> FileUploadEntries { get; set; }
         public DbSet<AssignmentModel> Assignments { get; set; }
         public DbSet<PreviousExperienceModel> PreviousExperiences { get; set; }
-        public DbSet<Qualification> Qualifications { get; set; }
-        public DbSet<EmploymentHistoryJob> EmploymentHistoryJobs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -102,7 +100,7 @@ namespace SimpleGateway
                       .OnDelete(DeleteBehavior.SetNull);
             });
 
-            // Configure PreviousExperienceModel
+            // Configure PreviousExperienceModel - Single table with JSON columns
             modelBuilder.Entity<PreviousExperienceModel>(entity =>
             {
                 entity.HasKey(e => e.Id);
@@ -117,29 +115,15 @@ namespace SimpleGateway
                 entity.Property(e => e.AdvisorDeclarationBy).HasMaxLength(100);
                 entity.Property(e => e.AdvisorDeclarationComment).HasMaxLength(1000);
                 
-                // Ignore complex collections for now - they have separate tables
+                // JSON columns for complex data
+                entity.Property(e => e.QualificationsJson).HasColumnType("TEXT");
+                entity.Property(e => e.EmploymentHistoryJson).HasColumnType("TEXT");
+                entity.Property(e => e.ClinicalExperienceJson).HasColumnType("TEXT");
+                
+                // Ignore navigation properties (they're now JSON)
                 entity.Ignore(e => e.Qualifications);
                 entity.Ignore(e => e.EmploymentHistory);
-            });
-
-            // Configure Qualification
-            modelBuilder.Entity<Qualification>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-                entity.Property(e => e.Username).IsRequired().HasMaxLength(50);
-                entity.Property(e => e.QualificationName).IsRequired().HasMaxLength(200);
-                entity.Property(e => e.Country).IsRequired().HasMaxLength(100);
-                entity.Property(e => e.Institution).IsRequired().HasMaxLength(200);
-                entity.Property(e => e.Year).IsRequired().HasMaxLength(10);
-            });
-
-            // Configure EmploymentHistoryJob
-            modelBuilder.Entity<EmploymentHistoryJob>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-                entity.Property(e => e.Username).IsRequired().HasMaxLength(50);
-                entity.Property(e => e.JobTitle).IsRequired().HasMaxLength(200);
-                entity.Property(e => e.Address).IsRequired().HasMaxLength(500);
+                entity.Ignore(e => e.ClinicalExperience);
             });
 
             // Seed initial data

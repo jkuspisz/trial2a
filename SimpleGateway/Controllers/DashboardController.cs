@@ -354,6 +354,7 @@ namespace SimpleGateway.Controllers
                 
                 if (existingRecord != null)
                 {
+                    Console.WriteLine($"DASHBOARD DEBUG: Updating existing PreviousExperience record for {model.Username}");
                     // Update existing record - allow empty values
                     existingRecord.GdcGapsExplanation = model.GdcGapsExplanation ?? "";
                     existingRecord.NhsExperience = model.NhsExperience ?? "";
@@ -361,15 +362,24 @@ namespace SimpleGateway.Controllers
                     existingRecord.PartTimeDaysPerWeek = model.PartTimeDaysPerWeek ?? "";
                     existingRecord.Years = model.Years ?? "";
                     existingRecord.Months = model.Months ?? "";
+                    existingRecord.AdvisorDeclarationBy = model.AdvisorDeclarationBy ?? "";
+                    existingRecord.AdvisorDeclarationComment = model.AdvisorDeclarationComment ?? "";
                     existingRecord.ApplicantConfirmed = model.ApplicantConfirmed;
                     existingRecord.ApplicantConfirmedAt = model.ApplicantConfirmed ? DateTime.UtcNow : null;
                     existingRecord.IsSubmitted = model.IsSubmitted;
+                    existingRecord.UpdatedAt = DateTime.UtcNow;
+                    
+                    // Update JSON data using the helper properties
+                    existingRecord.Qualifications = model.Qualifications ?? new List<Qualification>();
+                    existingRecord.EmploymentHistory = model.EmploymentHistory ?? new List<EmploymentHistoryJob>();
+                    existingRecord.ClinicalExperience = model.ClinicalExperience ?? new List<ClinicalProcedureEntry>();
                     
                     _context.PreviousExperiences.Update(existingRecord);
                     Console.WriteLine($"DASHBOARD DEBUG: Updated existing record for {model.Username}");
                 }
                 else
                 {
+                    Console.WriteLine($"DASHBOARD DEBUG: Creating new PreviousExperience record for {model.Username}");
                     // Create new record - allow empty values
                     model.GdcGapsExplanation = model.GdcGapsExplanation ?? "";
                     model.NhsExperience = model.NhsExperience ?? "";
@@ -377,19 +387,40 @@ namespace SimpleGateway.Controllers
                     model.PartTimeDaysPerWeek = model.PartTimeDaysPerWeek ?? "";
                     model.Years = model.Years ?? "";
                     model.Months = model.Months ?? "";
+                    model.AdvisorDeclarationBy = model.AdvisorDeclarationBy ?? "";
+                    model.AdvisorDeclarationComment = model.AdvisorDeclarationComment ?? "";
                     model.ApplicantConfirmedAt = model.ApplicantConfirmed ? DateTime.UtcNow : null;
+                    model.CreatedAt = DateTime.UtcNow;
+                    model.UpdatedAt = DateTime.UtcNow;
+                    
+                    // Ensure collections are initialized
+                    model.Qualifications = model.Qualifications ?? new List<Qualification>();
+                    model.EmploymentHistory = model.EmploymentHistory ?? new List<EmploymentHistoryJob>();
+                    model.ClinicalExperience = model.ClinicalExperience ?? new List<ClinicalProcedureEntry>();
+                    
                     _context.PreviousExperiences.Add(model);
                     Console.WriteLine($"DASHBOARD DEBUG: Created new record for {model.Username}");
                 }
                 
-                // Save to database
-                _context.SaveChanges();
+                // Save to database - same pattern as PerformerDetails
+                var savedRows = _context.SaveChanges();
+                Console.WriteLine($"DASHBOARD DEBUG: SaveChanges() affected {savedRows} rows for {model.Username}");
                 
-                TempData["SuccessMessage"] = "Previous Experience information saved successfully to Railway PostgreSQL database!";
-                
-                Console.WriteLine($"DASHBOARD DEBUG: PreviousExperience saved to database for {model.Username}");
-                Console.WriteLine($"DASHBOARD DEBUG: GDC Gaps: {model.GdcGapsExplanation}");
-                Console.WriteLine($"DASHBOARD DEBUG: NHS Experience: {model.NhsExperience}");
+                if (savedRows > 0)
+                {
+                    TempData["SuccessMessage"] = "Previous Experience information saved successfully!";
+                    Console.WriteLine($"DASHBOARD DEBUG: PreviousExperience saved successfully to Railway PostgreSQL database for {model.Username}");
+                    Console.WriteLine($"DASHBOARD DEBUG: GDC Gaps: {model.GdcGapsExplanation}");
+                    Console.WriteLine($"DASHBOARD DEBUG: NHS Experience: {model.NhsExperience}");
+                    Console.WriteLine($"DASHBOARD DEBUG: Qualifications count: {model.Qualifications?.Count ?? 0}");
+                    Console.WriteLine($"DASHBOARD DEBUG: Employment History count: {model.EmploymentHistory?.Count ?? 0}");
+                    Console.WriteLine($"DASHBOARD DEBUG: Clinical Experience count: {model.ClinicalExperience?.Count ?? 0}");
+                }
+                else
+                {
+                    Console.WriteLine($"DASHBOARD DEBUG: Save failed - no rows affected for {model.Username}");
+                    TempData["ErrorMessage"] = "Save failed - no changes were made to the database.";
+                }
             }
             catch (Exception ex)
             {

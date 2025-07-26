@@ -1,43 +1,38 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 
 namespace SimpleGateway.Models
 {
     public class EmploymentHistoryJob
     {
-        public int Id { get; set; }
-        public string Username { get; set; } = "";
         public DateTime? From { get; set; }
         public DateTime? To { get; set; }
-        
-        [Display(Name = "Job Title")]
         public string JobTitle { get; set; } = "";
-        
-        [Display(Name = "Full Address")]
         public string Address { get; set; } = "";
-        
-        [Display(Name = "Treated Adult Patients")]
         public bool TreatedAdults { get; set; }
-        
-        [Display(Name = "Treated Child Patients")]
         public bool TreatedChildren { get; set; }
     }
 
     public class Qualification
     {
-        public int Id { get; set; }
-        public string Username { get; set; } = "";
-        
-        [Display(Name = "Qualification")]
         public string QualificationName { get; set; } = "";
-        
-        [Display(Name = "Country")]
         public string Country { get; set; } = "";
-        
-        [Display(Name = "Institution")]
         public string Institution { get; set; } = "";
-        
-        [Display(Name = "Year")]
         public string Year { get; set; } = "";
+    }
+
+    public class ClinicalProcedureEntry
+    {
+        public string Category { get; set; } = "";
+        public string Procedure { get; set; } = "";
+        public string NumberCategory { get; set; } = "";
+        public int? ConfidenceLevel { get; set; }
+        public DateTime? DateLastProcedure { get; set; }
+        public string ExtraInfo { get; set; } = "";
+        public bool TrainingNeedIdentified { get; set; }
+        public string AdvisorComment { get; set; } = "";
+        public DateTime? AdvisorSignedOffAt { get; set; }
+        public string AdvisorSignedOffBy { get; set; } = "";
     }
 
     public class PreviousExperienceModel
@@ -45,38 +40,50 @@ namespace SimpleGateway.Models
         public int Id { get; set; }
         public string Username { get; set; } = "";
         
-        [Display(Name = "GDC Gaps Explanation")]
+        // Section 1: Basic Information
         public string GdcGapsExplanation { get; set; } = "";
-        
-        public List<Qualification> Qualifications { get; set; } = new();
-        
-        [Display(Name = "NHS Experience")]
         public string NhsExperience { get; set; } = "";
-        
-        [Display(Name = "Full Time")]
         public string FullTime { get; set; } = "";
-        
-        [Display(Name = "Part Time Days Per Week")]
         public string PartTimeDaysPerWeek { get; set; } = "";
-        
-        [Display(Name = "Years")]
         public string Years { get; set; } = "";
-        
-        [Display(Name = "Months")]
         public string Months { get; set; } = "";
         
-        public List<EmploymentHistoryJob> EmploymentHistory { get; set; } = new();
+        // Section 1: Collections stored as JSON
+        public string QualificationsJson { get; set; } = "[]";
+        public string EmploymentHistoryJson { get; set; } = "[]";
         
+        // Section 2: Clinical Experience stored as JSON
+        public string ClinicalExperienceJson { get; set; } = "[]";
+        
+        // Declarations
         public bool ApplicantConfirmed { get; set; }
         public DateTime? ApplicantConfirmedAt { get; set; }
-        
-        [Display(Name = "Form Submitted")]
         public bool IsSubmitted { get; set; }
-        
         public DateTime? AdvisorDeclarationAt { get; set; }
         public string AdvisorDeclarationBy { get; set; } = "";
-        
-        [Display(Name = "Advisor Declaration Comment")]
         public string AdvisorDeclarationComment { get; set; } = "";
+        
+        // Timestamps
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+        
+        // Helper properties (not stored in database)
+        public List<Qualification> Qualifications
+        {
+            get => string.IsNullOrEmpty(QualificationsJson) ? new() : JsonSerializer.Deserialize<List<Qualification>>(QualificationsJson) ?? new();
+            set => QualificationsJson = JsonSerializer.Serialize(value);
+        }
+        
+        public List<EmploymentHistoryJob> EmploymentHistory
+        {
+            get => string.IsNullOrEmpty(EmploymentHistoryJson) ? new() : JsonSerializer.Deserialize<List<EmploymentHistoryJob>>(EmploymentHistoryJson) ?? new();
+            set => EmploymentHistoryJson = JsonSerializer.Serialize(value);
+        }
+        
+        public List<ClinicalProcedureEntry> ClinicalExperience
+        {
+            get => string.IsNullOrEmpty(ClinicalExperienceJson) ? new() : JsonSerializer.Deserialize<List<ClinicalProcedureEntry>>(ClinicalExperienceJson) ?? new();
+            set => ClinicalExperienceJson = JsonSerializer.Serialize(value);
+        }
     }
 }
