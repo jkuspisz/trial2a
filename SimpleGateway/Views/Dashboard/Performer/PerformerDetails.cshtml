@@ -203,4 +203,23 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    console.log('FORM DEBUG: Form submission detected');
+                    console.log('FORM DEBUG: Form action:', form.action);
+                    console.log('FORM DEBUG: Form method:', form.method);
+                    
+                    // Log form data
+                    const formData = new FormData(form);
+                    console.log('FORM DEBUG: Form data:');
+                    for (let [key, value] of formData.entries()) {
+                        console.log(`FORM DEBUG: ${key} = ${value}`);
+                    }
+                });
+            }
+        });
+    </script>
 }
