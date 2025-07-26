@@ -258,6 +258,27 @@ namespace SimpleGateway.Controllers
             return View("Performer/PreviousExperienceForm");
         }
 
+        [HttpPost]
+        public IActionResult PreviousExperienceForm(PreviousExperienceModel model)
+        {
+            var currentUser = HttpContext.Session.GetString("username");
+            
+            if (string.IsNullOrEmpty(currentUser))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            // For now, just show a success message since we haven't implemented database storage yet
+            TempData["SuccessMessage"] = "Previous Experience information noted. Database storage will be implemented soon.";
+            
+            Console.WriteLine($"DASHBOARD DEBUG: PreviousExperience POST received for {model.Username}");
+            Console.WriteLine($"DASHBOARD DEBUG: GDC Gaps: {model.GdcGapsExplanation}");
+            Console.WriteLine($"DASHBOARD DEBUG: NHS Experience: {model.NhsExperience}");
+            
+            // Redirect back to the form
+            return RedirectToAction("PreviousExperienceForm", new { performerUsername = model.Username });
+        }
+
         // Other section methods (simplified for brevity)
         public IActionResult StructuredConversation(string performerUsername)
         {
