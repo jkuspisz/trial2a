@@ -317,6 +317,13 @@ namespace SimpleGateway.Controllers
             return View("Performer/PreviousExperienceForm");
         }
 
+        [HttpGet]
+        public IActionResult PreviousExperienceForm(string performerUsername)
+        {
+            // Redirect GET requests to the PreviousExperience action
+            return RedirectToAction("PreviousExperience", new { performerUsername = performerUsername });
+        }
+
         [HttpPost]
         public IActionResult PreviousExperienceForm(PreviousExperienceModel model)
         {
