@@ -31,7 +31,10 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     }
     
     // Auto-detect database type based on connection string
-    if (connectionString.StartsWith("postgresql://") || connectionString.Contains("postgresql") || connectionString.Contains("postgres"))
+    if (connectionString.StartsWith("postgresql://") || 
+        connectionString.Contains("postgresql") || 
+        connectionString.Contains("postgres") ||
+        connectionString.Contains("Host=") && connectionString.Contains("Database="))
     {
         Console.WriteLine("Using PostgreSQL database");
         options.UseNpgsql(connectionString);
