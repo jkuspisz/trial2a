@@ -112,9 +112,7 @@ try
         catch (Exception migrationEx)
         {
             Console.WriteLine($"Migration error: {migrationEx.Message}");
-            Console.WriteLine("Attempting to ensure database is created...");
-            context.Database.EnsureCreated();
-            Console.WriteLine("Database ensure created completed");
+            Console.WriteLine("Will continue without PreviousExperiences table - form will show message");
         }
         
         // Verify tables exist
