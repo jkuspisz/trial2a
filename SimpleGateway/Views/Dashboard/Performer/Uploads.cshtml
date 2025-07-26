@@ -1,5 +1,17 @@
 @{
-    ViewBag.Title = "Uploads - " + ViewBag.PerformerName;
+      <div class="col-3">
+        <ul class="list-group">
+            <li class="list-group-item @(ViewBag.ActiveSection == "Dashboard" ? "active" : "")">
+                <a href="/Dashboard/Index" style="@(ViewBag.ActiveSection == "Dashboard" ? "color: white;" : "")">
+                    <i class="bi bi-speedometer2"></i> Dashboard Overview
+                </a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "PerformerDetails" ? "active" : "")">
+                <a href="/Dashboard/PerformerDetails?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "PerformerDetails" ? "color: white;" : "")">Performer Details</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "PreviousExperience" ? "active" : "")">
+                <a href="/Dashboard/PreviousExperienceForm?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "PreviousExperience" ? "color: white;" : "")">Previous Experience</a>
+            </li>g.Title = "Uploads - " + ViewBag.PerformerName;
     Layout = "_Layout";
 }
 
