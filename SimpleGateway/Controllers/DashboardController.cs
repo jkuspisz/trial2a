@@ -28,7 +28,29 @@ namespace SimpleGateway.Controllers
 
             if (currentRole == "performer")
             {
-                // Show performer dashboard instead of redirecting to details
+                // Show performer dashboard with proper ViewBag setup
+                ViewBag.PerformerUsername = currentUser;
+                ViewBag.CurrentUserRole = currentRole;
+                ViewBag.IsOwnDashboard = true;
+                ViewBag.CanEdit = true;
+                ViewBag.CanComment = false;
+                ViewBag.CanApprove = false;
+                ViewBag.IsReadOnly = false;
+                ViewBag.ActiveSection = "Dashboard";
+
+                // Get performer's name for display
+                var performer = _context.Users.FirstOrDefault(u => u.Username == currentUser);
+                if (performer != null)
+                {
+                    ViewBag.DisplayName = $"{performer.FirstName} {performer.LastName}";
+                    ViewBag.PerformerName = $"{performer.FirstName} {performer.LastName}";
+                }
+                else
+                {
+                    ViewBag.DisplayName = currentUser;
+                    ViewBag.PerformerName = currentUser;
+                }
+
                 return View("PerformerDashboard");
             }
             else if (currentRole == "admin" || currentRole == "superuser")
