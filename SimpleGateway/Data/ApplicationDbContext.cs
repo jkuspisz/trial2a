@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using SimpleGateway.Models;
 
-namespace SimpleGateway.Models
+namespace SimpleGateway
 {
     public class ApplicationDbContext : DbContext
     {
@@ -11,9 +12,13 @@ namespace SimpleGateway.Models
         // DbSets for all our entities
         public DbSet<UserModel> Users { get; set; }
         public DbSet<PerformerDetailsModel> PerformerDetails { get; set; }
-        public DbSet<FileUploadModel> FileUploads { get; set; }
-        public DbSet<FileUploadEntry> FileUploadEntries { get; set; }
+        // Temporarily disabled file upload entities to fix session issues
+        // public DbSet<FileUploadModel> FileUploads { get; set; }
+        // public DbSet<FileUploadEntry> FileUploadEntries { get; set; }
         public DbSet<AssignmentModel> Assignments { get; set; }
+        public DbSet<PreviousExperienceModel> PreviousExperiences { get; set; }
+        public DbSet<Qualification> Qualifications { get; set; }
+        public DbSet<EmploymentHistoryJob> EmploymentHistoryJobs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -51,16 +56,14 @@ namespace SimpleGateway.Models
                 entity.Property(e => e.UniversityCountryOfQualification).IsRequired().HasMaxLength(100);
             });
 
+            // Temporarily disabled FileUpload configuration to fix session issues
+            /*
             // Configure FileUploadModel
             modelBuilder.Entity<FileUploadModel>(entity =>
             {
                 entity.HasKey(e => e.Id);
                 entity.HasIndex(e => e.Username).IsUnique();
                 entity.Property(e => e.Username).IsRequired().HasMaxLength(50);
-                entity.HasMany(e => e.UploadedFiles)
-                      .WithOne()
-                      .HasForeignKey("FileUploadModelId")
-                      .OnDelete(DeleteBehavior.Cascade);
             });
 
             // Configure FileUploadEntry
@@ -72,7 +75,9 @@ namespace SimpleGateway.Models
                 entity.Property(e => e.Category).IsRequired().HasMaxLength(50);
                 entity.Property(e => e.ContentType).HasMaxLength(100);
                 entity.Property(e => e.FilePath).HasMaxLength(500);
+                entity.Property(e => e.FileUploadModelId).IsRequired();
             });
+            */
 
             // Configure AssignmentModel
             modelBuilder.Entity<AssignmentModel>(entity =>
@@ -97,13 +102,53 @@ namespace SimpleGateway.Models
                       .OnDelete(DeleteBehavior.SetNull);
             });
 
+            // Configure PreviousExperienceModel
+            modelBuilder.Entity<PreviousExperienceModel>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.HasIndex(e => e.Username).IsUnique();
+                entity.Property(e => e.Username).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.GdcGapsExplanation).HasMaxLength(2000);
+                entity.Property(e => e.NhsExperience).HasMaxLength(1000);
+                entity.Property(e => e.FullTime).HasMaxLength(10);
+                entity.Property(e => e.PartTimeDaysPerWeek).HasMaxLength(10);
+                entity.Property(e => e.Years).HasMaxLength(10);
+                entity.Property(e => e.Months).HasMaxLength(10);
+                entity.Property(e => e.AdvisorDeclarationBy).HasMaxLength(100);
+                entity.Property(e => e.AdvisorDeclarationComment).HasMaxLength(1000);
+                
+                // Ignore complex collections for now - they have separate tables
+                entity.Ignore(e => e.Qualifications);
+                entity.Ignore(e => e.EmploymentHistory);
+            });
+
+            // Configure Qualification
+            modelBuilder.Entity<Qualification>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Username).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.QualificationName).IsRequired().HasMaxLength(200);
+                entity.Property(e => e.Country).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.Institution).IsRequired().HasMaxLength(200);
+                entity.Property(e => e.Year).IsRequired().HasMaxLength(10);
+            });
+
+            // Configure EmploymentHistoryJob
+            modelBuilder.Entity<EmploymentHistoryJob>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Username).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.JobTitle).IsRequired().HasMaxLength(200);
+                entity.Property(e => e.Address).IsRequired().HasMaxLength(500);
+            });
+
             // Seed initial data
             SeedData(modelBuilder);
         }
 
         private void SeedData(ModelBuilder modelBuilder)
         {
-            // Seed Users with static dates
+            // Seed Users with static dates to prevent deployment issues
             var seedDate = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc);
             
             modelBuilder.Entity<UserModel>().HasData(

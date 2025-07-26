@@ -298,13 +298,20 @@ namespace SimpleGateway.Controllers
                 ViewBag.PerformerName = $"{performer.FirstName} {performer.LastName}";
             }
 
-            // Initialize empty previous experience model (you can load from database later)
-            ViewBag.PreviousExperience = new PreviousExperienceModel { Username = performerUsername };
+            // Load existing previous experience data from database
+            var existingData = _context.PreviousExperiences.FirstOrDefault(p => p.Username == performerUsername);
+            if (existingData != null)
+            {
+                ViewBag.PreviousExperience = existingData;
+            }
+            else
+            {
+                // Initialize empty previous experience model
+                ViewBag.PreviousExperience = new PreviousExperienceModel { Username = performerUsername };
+            }
             
-            // Initialize clinical entries as empty list for now
+            // Load qualifications and employment history from separate tables
             ViewBag.ClinicalEntries = new List<ClinicalExperienceEntry>();
-            
-            // Initialize procedure sections from static data
             ViewBag.ProcedureSections = ProcedureSections.All;
 
             return View("Performer/PreviousExperienceForm");
@@ -320,12 +327,47 @@ namespace SimpleGateway.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            // For now, just show a success message since we haven't implemented database storage yet
-            TempData["SuccessMessage"] = "Previous Experience information noted. Database storage will be implemented soon.";
-            
-            Console.WriteLine($"DASHBOARD DEBUG: PreviousExperience POST received for {model.Username}");
-            Console.WriteLine($"DASHBOARD DEBUG: GDC Gaps: {model.GdcGapsExplanation}");
-            Console.WriteLine($"DASHBOARD DEBUG: NHS Experience: {model.NhsExperience}");
+            try
+            {
+                // Check if record already exists
+                var existingRecord = _context.PreviousExperiences.FirstOrDefault(p => p.Username == model.Username);
+                
+                if (existingRecord != null)
+                {
+                    // Update existing record
+                    existingRecord.GdcGapsExplanation = model.GdcGapsExplanation ?? "";
+                    existingRecord.NhsExperience = model.NhsExperience ?? "";
+                    existingRecord.FullTime = model.FullTime ?? "";
+                    existingRecord.PartTimeDaysPerWeek = model.PartTimeDaysPerWeek ?? "";
+                    existingRecord.Years = model.Years ?? "";
+                    existingRecord.Months = model.Months ?? "";
+                    existingRecord.ApplicantConfirmed = model.ApplicantConfirmed;
+                    existingRecord.ApplicantConfirmedAt = model.ApplicantConfirmed ? DateTime.UtcNow : null;
+                    existingRecord.IsSubmitted = model.IsSubmitted;
+                    
+                    _context.PreviousExperiences.Update(existingRecord);
+                }
+                else
+                {
+                    // Create new record
+                    model.ApplicantConfirmedAt = model.ApplicantConfirmed ? DateTime.UtcNow : null;
+                    _context.PreviousExperiences.Add(model);
+                }
+                
+                // Save to database
+                _context.SaveChanges();
+                
+                TempData["SuccessMessage"] = "Previous Experience information saved successfully to Railway PostgreSQL database!";
+                
+                Console.WriteLine($"DASHBOARD DEBUG: PreviousExperience saved to database for {model.Username}");
+                Console.WriteLine($"DASHBOARD DEBUG: GDC Gaps: {model.GdcGapsExplanation}");
+                Console.WriteLine($"DASHBOARD DEBUG: NHS Experience: {model.NhsExperience}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"ERROR: Failed to save Previous Experience data: {ex.Message}");
+                TempData["ErrorMessage"] = "Failed to save Previous Experience information. Please try again.";
+            }
             
             // Redirect back to the form
             return RedirectToAction("PreviousExperience", new { performerUsername = model.Username });

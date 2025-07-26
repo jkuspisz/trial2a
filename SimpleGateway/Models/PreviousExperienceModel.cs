@@ -4,6 +4,8 @@ namespace SimpleGateway.Models
 {
     public class EmploymentHistoryJob
     {
+        public int Id { get; set; }
+        public string Username { get; set; } = "";
         public DateTime? From { get; set; }
         public DateTime? To { get; set; }
         
@@ -22,6 +24,9 @@ namespace SimpleGateway.Models
 
     public class Qualification
     {
+        public int Id { get; set; }
+        public string Username { get; set; } = "";
+        
         [Required]
         [Display(Name = "Qualification")]
         public string QualificationName { get; set; } = "";
@@ -41,6 +46,7 @@ namespace SimpleGateway.Models
 
     public class PreviousExperienceModel
     {
+        public int Id { get; set; }
         public string Username { get; set; } = "";
         
         [Display(Name = "GDC Gaps Explanation")]
