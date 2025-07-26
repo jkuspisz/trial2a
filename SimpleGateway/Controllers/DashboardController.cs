@@ -270,7 +270,283 @@ namespace SimpleGateway.Controllers
 
         public IActionResult Uploads(string performerUsername)
         {
-            return HandlePerformerSection(performerUsername, "Uploads");
+            var currentUser = HttpContext.Session.GetString("username");
+            var currentRole = HttpContext.Session.GetString("role");
+            
+            if (string.IsNullOrEmpty(currentUser))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            // Check permissions
+            if (currentRole == "performer" && currentUser != performerUsername)
+            {
+                return RedirectToAction("Index");
+            }
+
+            // Set common ViewBag properties
+            ViewBag.PerformerUsername = performerUsername;
+            ViewBag.CurrentUserRole = currentRole;
+            ViewBag.CurrentUser = currentUser;
+            ViewBag.IsOwnDashboard = (currentUser == performerUsername);
+            ViewBag.CanEdit = (currentRole == "performer" && currentUser == performerUsername);
+            ViewBag.CanComment = (currentRole == "supervisor" || currentRole == "advisor" || currentRole == "superuser");
+            ViewBag.CanApprove = (currentRole == "supervisor" || currentRole == "advisor" || currentRole == "superuser");
+            ViewBag.IsReadOnly = (currentRole == "admin");
+            ViewBag.ActiveSection = "Uploads";
+
+            // Get performer's name for display
+            var performer = _context.Users.FirstOrDefault(u => u.Username == performerUsername);
+            if (performer != null)
+            {
+                ViewBag.PerformerName = $"{performer.FirstName} {performer.LastName}";
+            }
+
+            // Get uploaded files for this performer
+            var fileUpload = _context.FileUploads
+                .Include(f => f.UploadedFiles)
+                .FirstOrDefault(f => f.Username == performerUsername);
+
+            if (fileUpload != null)
+            {
+                // Separate files by category
+                ViewBag.IndemnityFiles = fileUpload.UploadedFiles
+                    .Where(f => f.Category == "IndemnityEvidence")
+                    .OrderByDescending(f => f.UploadedAt)
+                    .ToList();
+                
+                ViewBag.AdditionalFiles = fileUpload.UploadedFiles
+                    .Where(f => f.Category == "Additional")
+                    .OrderByDescending(f => f.UploadedAt)
+                    .ToList();
+            }
+            else
+            {
+                ViewBag.IndemnityFiles = new List<FileUploadEntry>();
+                ViewBag.AdditionalFiles = new List<FileUploadEntry>();
+            }
+
+            return View($"Performer/Uploads");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UploadFile(string performerUsername, string category, string description, bool isRequired, IFormFile uploadFile)
+        {
+            var currentUser = HttpContext.Session.GetString("username");
+            var currentRole = HttpContext.Session.GetString("role");
+            
+            if (string.IsNullOrEmpty(currentUser))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            // Check permissions - only performers can upload to their own files
+            if (currentRole != "performer" || currentUser != performerUsername)
+            {
+                TempData["ErrorMessage"] = "You don't have permission to upload files for this performer.";
+                return RedirectToAction("Uploads", new { performerUsername });
+            }
+
+            // Validate file
+            if (uploadFile == null || uploadFile.Length == 0)
+            {
+                TempData["ErrorMessage"] = "Please select a file to upload.";
+                return RedirectToAction("Uploads", new { performerUsername });
+            }
+
+            // Check file size (10MB limit)
+            if (uploadFile.Length > 10 * 1024 * 1024)
+            {
+                TempData["ErrorMessage"] = "File size must be less than 10MB.";
+                return RedirectToAction("Uploads", new { performerUsername });
+            }
+
+            // Validate file types
+            var allowedExtensions = new[] { ".pdf", ".doc", ".docx", ".jpg", ".jpeg", ".png", ".txt" };
+            var fileExtension = Path.GetExtension(uploadFile.FileName).ToLowerInvariant();
+            if (!allowedExtensions.Contains(fileExtension))
+            {
+                TempData["ErrorMessage"] = "Only PDF, Word documents, images, and text files are allowed.";
+                return RedirectToAction("Uploads", new { performerUsername });
+            }
+
+            try
+            {
+                // Create uploads directory if it doesn't exist
+                var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", performerUsername);
+                Directory.CreateDirectory(uploadsPath);
+
+                // Generate unique filename
+                var fileName = uploadFile.FileName;
+                var uniqueFileName = $"{Guid.NewGuid()}_{fileName}";
+                var filePath = Path.Combine(uploadsPath, uniqueFileName);
+
+                // Save file to disk
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await uploadFile.CopyToAsync(stream);
+                }
+
+                // Get or create FileUploadModel for this performer
+                var fileUploadModel = _context.FileUploads
+                    .Include(f => f.UploadedFiles)
+                    .FirstOrDefault(f => f.Username == performerUsername);
+
+                if (fileUploadModel == null)
+                {
+                    fileUploadModel = new FileUploadModel
+                    {
+                        Username = performerUsername,
+                        UploadedFiles = new List<FileUploadEntry>()
+                    };
+                    _context.FileUploads.Add(fileUploadModel);
+                }
+
+                // Create file entry
+                var fileEntry = new FileUploadEntry
+                {
+                    Description = description,
+                    FileName = fileName,
+                    FileSize = uploadFile.Length,
+                    ContentType = uploadFile.ContentType,
+                    FilePath = Path.Combine("uploads", performerUsername, uniqueFileName),
+                    IsRequired = isRequired,
+                    Category = category,
+                    UploadedAt = DateTime.UtcNow
+                };
+
+                fileUploadModel.UploadedFiles.Add(fileEntry);
+                fileUploadModel.LastUpdated = DateTime.UtcNow;
+
+                // Update indemnity flag if this is indemnity evidence
+                if (category == "IndemnityEvidence")
+                {
+                    fileUploadModel.HasIndemnityEvidence = true;
+                }
+
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = $"File '{fileName}' uploaded successfully!";
+                Console.WriteLine($"FILE UPLOAD SUCCESS: {fileName} uploaded for {performerUsername}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"FILE UPLOAD ERROR: {ex.Message}");
+                TempData["ErrorMessage"] = "An error occurred while uploading the file. Please try again.";
+            }
+
+            return RedirectToAction("Uploads", new { performerUsername });
+        }
+
+        public IActionResult DownloadFile(int id)
+        {
+            var currentUser = HttpContext.Session.GetString("username");
+            var currentRole = HttpContext.Session.GetString("role");
+            
+            if (string.IsNullOrEmpty(currentUser))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var fileEntry = _context.FileUploadEntries
+                .Include(f => f.FileUploadModel)
+                .FirstOrDefault(f => f.Id == id);
+
+            if (fileEntry == null)
+            {
+                return NotFound("File not found.");
+            }
+
+            // Check permissions
+            var performerUsername = fileEntry.FileUploadModel?.Username;
+            if (currentRole == "performer" && currentUser != performerUsername)
+            {
+                return Forbid("You don't have permission to download this file.");
+            }
+
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", fileEntry.FilePath);
+            
+            if (!System.IO.File.Exists(filePath))
+            {
+                TempData["ErrorMessage"] = "File not found on server.";
+                return RedirectToAction("Uploads", new { performerUsername });
+            }
+
+            var memory = new MemoryStream();
+            using (var stream = new FileStream(filePath, FileMode.Open))
+            {
+                stream.CopyTo(memory);
+            }
+            memory.Position = 0;
+
+            return File(memory, fileEntry.ContentType, fileEntry.FileName);
+        }
+
+        public async Task<IActionResult> DeleteFile(int id)
+        {
+            var currentUser = HttpContext.Session.GetString("username");
+            var currentRole = HttpContext.Session.GetString("role");
+            
+            if (string.IsNullOrEmpty(currentUser))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var fileEntry = _context.FileUploadEntries
+                .Include(f => f.FileUploadModel)
+                .FirstOrDefault(f => f.Id == id);
+
+            if (fileEntry == null)
+            {
+                return NotFound("File not found.");
+            }
+
+            var performerUsername = fileEntry.FileUploadModel?.Username;
+
+            // Check permissions - only performers can delete their own files
+            if (currentRole != "performer" || currentUser != performerUsername)
+            {
+                TempData["ErrorMessage"] = "You don't have permission to delete this file.";
+                return RedirectToAction("Uploads", new { performerUsername });
+            }
+
+            try
+            {
+                // Delete physical file
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", fileEntry.FilePath);
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
+
+                // Remove from database
+                _context.FileUploadEntries.Remove(fileEntry);
+
+                // Update indemnity flag if this was indemnity evidence
+                if (fileEntry.Category == "IndemnityEvidence")
+                {
+                    var remainingIndemnityFiles = _context.FileUploadEntries
+                        .Where(f => f.FileUploadModel.Username == performerUsername && f.Category == "IndemnityEvidence" && f.Id != id)
+                        .Any();
+                    
+                    if (!remainingIndemnityFiles && fileEntry.FileUploadModel != null)
+                    {
+                        fileEntry.FileUploadModel.HasIndemnityEvidence = false;
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = $"File '{fileEntry.FileName}' deleted successfully.";
+                Console.WriteLine($"FILE DELETE SUCCESS: {fileEntry.FileName} deleted for {performerUsername}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"FILE DELETE ERROR: {ex.Message}");
+                TempData["ErrorMessage"] = "An error occurred while deleting the file.";
+            }
+
+            return RedirectToAction("Uploads", new { performerUsername });
         }
 
         public IActionResult PreviousExperience(string performerUsername)

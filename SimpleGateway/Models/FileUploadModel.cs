@@ -32,6 +32,10 @@ namespace SimpleGateway.Models
         
         [Display(Name = "Category")]
         public string Category { get; set; } = "";
+        
+        // Navigation property for the parent FileUploadModel
+        public int FileUploadModelId { get; set; }
+        public FileUploadModel FileUploadModel { get; set; } = null!;
     }
 
     public class FileUploadModel
