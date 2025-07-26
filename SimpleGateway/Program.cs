@@ -18,6 +18,7 @@ builder.Services.AddSession();
 // Add Entity Framework - Auto-detect database type
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
+    // Railway should provide DATABASE_URL for PostgreSQL
     var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
     var connectionString = databaseUrl ?? builder.Configuration.GetConnectionString("DefaultConnection");
     
@@ -30,7 +31,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     }
     
     // Auto-detect database type based on connection string
-    if (connectionString.StartsWith("postgresql://") || connectionString.Contains("postgresql"))
+    if (connectionString.StartsWith("postgresql://") || connectionString.Contains("postgresql") || connectionString.Contains("postgres"))
     {
         Console.WriteLine("Using PostgreSQL database");
         options.UseNpgsql(connectionString);
