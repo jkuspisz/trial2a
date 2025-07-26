@@ -28,8 +28,8 @@ namespace SimpleGateway.Controllers
 
             if (currentRole == "performer")
             {
-                // Redirect performers to their own dashboard
-                return RedirectToAction("PerformerDetails", new { performerUsername = currentUser });
+                // Show performer dashboard instead of redirecting to details
+                return View("PerformerDashboard");
             }
             else if (currentRole == "admin" || currentRole == "superuser")
             {
