@@ -4,7 +4,10 @@ using SimpleGateway.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 // Configure Railway port (Railway provides PORT environment variable)
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+var port = Environment.GetEnvironmentVariable("PORT") ?? Environment.GetEnvironmentVariable("HTTP_PORT") ?? "8080";
+Console.WriteLine($"Starting application on port {port}");
+Console.WriteLine($"PORT environment variable: {Environment.GetEnvironmentVariable("PORT")}");
+Console.WriteLine($"HTTP_PORT environment variable: {Environment.GetEnvironmentVariable("HTTP_PORT")}");
 builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
 // Add logging
@@ -15,35 +18,30 @@ builder.Logging.AddConsole();
 builder.Services.AddControllersWithViews();
 builder.Services.AddSession();
 
-// Add Entity Framework - Auto-detect database type
+// Add Entity Framework - Railway PostgreSQL database
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    // Railway should provide DATABASE_URL for PostgreSQL
-    var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
-    var connectionString = databaseUrl ?? builder.Configuration.GetConnectionString("DefaultConnection");
+    // Railway PostgreSQL connection - try multiple possible environment variable names
+    var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL") 
+                   ?? Environment.GetEnvironmentVariable("POSTGRES_URL")
+                   ?? Environment.GetEnvironmentVariable("POSTGRESQL_URL");
     
-    Console.WriteLine($"DATABASE_URL exists: {!string.IsNullOrEmpty(databaseUrl)}");
+    // If no environment variable, use the Railway PostgreSQL connection string directly
+    var connectionString = databaseUrl ?? "postgresql://postgres:JqzUsDviTmzGBwiuibsJFPMflWkgiGAS@postgres.railway.internal:5432/railway";
+    
+    Console.WriteLine($"DATABASE_URL exists: {!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DATABASE_URL"))}");
+    Console.WriteLine($"POSTGRES_URL exists: {!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("POSTGRES_URL"))}");
+    Console.WriteLine($"Using connection string from: {(!string.IsNullOrEmpty(databaseUrl) ? "Environment Variable" : "Hardcoded Railway PostgreSQL")}");
     Console.WriteLine($"Connection string: {connectionString}");
     
     if (string.IsNullOrEmpty(connectionString))
     {
-        throw new InvalidOperationException("Database connection string not found. Please set DATABASE_URL environment variable or DefaultConnection in appsettings.json");
+        throw new InvalidOperationException("Database connection string not found");
     }
     
-    // Auto-detect database type based on connection string
-    if (connectionString.StartsWith("postgresql://") || 
-        connectionString.Contains("postgresql") || 
-        connectionString.Contains("postgres") ||
-        connectionString.Contains("Host=") && connectionString.Contains("Database="))
-    {
-        Console.WriteLine("Using PostgreSQL database");
-        options.UseNpgsql(connectionString);
-    }
-    else
-    {
-        Console.WriteLine("Using SQLite database");
-        options.UseSqlite(connectionString);
-    }
+    // Always use PostgreSQL for Railway deployment
+    Console.WriteLine("Using PostgreSQL database (Railway)");
+    options.UseNpgsql(connectionString);
 });
 
 var app = builder.Build();
