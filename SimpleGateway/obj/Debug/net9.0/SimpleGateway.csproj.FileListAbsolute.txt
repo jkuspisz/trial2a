@@ -254,3 +254,5 @@ C:\Users\james\Desktop\trial2\SimpleGateway\obj\Debug\net9.0\refint\SimpleGatewa
 C:\Users\james\Desktop\trial2\SimpleGateway\obj\Debug\net9.0\SimpleGateway.pdb
 C:\Users\james\Desktop\trial2\SimpleGateway\obj\Debug\net9.0\SimpleGateway.genruntimeconfig.cache
 C:\Users\james\Desktop\trial2\SimpleGateway\obj\Debug\net9.0\ref\SimpleGateway.dll
+C:\Users\james\Desktop\trial2\SimpleGateway\bin\Debug\net9.0\Npgsql.dll
+C:\Users\james\Desktop\trial2\SimpleGateway\bin\Debug\net9.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll

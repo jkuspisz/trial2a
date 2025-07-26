@@ -15,9 +15,19 @@ builder.Logging.AddConsole();
 builder.Services.AddControllersWithViews();
 builder.Services.AddSession();
 
-// Add Entity Framework - SQLite database (file-based, perfect for deployment!)
+// Add Entity Framework - PostgreSQL database (Railway managed)
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+{
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
+        ?? Environment.GetEnvironmentVariable("DATABASE_URL");
+    
+    if (string.IsNullOrEmpty(connectionString))
+    {
+        throw new InvalidOperationException("Database connection string not found. Please set DATABASE_URL environment variable or DefaultConnection in appsettings.json");
+    }
+    
+    options.UseNpgsql(connectionString);
+});
 
 var app = builder.Build();
 
@@ -29,38 +39,7 @@ if (!app.Environment.IsDevelopment())
 
 Console.WriteLine($"Starting application on port {port}");
 
-// Ensure database directory exists (for Railway persistent storage)
-var dataDir = "/app/data";
-Console.WriteLine($"Checking data directory: {dataDir}");
-Console.WriteLine($"Data directory exists: {Directory.Exists(dataDir)}");
-
-if (!Directory.Exists(dataDir))
-{
-    Directory.CreateDirectory(dataDir);
-    Console.WriteLine($"Created data directory: {dataDir}");
-}
-else
-{
-    Console.WriteLine($"Data directory already exists");
-    // List existing files in data directory
-    var files = Directory.GetFiles(dataDir);
-    Console.WriteLine($"Files in data directory ({files.Length}):");
-    foreach (var file in files)
-    {
-        var fileInfo = new FileInfo(file);
-        Console.WriteLine($"- {Path.GetFileName(file)} ({fileInfo.Length} bytes, modified: {fileInfo.LastWriteTime})");
-    }
-}
-
-// Check Railway environment
-Console.WriteLine($"Railway environment variables:");
-Console.WriteLine($"- RAILWAY_ENVIRONMENT: {Environment.GetEnvironmentVariable("RAILWAY_ENVIRONMENT")}");
-Console.WriteLine($"- RAILWAY_PROJECT_ID: {Environment.GetEnvironmentVariable("RAILWAY_PROJECT_ID")}");
-Console.WriteLine($"- RAILWAY_SERVICE_ID: {Environment.GetEnvironmentVariable("RAILWAY_SERVICE_ID")}");
-Console.WriteLine($"- PWD: {Environment.GetEnvironmentVariable("PWD")}");
-Console.WriteLine($"- Current working directory: {Directory.GetCurrentDirectory()}");
-
-// Ensure database is created and seeded on startup
+// Initialize database on startup
 try
 {
     using (var scope = app.Services.CreateScope())
@@ -70,29 +49,12 @@ try
         var connectionString = context.Database.GetConnectionString();
         Console.WriteLine($"Database connection string: {connectionString}");
         
-        // Check if database file exists before migration
-        var dbPath = "/app/data/SimpleGateway.db";
-        var dbExists = File.Exists(dbPath);
-        Console.WriteLine($"Database file exists before migration: {dbExists}");
-        if (dbExists)
-        {
-            var fileInfo = new FileInfo(dbPath);
-            Console.WriteLine($"Database file size: {fileInfo.Length} bytes, Last modified: {fileInfo.LastWriteTime}");
-        }
-        
-        // Use migrations instead of EnsureCreated to preserve existing data
+        // Use migrations to ensure database is up to date
+        Console.WriteLine("Running database migrations...");
         context.Database.Migrate();
+        Console.WriteLine("Database migrations completed successfully");
         
-        // Check database file after migration
-        var dbExistsAfter = File.Exists(dbPath);
-        Console.WriteLine($"Database file exists after migration: {dbExistsAfter}");
-        if (dbExistsAfter)
-        {
-            var fileInfoAfter = new FileInfo(dbPath);
-            Console.WriteLine($"Database file size after migration: {fileInfoAfter.Length} bytes, Last modified: {fileInfoAfter.LastWriteTime}");
-        }
-        
-        // Check PerformerDetails data specifically
+        // Check database content
         var performerDetailsCount = context.PerformerDetails.Count();
         Console.WriteLine($"PerformerDetails records in database: {performerDetailsCount}");
         
