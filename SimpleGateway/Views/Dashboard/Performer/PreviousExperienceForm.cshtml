@@ -78,7 +78,8 @@
         <div class="col-9">
             <h2>Previous Experience - @ViewBag.PerformerName</h2>
             
-            <form method="post">
+            <form method="post" action="/Dashboard/PreviousExperienceForm">
+                <input type="hidden" name="Username" value="@ViewBag.PerformerUsername" />
                 <!-- Section 1: Registration and Qualifications -->
                 <div class="card mb-4">
                     <div class="card-header">

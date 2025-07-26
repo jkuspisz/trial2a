@@ -27,19 +27,15 @@ namespace SimpleGateway.Models
         public int Id { get; set; }
         public string Username { get; set; } = "";
         
-        [Required]
         [Display(Name = "Qualification")]
         public string QualificationName { get; set; } = "";
         
-        [Required]
         [Display(Name = "Country")]
         public string Country { get; set; } = "";
         
-        [Required]
         [Display(Name = "Institution")]
         public string Institution { get; set; } = "";
         
-        [Required]
         [Display(Name = "Year")]
         public string Year { get; set; } = "";
     }

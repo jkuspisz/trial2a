@@ -344,6 +344,9 @@ namespace SimpleGateway.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
+            // Always allow saving, even with empty fields - skip model validation
+            Console.WriteLine($"DASHBOARD DEBUG: Attempting to save PreviousExperience for {model.Username}");
+
             try
             {
                 // Check if record already exists
@@ -351,7 +354,7 @@ namespace SimpleGateway.Controllers
                 
                 if (existingRecord != null)
                 {
-                    // Update existing record
+                    // Update existing record - allow empty values
                     existingRecord.GdcGapsExplanation = model.GdcGapsExplanation ?? "";
                     existingRecord.NhsExperience = model.NhsExperience ?? "";
                     existingRecord.FullTime = model.FullTime ?? "";
@@ -363,12 +366,20 @@ namespace SimpleGateway.Controllers
                     existingRecord.IsSubmitted = model.IsSubmitted;
                     
                     _context.PreviousExperiences.Update(existingRecord);
+                    Console.WriteLine($"DASHBOARD DEBUG: Updated existing record for {model.Username}");
                 }
                 else
                 {
-                    // Create new record
+                    // Create new record - allow empty values
+                    model.GdcGapsExplanation = model.GdcGapsExplanation ?? "";
+                    model.NhsExperience = model.NhsExperience ?? "";
+                    model.FullTime = model.FullTime ?? "";
+                    model.PartTimeDaysPerWeek = model.PartTimeDaysPerWeek ?? "";
+                    model.Years = model.Years ?? "";
+                    model.Months = model.Months ?? "";
                     model.ApplicantConfirmedAt = model.ApplicantConfirmed ? DateTime.UtcNow : null;
                     _context.PreviousExperiences.Add(model);
+                    Console.WriteLine($"DASHBOARD DEBUG: Created new record for {model.Username}");
                 }
                 
                 // Save to database
@@ -383,7 +394,16 @@ namespace SimpleGateway.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine($"ERROR: Failed to save Previous Experience data: {ex.Message}");
-                TempData["ErrorMessage"] = "Failed to save Previous Experience information. Please try again.";
+                Console.WriteLine($"ERROR: Stack trace: {ex.StackTrace}");
+                
+                if (ex.Message.Contains("PreviousExperiences") && ex.Message.Contains("does not exist"))
+                {
+                    TempData["ErrorMessage"] = "The Previous Experience database table is being set up. Please try saving again in a few moments.";
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "Failed to save Previous Experience information. Please try again.";
+                }
             }
             
             // Redirect back to the form
