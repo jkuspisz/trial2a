@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SimpleGateway.Models;
+using SimpleGateway.Data;
 
 namespace SimpleGateway.Controllers
 {
@@ -298,33 +299,41 @@ namespace SimpleGateway.Controllers
                 ViewBag.PerformerName = $"{performer.FirstName} {performer.LastName}";
             }
 
-            // Load existing previous experience data from database
-            try
-            {
-                var existingData = _context.PreviousExperiences.FirstOrDefault(p => p.Username == performerUsername);
-                if (existingData != null)
-                {
-                    ViewBag.PreviousExperience = existingData;
-                }
-                else
-                {
-                    // Initialize empty previous experience model
-                    ViewBag.PreviousExperience = new PreviousExperienceModel { Username = performerUsername };
-                }
-            }
-            catch (Exception ex)
-            {
-                // If PreviousExperiences table doesn't exist, just show empty form
-                Console.WriteLine($"PreviousExperience database error: {ex.Message}");
-                ViewBag.PreviousExperience = new PreviousExperienceModel { Username = performerUsername };
-                ViewBag.DatabaseError = "Previous Experience data is being set up. You can still fill out the form.";
-            }
+            // Get or create simple previous experience from existing table
+            Console.WriteLine($"DASHBOARD DEBUG: Attempting to retrieve previous experience for {performerUsername}");
             
-            // Load qualifications and employment history from separate tables
-            ViewBag.ClinicalEntries = new List<ClinicalExperienceEntry>();
-            ViewBag.ProcedureSections = ProcedureSections.All;
+            // Use existing PreviousExperiences table but create a simple model for the form
+            var existingData = _context.PreviousExperiences.FirstOrDefault(p => p.Username == performerUsername);
+            
+            SimplePreviousExperienceModel model;
+            if (existingData == null)
+            {
+                Console.WriteLine($"DASHBOARD DEBUG: No existing previous experience found for {performerUsername}, creating new");
+                model = new SimplePreviousExperienceModel
+                {
+                    Username = performerUsername
+                };
+            }
+            else
+            {
+                Console.WriteLine($"DASHBOARD DEBUG: Found existing previous experience for {performerUsername}");
+                // Map existing complex data to simple model
+                model = new SimplePreviousExperienceModel
+                {
+                    Username = performerUsername,
+                    PreviousEmployer = existingData.NhsExperience ?? "",
+                    JobTitle = "",
+                    StartDate = "",
+                    EndDate = "",
+                    JobDescription = existingData.GdcGapsExplanation ?? "",
+                    QualificationsSummary = "",
+                    ClinicalExperience = "",
+                    SkillsAndCompetencies = "",
+                    AdditionalNotes = ""
+                };
+            }
 
-            return View("Performer/PreviousExperienceForm");
+            return View("Performer/SimplePreviousExperience", model);
         }
 
         [HttpGet]
@@ -472,6 +481,76 @@ namespace SimpleGateway.Controllers
             
             // Redirect back to the form
             return RedirectToAction("PreviousExperience", new { performerUsername = model?.Username ?? currentUser });
+        }
+
+        // Simple Previous Experience Actions
+        [HttpPost]
+        public IActionResult SimplePreviousExperience(SimplePreviousExperienceModel model)
+        {
+            var currentUser = HttpContext.Session.GetString("username");
+            
+            try
+            {
+                if (string.IsNullOrEmpty(model.Username))
+                {
+                    model.Username = currentUser ?? string.Empty;
+                }
+
+                Console.WriteLine($"DASHBOARD DEBUG: Attempting to save simple previous experience for {model.Username}");
+                
+                // Use existing PreviousExperiences table
+                var existingRecord = _context.PreviousExperiences.FirstOrDefault(p => p.Username == model.Username);
+                
+                if (existingRecord != null)
+                {
+                    // Update existing record - map simple fields to existing complex model
+                    existingRecord.NhsExperience = model.PreviousEmployer;
+                    existingRecord.GdcGapsExplanation = model.JobDescription;
+                    // Keep other fields as they were
+                    
+                    _context.PreviousExperiences.Update(existingRecord);
+                    Console.WriteLine($"DASHBOARD DEBUG: Updated existing record for {model.Username}");
+                }
+                else
+                {
+                    // Create new record using existing PreviousExperienceModel
+                    var newRecord = new PreviousExperienceModel
+                    {
+                        Username = model.Username,
+                        NhsExperience = model.PreviousEmployer,
+                        GdcGapsExplanation = model.JobDescription,
+                        // Set other required fields to avoid validation issues
+                        Years = "0",
+                        Months = "0",
+                        FullTime = "No"
+                    };
+                    
+                    _context.PreviousExperiences.Add(newRecord);
+                    Console.WriteLine($"DASHBOARD DEBUG: Created new record for {model.Username}");
+                }
+
+                var savedRows = _context.SaveChanges();
+                Console.WriteLine($"DASHBOARD DEBUG: SaveChanges() affected {savedRows} rows for {model.Username}");
+                
+                if (savedRows > 0)
+                {
+                    TempData["SuccessMessage"] = "Previous Experience saved successfully!";
+                    Console.WriteLine($"DASHBOARD DEBUG: Simple Previous Experience saved successfully for {model.Username}");
+                }
+                else
+                {
+                    Console.WriteLine($"DASHBOARD DEBUG: Save failed - no rows affected for {model.Username}");
+                    TempData["ErrorMessage"] = "Save failed - no changes were made.";
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"ERROR: Failed to save Simple Previous Experience: {ex.Message}");
+                Console.WriteLine($"ERROR: Stack trace: {ex.StackTrace}");
+                TempData["ErrorMessage"] = "Failed to save Previous Experience information. Please try again.";
+            }
+            
+            return RedirectToAction("PreviousExperience", new { performerUsername = model.Username });
         }
 
         // Other section methods (simplified for brevity)

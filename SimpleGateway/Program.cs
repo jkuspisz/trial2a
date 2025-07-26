@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SimpleGateway.Models;
+using SimpleGateway.Data;
 using SimpleGateway;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -33,7 +34,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddSession();
 
 // Add Entity Framework - Railway PostgreSQL database
-builder.Services.AddDbContext<SimpleGateway.ApplicationDbContext>(options =>
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     // Railway PostgreSQL connection - try multiple possible environment variable names
     var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL") 
@@ -84,7 +85,7 @@ try
 {
     using (var scope = app.Services.CreateScope())
     {
-        var context = scope.ServiceProvider.GetRequiredService<SimpleGateway.ApplicationDbContext>();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         
         var connectionString = context.Database.GetConnectionString();
         Console.WriteLine($"Database connection string: {connectionString}");

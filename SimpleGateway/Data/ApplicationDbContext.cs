@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SimpleGateway.Models;
 
-namespace SimpleGateway
+namespace SimpleGateway.Data
 {
     public class ApplicationDbContext : DbContext
     {
@@ -27,13 +27,6 @@ namespace SimpleGateway
             {
                 entity.HasKey(e => e.Id);
                 entity.HasIndex(e => e.Username).IsUnique();
-                entity.Property(e => e.Username).IsRequired().HasMaxLength(50);
-                entity.Property(e => e.Password).IsRequired().HasMaxLength(255);
-                entity.Property(e => e.FirstName).IsRequired().HasMaxLength(50);
-                entity.Property(e => e.LastName).IsRequired().HasMaxLength(50);
-                entity.Property(e => e.DisplayName).IsRequired().HasMaxLength(100);
-                entity.Property(e => e.Role).IsRequired().HasMaxLength(20);
-                entity.Property(e => e.Email).HasMaxLength(255);
             });
 
             // Configure PerformerDetailsModel
@@ -41,91 +34,22 @@ namespace SimpleGateway
             {
                 entity.HasKey(e => e.Id);
                 entity.HasIndex(e => e.Username).IsUnique();
-                entity.Property(e => e.Username).IsRequired().HasMaxLength(50);
-                entity.Property(e => e.FirstName).IsRequired().HasMaxLength(50);
-                entity.Property(e => e.LastName).IsRequired().HasMaxLength(50);
-                entity.Property(e => e.GDCNumber).IsRequired().HasMaxLength(20);
-                entity.Property(e => e.Email).IsRequired().HasMaxLength(255);
-                entity.Property(e => e.ContactNumber).IsRequired().HasMaxLength(20);
-                entity.Property(e => e.SupportingDentist).IsRequired().HasMaxLength(100);
-                entity.Property(e => e.SupportingDentistContactNumber).IsRequired().HasMaxLength(20);
-                entity.Property(e => e.PracticeAddress).IsRequired().HasMaxLength(200);
-                entity.Property(e => e.PracticePostCode).IsRequired().HasMaxLength(10);
-                entity.Property(e => e.UniversityCountryOfQualification).IsRequired().HasMaxLength(100);
             });
-
-            // Temporarily disabled FileUpload configuration to fix session issues
-            /*
-            // Configure FileUploadModel
-            modelBuilder.Entity<FileUploadModel>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-                entity.HasIndex(e => e.Username).IsUnique();
-                entity.Property(e => e.Username).IsRequired().HasMaxLength(50);
-            });
-
-            // Configure FileUploadEntry
-            modelBuilder.Entity<FileUploadEntry>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-                entity.Property(e => e.FileName).IsRequired().HasMaxLength(255);
-                entity.Property(e => e.Description).HasMaxLength(500);
-                entity.Property(e => e.Category).IsRequired().HasMaxLength(50);
-                entity.Property(e => e.ContentType).HasMaxLength(100);
-                entity.Property(e => e.FilePath).HasMaxLength(500);
-                entity.Property(e => e.FileUploadModelId).IsRequired();
-            });
-            */
 
             // Configure AssignmentModel
             modelBuilder.Entity<AssignmentModel>(entity =>
             {
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.Notes).HasMaxLength(1000);
-                
-                // Configure foreign key relationships
-                entity.HasOne(e => e.Performer)
-                      .WithMany()
-                      .HasForeignKey(e => e.PerformerId)
-                      .OnDelete(DeleteBehavior.Cascade);
-                
-                entity.HasOne(e => e.Supervisor)
-                      .WithMany()
-                      .HasForeignKey(e => e.SupervisorId)
-                      .OnDelete(DeleteBehavior.SetNull);
-                
-                entity.HasOne(e => e.Advisor)
-                      .WithMany()
-                      .HasForeignKey(e => e.AdvisorId)
-                      .OnDelete(DeleteBehavior.SetNull);
             });
 
-            // Configure PreviousExperienceModel - Single table with JSON columns
+            // Configure PreviousExperienceModel
             modelBuilder.Entity<PreviousExperienceModel>(entity =>
             {
                 entity.HasKey(e => e.Id);
                 entity.HasIndex(e => e.Username).IsUnique();
-                entity.Property(e => e.Username).IsRequired().HasMaxLength(50);
-                
-                // Make string fields nullable to avoid required validation
-                entity.Property(e => e.GdcGapsExplanation).HasMaxLength(2000);
-                entity.Property(e => e.NhsExperience).HasMaxLength(1000);
-                entity.Property(e => e.FullTime).HasMaxLength(10);
-                entity.Property(e => e.PartTimeDaysPerWeek).HasMaxLength(10);
-                entity.Property(e => e.Years).HasMaxLength(10);
-                entity.Property(e => e.Months).HasMaxLength(10);
-                entity.Property(e => e.AdvisorDeclarationBy).HasMaxLength(100);
-                entity.Property(e => e.AdvisorDeclarationComment).HasMaxLength(1000);
-                
-                // JSON columns for complex data
-                entity.Property(e => e.QualificationsJson).HasColumnType("TEXT");
-                entity.Property(e => e.EmploymentHistoryJson).HasColumnType("TEXT");
-                entity.Property(e => e.ClinicalExperienceJson).HasColumnType("TEXT");
-                
-                // Ignore navigation properties (they're now JSON)
-                entity.Ignore(e => e.Qualifications);
-                entity.Ignore(e => e.EmploymentHistory);
-                entity.Ignore(e => e.ClinicalExperience);
+                entity.Property(e => e.QualificationsJson).HasColumnType("text");
+                entity.Property(e => e.EmploymentHistoryJson).HasColumnType("text");
+                entity.Property(e => e.ClinicalExperienceJson).HasColumnType("text");
             });
 
             // Seed initial data
@@ -134,17 +58,56 @@ namespace SimpleGateway
 
         private void SeedData(ModelBuilder modelBuilder)
         {
-            // Seed Users with static dates to prevent deployment issues
-            var seedDate = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            
+            // Seed users
             modelBuilder.Entity<UserModel>().HasData(
-                new UserModel { Id = 1, Username = "performer1", Password = "password123", Role = "performer", FirstName = "John", LastName = "Smith", DisplayName = "John Smith", Email = "john.smith@example.com", CreatedDate = seedDate, IsActive = true },
-                new UserModel { Id = 2, Username = "performer2", Password = "password123", Role = "performer", FirstName = "Jane", LastName = "Johnson", DisplayName = "Jane Johnson", Email = "jane.johnson@example.com", CreatedDate = seedDate, IsActive = true },
-                new UserModel { Id = 3, Username = "performer3", Password = "password123", Role = "performer", FirstName = "Mike", LastName = "Wilson", DisplayName = "Mike Wilson", Email = "mike.wilson@example.com", CreatedDate = seedDate, IsActive = true },
-                new UserModel { Id = 4, Username = "advisor1", Password = "password123", Role = "advisor", FirstName = "Dr. Sarah", LastName = "Davis", DisplayName = "Dr. Sarah Davis", Email = "sarah.davis@example.com", CreatedDate = seedDate, IsActive = true },
-                new UserModel { Id = 5, Username = "supervisor1", Password = "password123", Role = "supervisor", FirstName = "Prof. Robert", LastName = "Brown", DisplayName = "Prof. Robert Brown", Email = "robert.brown@example.com", CreatedDate = seedDate, IsActive = true },
-                new UserModel { Id = 6, Username = "admin1", Password = "password123", Role = "admin", FirstName = "Admin", LastName = "User", DisplayName = "Admin User", Email = "admin@example.com", CreatedDate = seedDate, IsActive = true },
-                new UserModel { Id = 7, Username = "superuser", Password = "password123", Role = "superuser", FirstName = "Super", LastName = "User", DisplayName = "Super User", Email = "superuser@example.com", CreatedDate = seedDate, IsActive = true }
+                new UserModel
+                {
+                    Id = 1,
+                    Username = "admin",
+                    Password = "$2a$11$K5ZfJ5WMzHPbfT6Gw4YzWOxKoKjQnN8qFZHlUZ7QJC8CgCYzq8dUy", // "admin123"
+                    FirstName = "Admin",
+                    LastName = "User",
+                    DisplayName = "Administrator",
+                    Role = "Admin",
+                    Email = "admin@example.com",
+                    CreatedDate = DateTime.UtcNow
+                },
+                new UserModel
+                {
+                    Id = 2,
+                    Username = "performer1",
+                    Password = "$2a$11$nrmQZZ2qLbT4mFyf3u4D9uqNPqK9M1XKoFVh8kWIUx8rRyJhU7uBK", // "performer123"
+                    FirstName = "John",
+                    LastName = "Smith",
+                    DisplayName = "Dr. John Smith",
+                    Role = "Performer",
+                    Email = "john.smith@example.com",
+                    CreatedDate = DateTime.UtcNow
+                },
+                new UserModel
+                {
+                    Id = 3,
+                    Username = "james",
+                    Password = "$2a$11$X.9UhD2YhUYqZpD3.eM5yOY4z5ZkKUGKjGP.rM6OqQC5eEfLHdDFu", // "james123"
+                    FirstName = "James",
+                    LastName = "Brown",
+                    DisplayName = "Dr. James Brown",
+                    Role = "Performer",
+                    Email = "james.brown@example.com",
+                    CreatedDate = DateTime.UtcNow
+                },
+                new UserModel
+                {
+                    Id = 4,
+                    Username = "agency1",
+                    Password = "$2a$11$Th4qZ8zSB5qF9kJ1OzOhzOmA8pG3u2CpLn5RtD9HwGv6mJkF3uP2w", // "agency123"
+                    FirstName = "Agency",
+                    LastName = "Manager",
+                    DisplayName = "Agency Manager",
+                    Role = "Agency",
+                    Email = "agency@example.com",
+                    CreatedDate = DateTime.UtcNow
+                }
             );
         }
     }

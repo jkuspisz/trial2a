@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using SimpleGateway;
+using SimpleGateway.Data;
 
 #nullable disable
 
@@ -224,6 +224,56 @@ namespace SimpleGateway.Migrations
                         .IsUnique();
 
                     b.ToTable("PreviousExperiences");
+                });
+
+            modelBuilder.Entity("SimpleGateway.Models.SimplePreviousExperienceModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AdditionalNotes")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ClinicalExperience")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("EndDate")
+                        .HasColumnType("text");
+
+                    b.Property<string>("JobDescription")
+                        .HasColumnType("text");
+
+                    b.Property<string>("JobTitle")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PreviousEmployer")
+                        .HasColumnType("text");
+
+                    b.Property<string>("QualificationsSummary")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SkillsAndCompetencies")
+                        .HasColumnType("text");
+
+                    b.Property<string>("StartDate")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SimplePreviousExperiences");
                 });
 
             modelBuilder.Entity("SimpleGateway.Models.UserModel", b =>
