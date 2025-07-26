@@ -141,48 +141,93 @@ namespace SimpleGateway.Controllers
         public IActionResult PerformerDetails(PerformerDetailsModel model)
         {
             var currentUser = HttpContext.Session.GetString("username");
+            Console.WriteLine($"DASHBOARD DEBUG: POST request received for PerformerDetails, user: {currentUser}, model.Username: {model?.Username}");
             
             if (string.IsNullOrEmpty(currentUser))
             {
+                Console.WriteLine($"DASHBOARD DEBUG: No current user in session, redirecting to login");
                 return RedirectToAction("Login", "Account");
+            }
+
+            if (model == null)
+            {
+                Console.WriteLine($"DASHBOARD DEBUG: Model is null");
+                return RedirectToAction("PerformerDetails", new { performerUsername = currentUser });
+            }
+
+            Console.WriteLine($"DASHBOARD DEBUG: ModelState.IsValid = {ModelState.IsValid}");
+            if (!ModelState.IsValid)
+            {
+                Console.WriteLine($"DASHBOARD DEBUG: ModelState errors:");
+                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    Console.WriteLine($"DASHBOARD DEBUG: - {error.ErrorMessage}");
+                }
             }
 
             if (ModelState.IsValid)
             {
-                // Check if performer details already exists
-                var existingDetails = _context.PerformerDetails.FirstOrDefault(p => p.Username == model.Username);
-                
-                if (existingDetails != null)
+                try
                 {
-                    Console.WriteLine($"DASHBOARD DEBUG: Updating existing performer details for {model.Username}");
-                    // Update existing record
-                    existingDetails.FirstName = model.FirstName;
-                    existingDetails.LastName = model.LastName;
-                    existingDetails.GDCNumber = model.GDCNumber;
-                    existingDetails.Email = model.Email;
-                    existingDetails.ContactNumber = model.ContactNumber;
-                    existingDetails.SupportingDentist = model.SupportingDentist;
-                    existingDetails.SupportingDentistContactNumber = model.SupportingDentistContactNumber;
-                    existingDetails.PracticeAddress = model.PracticeAddress;
-                    existingDetails.PracticePostCode = model.PracticePostCode;
-                    existingDetails.UniversityCountryOfQualification = model.UniversityCountryOfQualification;
-                    existingDetails.DateOfDentalQualification = model.DateOfDentalQualification;
-                    existingDetails.DateOfUKRegistration = model.DateOfUKRegistration;
-                    existingDetails.IsCompleted = model.IsCompleted;
+                    // Check if performer details already exists
+                    var existingDetails = _context.PerformerDetails.FirstOrDefault(p => p.Username == model.Username);
                     
-                    _context.PerformerDetails.Update(existingDetails);
+                    if (existingDetails != null)
+                    {
+                        Console.WriteLine($"DASHBOARD DEBUG: Updating existing performer details for {model.Username}");
+                        Console.WriteLine($"DASHBOARD DEBUG: Before update - FirstName: '{existingDetails.FirstName}' -> '{model.FirstName}'");
+                        // Update existing record
+                        existingDetails.FirstName = model.FirstName;
+                        existingDetails.LastName = model.LastName;
+                        existingDetails.GDCNumber = model.GDCNumber;
+                        existingDetails.Email = model.Email;
+                        existingDetails.ContactNumber = model.ContactNumber;
+                        existingDetails.SupportingDentist = model.SupportingDentist;
+                        existingDetails.SupportingDentistContactNumber = model.SupportingDentistContactNumber;
+                        existingDetails.PracticeAddress = model.PracticeAddress;
+                        existingDetails.PracticePostCode = model.PracticePostCode;
+                        existingDetails.UniversityCountryOfQualification = model.UniversityCountryOfQualification;
+                        existingDetails.DateOfDentalQualification = model.DateOfDentalQualification;
+                        existingDetails.DateOfUKRegistration = model.DateOfUKRegistration;
+                        existingDetails.IsCompleted = model.IsCompleted;
+                        
+                        _context.PerformerDetails.Update(existingDetails);
+                        Console.WriteLine($"DASHBOARD DEBUG: After update - FirstName: '{existingDetails.FirstName}'");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"DASHBOARD DEBUG: Creating new performer details for {model.Username}");
+                        Console.WriteLine($"DASHBOARD DEBUG: New record - FirstName: '{model.FirstName}', LastName: '{model.LastName}'");
+                        // Add new record
+                        _context.PerformerDetails.Add(model);
+                    }
+                    
+                    var savedRows = _context.SaveChanges();
+                    Console.WriteLine($"DASHBOARD DEBUG: SaveChanges() affected {savedRows} rows for {model.Username}");
+                    
+                    if (savedRows > 0)
+                    {
+                        Console.WriteLine($"DASHBOARD DEBUG: Save successful! Redirecting with success message");
+                        TempData["SuccessMessage"] = "Details saved successfully!";
+                        return RedirectToAction("PerformerDetails", new { performerUsername = model.Username });
+                    }
+                    else
+                    {
+                        Console.WriteLine($"DASHBOARD DEBUG: Save failed - no rows affected");
+                        TempData["ErrorMessage"] = "Save failed - no changes were made to the database.";
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    Console.WriteLine($"DASHBOARD DEBUG: Creating new performer details for {model.Username}");
-                    // Add new record
-                    _context.PerformerDetails.Add(model);
+                    Console.WriteLine($"DASHBOARD DEBUG: Exception during save: {ex.Message}");
+                    Console.WriteLine($"DASHBOARD DEBUG: Stack trace: {ex.StackTrace}");
+                    TempData["ErrorMessage"] = $"Error saving details: {ex.Message}";
                 }
-                
-                var savedRows = _context.SaveChanges();
-                Console.WriteLine($"DASHBOARD DEBUG: SaveChanges() affected {savedRows} rows for {model.Username}");
-                TempData["SuccessMessage"] = "Details saved successfully!";
-                return RedirectToAction("PerformerDetails", new { performerUsername = model.Username });
+            }
+            else
+            {
+                Console.WriteLine($"DASHBOARD DEBUG: ModelState invalid, redisplaying form");
+                TempData["ErrorMessage"] = "Please correct the validation errors and try again.";
             }
 
             // If we got this far, something failed, redisplay form
