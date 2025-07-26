@@ -125,15 +125,40 @@ try
             var performerDetailsCount = context.PerformerDetails.Count();
             var assignmentsCount = context.Assignments.Count();
             
+            // Verify new PreviousExperience tables
+            var previousExperiencesCount = context.PreviousExperiences.Count();
+            var qualificationsCount = context.Qualifications.Count();
+            var employmentHistoryCount = context.EmploymentHistoryJobs.Count();
+            
             Console.WriteLine($"Database table verification:");
             Console.WriteLine($"  Users: {usersCount} records");
             Console.WriteLine($"  PerformerDetails: {performerDetailsCount} records");
             Console.WriteLine($"  Assignments: {assignmentsCount} records");
+            Console.WriteLine($"  PreviousExperiences: {previousExperiencesCount} records");
+            Console.WriteLine($"  Qualifications: {qualificationsCount} records");
+            Console.WriteLine($"  EmploymentHistoryJobs: {employmentHistoryCount} records");
+            Console.WriteLine("All database tables verified successfully!");
         }
         catch (Exception tableEx)
         {
             Console.WriteLine($"Table verification error: {tableEx.Message}");
             Console.WriteLine("Database tables may not exist properly");
+            
+            // If PreviousExperiences table is missing, try to force migration
+            if (tableEx.Message.Contains("PreviousExperiences"))
+            {
+                Console.WriteLine("PreviousExperiences table missing - forcing complete database recreation...");
+                try
+                {
+                    context.Database.EnsureDeleted();
+                    context.Database.EnsureCreated();
+                    Console.WriteLine("Database recreated successfully");
+                }
+                catch (Exception recreationEx)
+                {
+                    Console.WriteLine($"Database recreation failed: {recreationEx.Message}");
+                }
+            }
         }
         
         // Additional data verification
