@@ -114,6 +114,7 @@ namespace SimpleGateway.Controllers
             }
 
             // Get or create performer details from database
+            Console.WriteLine($"DASHBOARD DEBUG: Attempting to retrieve performer details for {performerUsername}");
             var model = _context.PerformerDetails.FirstOrDefault(p => p.Username == performerUsername);
             if (model == null)
             {
@@ -126,8 +127,12 @@ namespace SimpleGateway.Controllers
             }
             else
             {
-                Console.WriteLine($"DASHBOARD DEBUG: Found existing details for {performerUsername} - FirstName: {model.FirstName}, LastName: {model.LastName}");
+                Console.WriteLine($"DASHBOARD DEBUG: Found existing details for {performerUsername} - FirstName: {model.FirstName}, LastName: {model.LastName}, GDC: {model.GDCNumber}");
             }
+
+            // Check total PerformerDetails count
+            var totalPerformerDetails = _context.PerformerDetails.Count();
+            Console.WriteLine($"DASHBOARD DEBUG: Total PerformerDetails records in database: {totalPerformerDetails}");
 
             return View("Performer/PerformerDetails", model);
         }
@@ -199,6 +204,11 @@ namespace SimpleGateway.Controllers
         public IActionResult Uploads(string performerUsername)
         {
             return HandlePerformerSection(performerUsername, "Uploads");
+        }
+
+        public IActionResult PreviousExperience(string performerUsername)
+        {
+            return HandlePerformerSection(performerUsername, "PreviousExperience");
         }
 
         public IActionResult PreviousExperienceForm(string performerUsername)

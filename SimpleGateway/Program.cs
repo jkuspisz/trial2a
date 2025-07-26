@@ -35,7 +35,9 @@ try
     using (var scope = app.Services.CreateScope())
     {
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        context.Database.EnsureCreated();
+        
+        // Use migrations instead of EnsureCreated to preserve existing data
+        context.Database.Migrate();
         
         // Debug: Check what users actually exist in the database
         var existingUsers = context.Users.ToList();
