@@ -29,12 +29,22 @@ if (!app.Environment.IsDevelopment())
 
 Console.WriteLine($"Starting application on port {port}");
 
+// Ensure database directory exists (for Railway persistent storage)
+var dataDir = "/app/data";
+if (!Directory.Exists(dataDir))
+{
+    Directory.CreateDirectory(dataDir);
+    Console.WriteLine($"Created data directory: {dataDir}");
+}
+
 // Ensure database is created and seeded on startup
 try
 {
     using (var scope = app.Services.CreateScope())
     {
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        
+        Console.WriteLine($"Database connection string: {context.Database.GetConnectionString()}");
         
         // Use migrations instead of EnsureCreated to preserve existing data
         context.Database.Migrate();
