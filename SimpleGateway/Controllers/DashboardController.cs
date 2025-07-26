@@ -347,10 +347,16 @@ namespace SimpleGateway.Controllers
             // Debug: Log what we received
             Console.WriteLine($"DASHBOARD DEBUG: POST received - Username: {model?.Username}");
             Console.WriteLine($"DASHBOARD DEBUG: ModelState.IsValid: {ModelState.IsValid}");
-            Console.WriteLine($"DASHBOARD DEBUG: ModelState errors:");
-            foreach (var error in ModelState)
+            if (!ModelState.IsValid)
             {
-                Console.WriteLine($"DASHBOARD DEBUG: {error.Key}: {string.Join(", ", error.Value.Errors.Select(e => e.ErrorMessage))}");
+                Console.WriteLine($"DASHBOARD DEBUG: ModelState errors:");
+                foreach (var error in ModelState)
+                {
+                    Console.WriteLine($"DASHBOARD DEBUG: {error.Key}: {string.Join(", ", error.Value.Errors.Select(e => e.ErrorMessage))}");
+                }
+                // Clear model state errors - we want to allow saving even with validation errors
+                ModelState.Clear();
+                Console.WriteLine($"DASHBOARD DEBUG: Cleared ModelState errors - proceeding with save");
             }
 
             // Always allow saving, even with empty fields - skip model validation
@@ -358,6 +364,21 @@ namespace SimpleGateway.Controllers
 
             try
             {
+                // Check if the table exists and create it if needed
+                try
+                {
+                    var tableExists = _context.Database.CanConnect();
+                    Console.WriteLine($"DASHBOARD DEBUG: Database connection status: {tableExists}");
+                    
+                    // Try to ensure database is up to date
+                    _context.Database.Migrate();
+                    Console.WriteLine($"DASHBOARD DEBUG: Database migration applied successfully");
+                }
+                catch (Exception migrationEx)
+                {
+                    Console.WriteLine($"DASHBOARD DEBUG: Migration error (continuing anyway): {migrationEx.Message}");
+                }
+
                 // Ensure model has username
                 if (string.IsNullOrEmpty(model?.Username))
                 {
