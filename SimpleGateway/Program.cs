@@ -103,6 +103,7 @@ try
         
         // Use migrations to ensure database is up to date
         Console.WriteLine("Running database migrations...");
+        Console.WriteLine("Applying PreviousExperiences table migration...");
         try 
         {
             context.Database.Migrate();
