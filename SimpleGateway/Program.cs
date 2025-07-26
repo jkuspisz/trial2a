@@ -15,25 +15,31 @@ builder.Logging.AddConsole();
 builder.Services.AddControllersWithViews();
 builder.Services.AddSession();
 
-// Add Entity Framework - Will use PostgreSQL when DATABASE_URL is configured
+// Add Entity Framework - Auto-detect database type
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
-    var defaultConnection = builder.Configuration.GetConnectionString("DefaultConnection");
+    var connectionString = databaseUrl ?? builder.Configuration.GetConnectionString("DefaultConnection");
     
     Console.WriteLine($"DATABASE_URL exists: {!string.IsNullOrEmpty(databaseUrl)}");
-    Console.WriteLine($"DefaultConnection: {defaultConnection}");
+    Console.WriteLine($"Connection string: {connectionString}");
     
-    if (!string.IsNullOrEmpty(databaseUrl))
+    if (string.IsNullOrEmpty(connectionString))
     {
-        Console.WriteLine("DATABASE_URL found but PostgreSQL setup incomplete. Using SQLite fallback.");
-        Console.WriteLine("To use PostgreSQL: 1) Add PostgreSQL service in Railway, 2) Connect it to this app");
+        throw new InvalidOperationException("Database connection string not found. Please set DATABASE_URL environment variable or DefaultConnection in appsettings.json");
     }
     
-    // For now, use SQLite until PostgreSQL is properly configured
-    var connectionString = defaultConnection ?? "Data Source=/app/data/SimpleGateway.db";
-    Console.WriteLine($"Using SQLite connection: {connectionString}");
-    options.UseSqlite(connectionString);
+    // Auto-detect database type based on connection string
+    if (connectionString.StartsWith("postgresql://") || connectionString.Contains("postgresql"))
+    {
+        Console.WriteLine("Using PostgreSQL database");
+        options.UseNpgsql(connectionString);
+    }
+    else
+    {
+        Console.WriteLine("Using SQLite database");
+        options.UseSqlite(connectionString);
+    }
 });
 
 var app = builder.Build();
