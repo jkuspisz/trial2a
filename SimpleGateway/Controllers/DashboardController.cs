@@ -364,19 +364,18 @@ namespace SimpleGateway.Controllers
 
             try
             {
-                // Check if the table exists and create it if needed
+                // Instead of migrating during save, check if the table has the new columns
                 try
                 {
-                    var tableExists = _context.Database.CanConnect();
-                    Console.WriteLine($"DASHBOARD DEBUG: Database connection status: {tableExists}");
-                    
-                    // Try to ensure database is up to date
-                    _context.Database.Migrate();
-                    Console.WriteLine($"DASHBOARD DEBUG: Database migration applied successfully");
+                    // Test if the new columns exist by trying a simple query
+                    var testQuery = _context.PreviousExperiences.Select(p => new { p.Id, p.QualificationsJson }).FirstOrDefault();
+                    Console.WriteLine($"DASHBOARD DEBUG: New JSON columns are available in database");
                 }
-                catch (Exception migrationEx)
+                catch (Exception columnEx)
                 {
-                    Console.WriteLine($"DASHBOARD DEBUG: Migration error (continuing anyway): {migrationEx.Message}");
+                    Console.WriteLine($"DASHBOARD DEBUG: JSON columns not available yet: {columnEx.Message}");
+                    TempData["ErrorMessage"] = "Database is still updating. Please try again in a few moments.";
+                    return RedirectToAction("PreviousExperience", new { performerUsername = model?.Username ?? currentUser });
                 }
 
                 // Ensure model has username
@@ -397,15 +396,15 @@ namespace SimpleGateway.Controllers
                 if (existingRecord != null)
                 {
                     Console.WriteLine($"DASHBOARD DEBUG: Updating existing PreviousExperience record for {model.Username}");
-                    // Update existing record - allow empty values
-                    existingRecord.GdcGapsExplanation = model.GdcGapsExplanation ?? "";
-                    existingRecord.NhsExperience = model.NhsExperience ?? "";
-                    existingRecord.FullTime = model.FullTime ?? "";
-                    existingRecord.PartTimeDaysPerWeek = model.PartTimeDaysPerWeek ?? "";
-                    existingRecord.Years = model.Years ?? "";
-                    existingRecord.Months = model.Months ?? "";
-                    existingRecord.AdvisorDeclarationBy = model.AdvisorDeclarationBy ?? "";
-                    existingRecord.AdvisorDeclarationComment = model.AdvisorDeclarationComment ?? "";
+                    // Update existing record - handle nullable strings properly
+                    existingRecord.GdcGapsExplanation = model.GdcGapsExplanation;
+                    existingRecord.NhsExperience = model.NhsExperience;
+                    existingRecord.FullTime = model.FullTime;
+                    existingRecord.PartTimeDaysPerWeek = model.PartTimeDaysPerWeek;
+                    existingRecord.Years = model.Years;
+                    existingRecord.Months = model.Months;
+                    existingRecord.AdvisorDeclarationBy = model.AdvisorDeclarationBy;
+                    existingRecord.AdvisorDeclarationComment = model.AdvisorDeclarationComment;
                     existingRecord.ApplicantConfirmed = model.ApplicantConfirmed;
                     existingRecord.ApplicantConfirmedAt = model.ApplicantConfirmed ? DateTime.UtcNow : null;
                     existingRecord.IsSubmitted = model.IsSubmitted;
@@ -422,15 +421,7 @@ namespace SimpleGateway.Controllers
                 else
                 {
                     Console.WriteLine($"DASHBOARD DEBUG: Creating new PreviousExperience record for {model.Username}");
-                    // Create new record - allow empty values
-                    model.GdcGapsExplanation = model.GdcGapsExplanation ?? "";
-                    model.NhsExperience = model.NhsExperience ?? "";
-                    model.FullTime = model.FullTime ?? "";
-                    model.PartTimeDaysPerWeek = model.PartTimeDaysPerWeek ?? "";
-                    model.Years = model.Years ?? "";
-                    model.Months = model.Months ?? "";
-                    model.AdvisorDeclarationBy = model.AdvisorDeclarationBy ?? "";
-                    model.AdvisorDeclarationComment = model.AdvisorDeclarationComment ?? "";
+                    // Create new record - nullable strings don't need default values
                     model.ApplicantConfirmedAt = model.ApplicantConfirmed ? DateTime.UtcNow : null;
                     model.CreatedAt = DateTime.UtcNow;
                     model.UpdatedAt = DateTime.UtcNow;

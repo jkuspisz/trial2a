@@ -40,13 +40,13 @@ namespace SimpleGateway.Models
         public int Id { get; set; }
         public string Username { get; set; } = "";
         
-        // Section 1: Basic Information
-        public string GdcGapsExplanation { get; set; } = "";
-        public string NhsExperience { get; set; } = "";
-        public string FullTime { get; set; } = "";
-        public string PartTimeDaysPerWeek { get; set; } = "";
-        public string Years { get; set; } = "";
-        public string Months { get; set; } = "";
+        // Section 1: Basic Information - Make all optional to avoid required validation
+        public string? GdcGapsExplanation { get; set; }
+        public string? NhsExperience { get; set; }
+        public string? FullTime { get; set; }
+        public string? PartTimeDaysPerWeek { get; set; }
+        public string? Years { get; set; }
+        public string? Months { get; set; }
         
         // Section 1: Collections stored as JSON
         public string QualificationsJson { get; set; } = "[]";
@@ -60,8 +60,8 @@ namespace SimpleGateway.Models
         public DateTime? ApplicantConfirmedAt { get; set; }
         public bool IsSubmitted { get; set; }
         public DateTime? AdvisorDeclarationAt { get; set; }
-        public string AdvisorDeclarationBy { get; set; } = "";
-        public string AdvisorDeclarationComment { get; set; } = "";
+        public string? AdvisorDeclarationBy { get; set; }
+        public string? AdvisorDeclarationComment { get; set; }
         
         // Timestamps
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

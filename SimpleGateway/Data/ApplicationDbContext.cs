@@ -106,6 +106,8 @@ namespace SimpleGateway
                 entity.HasKey(e => e.Id);
                 entity.HasIndex(e => e.Username).IsUnique();
                 entity.Property(e => e.Username).IsRequired().HasMaxLength(50);
+                
+                // Make string fields nullable to avoid required validation
                 entity.Property(e => e.GdcGapsExplanation).HasMaxLength(2000);
                 entity.Property(e => e.NhsExperience).HasMaxLength(1000);
                 entity.Property(e => e.FullTime).HasMaxLength(10);
