@@ -22,6 +22,11 @@
             {
                 <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
             }
+            
+            @if (!string.IsNullOrEmpty(TempData["DebugMessage"] as string))
+            {
+                <div class="alert alert-info">@TempData["DebugMessage"]</div>
+            }
         </div>
     </div>
     <div class="row">
@@ -72,6 +77,8 @@
         </div>
         <div class="col-9">
             <form asp-action="PreviousExperience" method="post">
+                <input type="hidden" asp-for="Username" />
+                
                 <div class="card">
                     <div class="card-header">
                         <h5>Previous Experience Information</h5>

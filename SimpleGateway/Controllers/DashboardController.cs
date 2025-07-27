@@ -562,8 +562,12 @@ namespace SimpleGateway.Controllers
 
         public IActionResult PreviousExperience(string performerUsername)
         {
+            Console.WriteLine($"PREVIOUS EXPERIENCE DEBUG: GET request received for performer: {performerUsername}");
+            
             var currentUser = HttpContext.Session.GetString("username");
             var currentRole = HttpContext.Session.GetString("role");
+            
+            Console.WriteLine($"PREVIOUS EXPERIENCE DEBUG: Current user: {currentUser}, Role: {currentRole}");
             
             if (string.IsNullOrEmpty(currentUser))
             {
@@ -614,6 +618,9 @@ namespace SimpleGateway.Controllers
             // Check total PreviousExperience count
             var totalRecords = _context.PreviousExperience.Count();
             Console.WriteLine($"PREVIOUS EXPERIENCE DEBUG: Total records in database: {totalRecords}");
+            
+            // Add debug message to show the page loaded
+            TempData["DebugMessage"] = $"Previous Experience page loaded for {performerUsername} at {DateTime.Now:HH:mm:ss}";
 
             return View("Performer/PreviousExperience", model);
         }
