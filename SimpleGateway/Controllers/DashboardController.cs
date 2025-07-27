@@ -599,7 +599,145 @@ namespace SimpleGateway.Controllers
                 ViewBag.PerformerName = $"{performer.FirstName} {performer.LastName}";
             }
 
-            return View("Performer/PreviousExperienceBlank");
+            // Get or create previous experience data from database
+            Console.WriteLine($"PREVIOUS EXPERIENCE DEBUG: Attempting to retrieve data for {performerUsername}");
+            var model = _context.PreviousExperience.FirstOrDefault(p => p.Username == performerUsername);
+            if (model == null)
+            {
+                Console.WriteLine($"PREVIOUS EXPERIENCE DEBUG: No existing data found for {performerUsername}, creating new");
+                // Create new data if not exists
+                model = new PrevExpModel
+                {
+                    Username = performerUsername
+                };
+            }
+            else
+            {
+                Console.WriteLine($"PREVIOUS EXPERIENCE DEBUG: Found existing data for {performerUsername}");
+            }
+
+            // Check total PreviousExperience count
+            var totalRecords = _context.PreviousExperience.Count();
+            Console.WriteLine($"PREVIOUS EXPERIENCE DEBUG: Total records in database: {totalRecords}");
+
+            return View("Performer/PreviousExperience", model);
+        }
+
+        [HttpPost]
+        public IActionResult PreviousExperienceForm(PrevExpModel model)
+        {
+            var currentUser = HttpContext.Session.GetString("username");
+            
+            if (string.IsNullOrEmpty(currentUser))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            Console.WriteLine($"PREVIOUS EXPERIENCE DEBUG: POST request received, user: {currentUser}");
+            
+            if (model == null)
+            {
+                Console.WriteLine($"PREVIOUS EXPERIENCE DEBUG: Model is null");
+                return RedirectToAction("PreviousExperienceForm", new { performerUsername = currentUser });
+            }
+
+            // Set the username
+            model.Username = currentUser;
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    Console.WriteLine($"PREVIOUS EXPERIENCE DEBUG: Checking for existing data for {model.Username}");
+                    
+                    // Database connection verification
+                    try
+                    {
+                        var canConnect = _context.Database.CanConnect();
+                        Console.WriteLine($"PREVIOUS EXPERIENCE DEBUG: Can connect to database: {canConnect}");
+                        
+                        if (!canConnect)
+                        {
+                            _context.Database.EnsureCreated();
+                        }
+                    }
+                    catch (Exception dbEx)
+                    {
+                        Console.WriteLine($"PREVIOUS EXPERIENCE DEBUG: Database connection error: {dbEx.Message}");
+                    }
+                    
+                    // CRITICAL: Delete all existing records for this user first
+                    var existingRecords = _context.PreviousExperience.Where(p => p.Username == model.Username).ToList();
+                    
+                    if (existingRecords.Any())
+                    {
+                        Console.WriteLine($"PREVIOUS EXPERIENCE DEBUG: Found {existingRecords.Count} existing records for {model.Username} - deleting all");
+                        _context.PreviousExperience.RemoveRange(existingRecords);
+                        
+                        // Save deletions first
+                        var deletedRows = _context.SaveChanges();
+                        Console.WriteLine($"PREVIOUS EXPERIENCE DEBUG: Deleted {deletedRows} existing records");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"PREVIOUS EXPERIENCE DEBUG: No existing records found for {model.Username}");
+                    }
+                    
+                    // Create new record with latest data
+                    Console.WriteLine($"PREVIOUS EXPERIENCE DEBUG: Creating new record for {model.Username}");
+                    
+                    model.CreatedDate = DateTime.UtcNow;
+                    model.ModifiedDate = null;
+                    
+                    _context.PreviousExperience.Add(model);
+                    
+                    var savedRows = _context.SaveChanges();
+                    Console.WriteLine($"PREVIOUS EXPERIENCE DEBUG: SaveChanges() affected {savedRows} rows");
+                    
+                    if (savedRows > 0)
+                    {
+                        Console.WriteLine($"PREVIOUS EXPERIENCE DEBUG: Save successful! Record ID: {model.Id}");
+                        TempData["SuccessMessage"] = "Previous experience saved successfully!";
+                        return RedirectToAction("PreviousExperienceForm", new { performerUsername = model.Username });
+                    }
+                    else
+                    {
+                        Console.WriteLine($"PREVIOUS EXPERIENCE DEBUG: Save failed - no rows affected");
+                        TempData["ErrorMessage"] = "Save failed - no changes were made.";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"PREVIOUS EXPERIENCE DEBUG: Exception during save: {ex.Message}");
+                    
+                    // Enhanced error logging with nested exceptions
+                    var innerEx = ex.InnerException;
+                    var level = 1;
+                    while (innerEx != null && level <= 5)
+                    {
+                        Console.WriteLine($"PREVIOUS EXPERIENCE DEBUG: Inner exception level {level}: {innerEx.Message}");
+                        innerEx = innerEx.InnerException;
+                        level++;
+                    }
+                    
+                    TempData["ErrorMessage"] = $"Error saving previous experience: {ex.Message}";
+                }
+            }
+            else
+            {
+                Console.WriteLine($"PREVIOUS EXPERIENCE DEBUG: ModelState is invalid");
+                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    Console.WriteLine($"PREVIOUS EXPERIENCE DEBUG: ModelState error: {error.ErrorMessage}");
+                }
+            }
+
+            // Reload ViewBag for error display
+            ViewBag.PerformerUsername = model.Username;
+            ViewBag.CurrentUserRole = HttpContext.Session.GetString("role");
+            ViewBag.ActiveSection = "PreviousExperience";
+
+            return View("Performer/PreviousExperience", model);
         }
 
         // Other section methods (simplified for brevity)
