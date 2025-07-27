@@ -1,12 +1,12 @@
 @model SimpleGateway.Models.TestDataModel2
 @{
-    ViewData["Title"] = "Test Practice 2 - PostgreSQL Save";
+    ViewData["Title"] = "Test Practice 2 - Comprehensive Assessment";
 }
 
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
-            <h2>Test Practice 2 - @ViewBag.PerformerName</h2>
+            <h2>Test Practice 2 - Comprehensive Assessment - @ViewBag.PerformerName</h2>
             @if (!string.IsNullOrEmpty(TempData["SuccessMessage"] as string))
             {
                 <div class="alert alert-success">
@@ -85,46 +85,275 @@
         <div class="col-9">
             <div class="card">
                 <div class="card-header">
-                    <h4>Test Practice 2 - PostgreSQL Save Test</h4>
-                    <p class="mb-0 text-muted">This section tests that data can be saved to the PostgreSQL database successfully using TestData2 table.</p>
+                    <h4>Test Practice 2 - Comprehensive Dental Assessment</h4>
+                    <p class="mb-0 text-muted">This comprehensive assessment captures detailed professional dental experience using TestDataModel2.</p>
                 </div>
                 <div class="card-body">
+                    <!-- Assessment Instructions -->
+                    <div class="alert alert-primary mb-4">
+                        <h6><strong>This document will form part of the assessment of your previous clinical experience:</strong></h6>
+                        <ul class="mb-0">
+                            <li>Please provide as much information as possible on the following questions to assist the assessors</li>
+                            <li>Do not include experience obtained as a student unless you are a new graduate</li>
+                            <li><strong>Please base all figures on the 48 months of clinical practice</strong> prior to the completion of this form</li>
+                        </ul>
+                    </div>
+
                     <form asp-action="TestPractice2" method="post">
                         <input type="hidden" asp-for="Username" />
                         
-                        <!-- Question 1 -->
-                        <div class="mb-4">
-                            <label asp-for="UKWorkExperience" class="form-label">
-                                <strong>Question 1:</strong> @Html.DisplayNameFor(m => m.UKWorkExperience)
-                            </label>
-                            <textarea asp-for="UKWorkExperience" class="form-control" rows="3" 
-                                     placeholder="Please describe your work experience in the UK, if any. For example: '5 years as a dentist in London' or 'No UK work experience yet'"></textarea>
-                            <span asp-validation-for="UKWorkExperience" class="text-danger"></span>
+                        <!-- Registration and Qualifications Section -->
+                        <div class="mb-5">
+                            <h5 class="text-primary mb-3">Registration and Qualifications</h5>
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <tbody>
+                                        <tr>
+                                            <td class="table-info" style="width: 25%;"><strong>GDC registration number:</strong></td>
+                                            <td style="width: 25%;">
+                                                <input asp-for="GDCRegistrationNumber" type="text" class="form-control form-control-sm" placeholder="Enter GDC number">
+                                            </td>
+                                            <td class="table-info" style="width: 25%;"><strong>Date of UK registration as a dentist:</strong></td>
+                                            <td style="width: 25%;">
+                                                <input asp-for="UKRegistrationDate" type="text" class="form-control form-control-sm" placeholder="MM/YYYY">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="table-info"><strong>If there are any gaps in your registration with the GDC please explain:</strong></td>
+                                            <td colspan="3">
+                                                <textarea asp-for="GDCGapsExplanation" class="form-control form-control-sm" rows="2" placeholder="Explain any gaps in GDC registration"></textarea>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div class="mt-3">
+                                <h6 class="text-primary">Please list your professional qualifications in relation to your role as a dentist/specialist (with your primary dental qualification first):</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th style="width: 30%;">Qualification:</th>
+                                                <th style="width: 20%;">Obtained in which Country?</th>
+                                                <th style="width: 30%;">Awarding Institution</th>
+                                                <th style="width: 20%;">Year Gained</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><input asp-for="PrimaryQualification" type="text" class="form-control form-control-sm" placeholder="Primary dental qualification"></td>
+                                                <td><input asp-for="PrimaryQualificationCountry" type="text" class="form-control form-control-sm" placeholder="Country"></td>
+                                                <td><input asp-for="PrimaryQualificationInstitution" type="text" class="form-control form-control-sm" placeholder="Institution"></td>
+                                                <td><input asp-for="PrimaryQualificationYear" type="text" class="form-control form-control-sm" placeholder="Year"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Employment History Section -->
+                        <div class="mb-5">
+                            <h5 class="text-primary mb-3">Employment History</h5>
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <tbody>
+                                        <tr>
+                                            <td class="table-info" style="width: 40%;"><strong>Have you worked as a dentist in NHS general dental practice primary care in the UK?</strong></td>
+                                            <td style="width: 15%;">
+                                                <select asp-for="WorkedInNHS" class="form-control form-control-sm">
+                                                    <option value="">Select</option>
+                                                    <option value="YES">YES</option>
+                                                    <option value="NO">NO</option>
+                                                </select>
+                                            </td>
+                                            <td class="table-info" style="width: 10%;"><strong>Years:</strong></td>
+                                            <td style="width: 15%;">
+                                                <input asp-for="NHSWorkYears" type="number" class="form-control form-control-sm" min="0" placeholder="0">
+                                            </td>
+                                            <td class="table-info" style="width: 10%;"><strong>Months:</strong></td>
+                                            <td style="width: 10%;">
+                                                <input asp-for="NHSWorkMonths" type="number" class="form-control form-control-sm" min="0" max="11" placeholder="0">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="table-info"><strong>Was this:</strong></td>
+                                            <td class="table-info"><strong>Full-time?</strong></td>
+                                            <td class="table-info"><strong>Part-time?</strong></td>
+                                            <td colspan="3" class="table-info"><strong>No. of days per week (if part-time):</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td></td>
+                                            <td>
+                                                <input asp-for="NHSWorkFullTime" type="checkbox" class="form-check-input" id="fulltime">
+                                                <label class="form-check-label" for="fulltime">Yes</label>
+                                            </td>
+                                            <td>
+                                                <input asp-for="NHSWorkPartTime" type="checkbox" class="form-check-input" id="parttime">
+                                                <label class="form-check-label" for="parttime">Yes</label>
+                                            </td>
+                                            <td colspan="3">
+                                                <input asp-for="NHSWorkDaysPerWeek" type="number" class="form-control form-control-sm" min="1" max="7" placeholder="Days per week">
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                         
-                        <!-- Question 2 -->
-                        <div class="mb-4">
-                            <label asp-for="LastPatientTreatment" class="form-label">
-                                <strong>Question 2:</strong> @Html.DisplayNameFor(m => m.LastPatientTreatment)
-                            </label>
-                            <textarea asp-for="LastPatientTreatment" class="form-control" rows="3" 
-                                     placeholder="Please describe when you last treated a patient. For example: 'Yesterday - routine cleaning' or 'Last month - filling procedure'"></textarea>
-                            <span asp-validation-for="LastPatientTreatment" class="text-danger"></span>
+                        <!-- Clinical Experience Section -->
+                        <div class="mb-5">
+                            <h5 class="text-primary mb-3">Clinical Experience Assessment</h5>
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width: 30%;">Procedure</th>
+                                            <th style="width: 15%;">Count</th>
+                                            <th style="width: 15%;">Confidence (1-6)</th>
+                                            <th style="width: 20%;">Last Date (MM/YYYY)</th>
+                                            <th style="width: 20%;">Training Needed</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="table-info"><strong>Simple extractions</strong></td>
+                                            <td><input asp-for="SimpleExtractionsCount" type="number" class="form-control form-control-sm" min="0" placeholder="0"></td>
+                                            <td><input asp-for="SimpleExtractionsConfidence" type="number" class="form-control form-control-sm" min="1" max="6" placeholder="1-6"></td>
+                                            <td><input asp-for="SimpleExtractionsLastDate" type="text" class="form-control form-control-sm" placeholder="01/2024"></td>
+                                            <td class="text-center">
+                                                <input asp-for="SimpleExtractionsTraining" type="checkbox" class="form-check-input">
+                                                <label class="form-check-label">Yes</label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="table-info"><strong>Root division extractions</strong></td>
+                                            <td><input asp-for="RootDivisionExtractionsCount" type="number" class="form-control form-control-sm" min="0" placeholder="0"></td>
+                                            <td><input asp-for="RootDivisionConfidence" type="number" class="form-control form-control-sm" min="1" max="6" placeholder="1-6"></td>
+                                            <td><input asp-for="RootDivisionLastDate" type="text" class="form-control form-control-sm" placeholder="01/2024"></td>
+                                            <td class="text-center">
+                                                <input asp-for="RootDivisionTraining" type="checkbox" class="form-check-input">
+                                                <label class="form-check-label">Yes</label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="table-info"><strong>Clinical assessments</strong></td>
+                                            <td><input asp-for="ClinicalAssessmentsCount" type="number" class="form-control form-control-sm" min="0" placeholder="0"></td>
+                                            <td><input asp-for="ClinicalAssessmentConfidence" type="number" class="form-control form-control-sm" min="1" max="6" placeholder="1-6"></td>
+                                            <td><input asp-for="ClinicalAssessmentLastDate" type="text" class="form-control form-control-sm" placeholder="01/2024"></td>
+                                            <td class="text-center">
+                                                <input asp-for="ClinicalAssessmentTraining" type="checkbox" class="form-check-input">
+                                                <label class="form-check-label">Yes</label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="table-info"><strong>BPE examinations</strong></td>
+                                            <td><input asp-for="BPEExaminationsCount" type="number" class="form-control form-control-sm" min="0" placeholder="0"></td>
+                                            <td><input asp-for="BPEConfidence" type="number" class="form-control form-control-sm" min="1" max="6" placeholder="1-6"></td>
+                                            <td><input asp-for="BPELastDate" type="text" class="form-control form-control-sm" placeholder="01/2024"></td>
+                                            <td class="text-center">
+                                                <input asp-for="BPETraining" type="checkbox" class="form-check-input">
+                                                <label class="form-check-label">Yes</label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="table-info"><strong>Pocket charts</strong></td>
+                                            <td><input asp-for="PocketChartsCount" type="number" class="form-control form-control-sm" min="0" placeholder="0"></td>
+                                            <td><input asp-for="PocketChartsConfidence" type="number" class="form-control form-control-sm" min="1" max="6" placeholder="1-6"></td>
+                                            <td><input asp-for="PocketChartsLastDate" type="text" class="form-control form-control-sm" placeholder="01/2024"></td>
+                                            <td class="text-center">
+                                                <input asp-for="PocketChartsTraining" type="checkbox" class="form-check-input">
+                                                <label class="form-check-label">Yes</label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="table-info"><strong>Radiographs</strong></td>
+                                            <td><input asp-for="RadiographsCount" type="number" class="form-control form-control-sm" min="0" placeholder="0"></td>
+                                            <td><input asp-for="RadiographsConfidence" type="number" class="form-control form-control-sm" min="1" max="6" placeholder="1-6"></td>
+                                            <td><input asp-for="RadiographsLastDate" type="text" class="form-control form-control-sm" placeholder="01/2024"></td>
+                                            <td class="text-center">
+                                                <input asp-for="RadiographsTraining" type="checkbox" class="form-check-input">
+                                                <label class="form-check-label">Yes</label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="table-info"><strong>Deciduous teeth restored</strong></td>
+                                            <td><input asp-for="DeciduousTeethCount" type="number" class="form-control form-control-sm" min="0" placeholder="0"></td>
+                                            <td><input asp-for="DeciduousTeethConfidence" type="number" class="form-control form-control-sm" min="1" max="6" placeholder="1-6"></td>
+                                            <td><input asp-for="DeciduousTeethLastDate" type="text" class="form-control form-control-sm" placeholder="01/2024"></td>
+                                            <td class="text-center">
+                                                <input asp-for="DeciduousTeethTraining" type="checkbox" class="form-check-input">
+                                                <label class="form-check-label">Yes</label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="table-info"><strong>Mechanical debridement</strong></td>
+                                            <td><input asp-for="MechanicalDebridementCount" type="number" class="form-control form-control-sm" min="0" placeholder="0"></td>
+                                            <td><input asp-for="MechanicalDebridementConfidence" type="number" class="form-control form-control-sm" min="1" max="6" placeholder="1-6"></td>
+                                            <td><input asp-for="MechanicalDebridementLastDate" type="text" class="form-control form-control-sm" placeholder="01/2024"></td>
+                                            <td class="text-center">
+                                                <input asp-for="MechanicalDebridementTraining" type="checkbox" class="form-check-input">
+                                                <label class="form-check-label">Yes</label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="table-info"><strong>Dentures provided</strong></td>
+                                            <td><input asp-for="DenturesCount" type="number" class="form-control form-control-sm" min="0" placeholder="0"></td>
+                                            <td><input asp-for="DenturesConfidence" type="number" class="form-control form-control-sm" min="1" max="6" placeholder="1-6"></td>
+                                            <td><input asp-for="DenturesLastDate" type="text" class="form-control form-control-sm" placeholder="01/2024"></td>
+                                            <td class="text-center">
+                                                <input asp-for="DenturesTraining" type="checkbox" class="form-check-input">
+                                                <label class="form-check-label">Yes</label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="table-info"><strong>Amalgam fillings</strong></td>
+                                            <td><input asp-for="AmalgamFillingsCount" type="number" class="form-control form-control-sm" min="0" placeholder="0"></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Original Questions (kept for backward compatibility) -->
+                        <div class="mb-5">
+                            <h5 class="text-primary mb-3">Additional Information</h5>
+                            <div class="mb-4">
+                                <label asp-for="UKWorkExperience" class="form-label">
+                                    <strong>@Html.DisplayNameFor(m => m.UKWorkExperience)</strong>
+                                </label>
+                                <textarea asp-for="UKWorkExperience" class="form-control" rows="3" 
+                                         placeholder="Please describe your work experience in the UK, if any."></textarea>
+                                <span asp-validation-for="UKWorkExperience" class="text-danger"></span>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label asp-for="LastPatientTreatment" class="form-label">
+                                    <strong>@Html.DisplayNameFor(m => m.LastPatientTreatment)</strong>
+                                </label>
+                                <textarea asp-for="LastPatientTreatment" class="form-control" rows="3" 
+                                         placeholder="Please describe when you last treated a patient."></textarea>
+                                <span asp-validation-for="LastPatientTreatment" class="text-danger"></span>
+                            </div>
                         </div>
                         
                         <!-- Submit Button -->
                         <div class="mb-3">
-                            <button type="submit" class="btn btn-primary btn-lg">Save Test Data 2 to PostgreSQL</button>
+                            <button type="submit" class="btn btn-primary btn-lg">Save Comprehensive Assessment to PostgreSQL</button>
                         </div>
                     </form>
                     
                     <div class="mt-4">
                         <div class="alert alert-info">
-                            <h6><strong>Test Information:</strong></h6>
-                            <p><strong>Purpose:</strong> This page tests if data can be successfully saved to the PostgreSQL database using the same pattern as the working TestPractice page.</p>
+                            <h6><strong>Assessment Information:</strong></h6>
+                            <p><strong>Purpose:</strong> This comprehensive assessment captures detailed dental professional experience and qualifications.</p>
                             <p><strong>Database:</strong> Railway PostgreSQL</p>
                             <p><strong>Table:</strong> TestData2</p>
-                            <p><strong>Pattern:</strong> Following the exact same successful pattern as TestPractice</p>
+                            <p><strong>Fields:</strong> Over 90 comprehensive assessment fields including registration, qualifications, employment history, clinical experience, confidence levels, and training needs</p>
                         </div>
                     </div>
                 </div>
