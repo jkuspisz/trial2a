@@ -6,6 +6,10 @@
     <div class="row">
         <div class="col-12">
             <h2>Previous Experience - @ViewBag.PerformerName</h2>
+            @if (!string.IsNullOrEmpty(TempData["Message"] as string))
+            {
+                <div class="alert alert-info">@TempData["Message"]</div>
+            }
         </div>
     </div>
     <div class="row">
@@ -66,29 +70,20 @@
         <div class="col-9">
             <div class="card">
                 <div class="card-header">
-                    <h4>Previous Experience Record</h4>
-                    <p class="mb-0 text-muted">Document your previous healthcare, dental, or relevant professional experience.</p>
+                    <h4>Previous Experience</h4>
+                    <p class="mb-0 text-muted">This section is currently under development.</p>
                 </div>
                 <div class="card-body">
-                    <p>This is the <strong>Previous Experience</strong> section for @ViewBag.PerformerName.</p>
-                    <p>This page will allow performers to document their previous work experience, clinical placements, volunteer work, and other relevant background.</p>
-                    
-                    <div class="row">
-                        <div class="col-12">
-                            <h6>What will be included:</h6>
-                            <ul class="list-unstyled">
-                                <li>• Previous employment in healthcare settings</li>
-                                <li>• Clinical placements and training rotations</li>
-                                <li>• Volunteer work and community service</li>
-                                <li>• Educational background and qualifications</li>
-                                <li>• Skills and competencies developed</li>
-                                <li>• Professional references and contacts</li>
-                            </ul>
-                        </div>
+                    <div class="alert alert-info">
+                        <h5>Coming Soon</h5>
+                        <p>The Previous Experience section will be available in a future update. This will include:</p>
+                        <ul>
+                            <li>Qualification details</li>
+                            <li>Employment history</li>
+                            <li>Clinical experience</li>
+                            <li>Professional development</li>
+                        </ul>
                     </div>
-                    
-                    <hr>
-                    <p class="text-muted">This section will help build a comprehensive picture of the performer's background and experience. What specific fields would you like to include in the Previous Experience form?</p>
                 </div>
             </div>
         </div>

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using SimpleGateway.Models;
+using SimpleGateway.Data;
 
 namespace SimpleGateway.Controllers
 {

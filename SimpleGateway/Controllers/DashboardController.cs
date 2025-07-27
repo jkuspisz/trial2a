@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SimpleGateway.Models;
+using SimpleGateway.Data;
 
 namespace SimpleGateway.Controllers
 {
@@ -590,7 +591,6 @@ namespace SimpleGateway.Controllers
             ViewBag.CanApprove = (currentRole == "supervisor" || currentRole == "advisor" || currentRole == "superuser");
             ViewBag.IsReadOnly = (currentRole == "admin");
             ViewBag.ActiveSection = "PreviousExperience";
-            ViewBag.IsAdvisor = (currentRole == "advisor");
 
             // Get performer's name for display
             var performer = _context.Users.FirstOrDefault(u => u.Username == performerUsername);
@@ -599,37 +599,7 @@ namespace SimpleGateway.Controllers
                 ViewBag.PerformerName = $"{performer.FirstName} {performer.LastName}";
             }
 
-            // Initialize empty previous experience model (you can load from database later)
-            ViewBag.PreviousExperience = new PreviousExperienceModel { Username = performerUsername };
-            
-            // Initialize clinical entries as empty list for now
-            ViewBag.ClinicalEntries = new List<ClinicalExperienceEntry>();
-            
-            // Initialize procedure sections from static data
-            ViewBag.ProcedureSections = ProcedureSections.All;
-
-            return View("Performer/PreviousExperienceForm");
-        }
-
-        [HttpPost]
-        public IActionResult PreviousExperienceForm(PreviousExperienceModel model)
-        {
-            var currentUser = HttpContext.Session.GetString("username");
-            
-            if (string.IsNullOrEmpty(currentUser))
-            {
-                return RedirectToAction("Login", "Account");
-            }
-
-            // For now, just show a success message since we haven't implemented database storage yet
-            TempData["SuccessMessage"] = "Previous Experience information noted. Database storage will be implemented soon.";
-            
-            Console.WriteLine($"DASHBOARD DEBUG: PreviousExperience POST received for {model.Username}");
-            Console.WriteLine($"DASHBOARD DEBUG: GDC Gaps: {model.GdcGapsExplanation}");
-            Console.WriteLine($"DASHBOARD DEBUG: NHS Experience: {model.NhsExperience}");
-            
-            // Redirect back to the form
-            return RedirectToAction("PreviousExperienceForm", new { performerUsername = model.Username });
+            return View("Performer/PreviousExperienceBlank");
         }
 
         // Other section methods (simplified for brevity)

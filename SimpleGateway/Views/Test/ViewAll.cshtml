@@ -1,0 +1,125 @@
+@model List<SimpleGateway.Models.TestDataModel>
+@{
+    ViewData["Title"] = "View All Test Data";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h2>All Test Data Records</h2>
+            <p class="text-muted">Viewing all test data saved to PostgreSQL database.</p>
+            <p class="text-info"><strong>Current User:</strong> @ViewBag.CurrentUser</p>
+            <p class="text-success"><strong>Total Records:</strong> @ViewBag.TotalRecords</p>
+            
+            @if (!string.IsNullOrEmpty(TempData["ErrorMessage"] as string))
+            {
+                <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+            }
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4>Test Data Records</h4>
+                    <div>
+                        <a href="/Test" class="btn btn-primary">Add New Test Data</a>
+                        <a href="/Dashboard" class="btn btn-outline-secondary">Back to Dashboard</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    @if (Model != null && Model.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Username</th>
+                                        <th>UK Work Experience</th>
+                                        <th>Last Patient Treatment</th>
+                                        <th>Created Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model)
+                                    {
+                                        <tr>
+                                            <td><span class="badge bg-primary">@item.Id</span></td>
+                                            <td><strong>@item.Username</strong></td>
+                                            <td>
+                                                <div class="text-wrap" style="max-width: 300px;">
+                                                    @item.UKWorkExperience
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="text-wrap" style="max-width: 300px;">
+                                                    @item.LastPatientTreatment
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <small class="text-muted">
+                                                    @item.CreatedDate.ToString("yyyy-MM-dd HH:mm:ss")
+                                                </small>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">
+                            <h5>No Test Data Found</h5>
+                            <p>No test data records have been saved yet.</p>
+                            <a href="/Test" class="btn btn-primary">Create First Test Record</a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    @if (Model != null && Model.Any())
+    {
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Database Statistics</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <h3 class="text-primary">@Model.Count</h3>
+                                    <p class="text-muted">Total Records</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <h3 class="text-success">@Model.Select(m => m.Username).Distinct().Count()</h3>
+                                    <p class="text-muted">Unique Users</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <h3 class="text-info">@(Model.Any() ? Model.Max(m => m.CreatedDate).ToString("MM/dd") : "N/A")</h3>
+                                    <p class="text-muted">Latest Entry</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <h3 class="text-warning">@(Model.Any() ? Model.Min(m => m.CreatedDate).ToString("MM/dd") : "N/A")</h3>
+                                    <p class="text-muted">First Entry</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

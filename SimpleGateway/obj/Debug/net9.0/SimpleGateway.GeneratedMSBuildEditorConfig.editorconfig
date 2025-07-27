@@ -76,12 +76,8 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXFBlcmZvcm1lclxQZXJmb3JtZXJEZXRhaWxzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/james/Desktop/trial2/SimpleGateway/Views/Dashboard/Performer/PreviousExperience.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXFBlcmZvcm1lclxQcmV2aW91c0V4cGVyaWVuY2UuY3NodG1s
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/james/Desktop/trial2/SimpleGateway/Views/Dashboard/Performer/PreviousExperienceForm.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXFBlcmZvcm1lclxQcmV2aW91c0V4cGVyaWVuY2VGb3JtLmNzaHRtbA==
+[C:/Users/james/Desktop/trial2/SimpleGateway/Views/Dashboard/Performer/PreviousExperienceBlank.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXFBlcmZvcm1lclxQcmV2aW91c0V4cGVyaWVuY2VCbGFuay5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/james/Desktop/trial2/SimpleGateway/Views/Dashboard/Performer/Uploads.cshtml]
@@ -110,6 +106,14 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/james/Desktop/trial2/SimpleGateway/Views/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/james/Desktop/trial2/SimpleGateway/Views/Test/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGVzdFxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/james/Desktop/trial2/SimpleGateway/Views/Test/ViewAll.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGVzdFxWaWV3QWxsLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/james/Desktop/trial2/SimpleGateway/Views/_ViewImports.cshtml]

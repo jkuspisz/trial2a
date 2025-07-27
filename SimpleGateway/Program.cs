@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SimpleGateway.Models;
+using SimpleGateway.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
