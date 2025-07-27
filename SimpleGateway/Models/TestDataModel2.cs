@@ -146,31 +146,31 @@ namespace SimpleGateway.Models
 
         // Training Needs
         [Display(Name = "Simple extractions training needed")]
-        public bool? SimpleExtractionsTraining { get; set; }
+        public bool SimpleExtractionsTraining { get; set; }
 
         [Display(Name = "Root division training needed")]
-        public bool? RootDivisionTraining { get; set; }
+        public bool RootDivisionTraining { get; set; }
 
         [Display(Name = "Clinical assessment training needed")]
-        public bool? ClinicalAssessmentTraining { get; set; }
+        public bool ClinicalAssessmentTraining { get; set; }
 
         [Display(Name = "BPE training needed")]
-        public bool? BPETraining { get; set; }
+        public bool BPETraining { get; set; }
 
         [Display(Name = "Pocket charts training needed")]
-        public bool? PocketChartsTraining { get; set; }
+        public bool PocketChartsTraining { get; set; }
 
         [Display(Name = "Radiographs training needed")]
-        public bool? RadiographsTraining { get; set; }
+        public bool RadiographsTraining { get; set; }
 
         [Display(Name = "Deciduous teeth training needed")]
-        public bool? DeciduousTeethTraining { get; set; }
+        public bool DeciduousTeethTraining { get; set; }
 
         [Display(Name = "Mechanical debridement training needed")]
-        public bool? MechanicalDebridementTraining { get; set; }
+        public bool MechanicalDebridementTraining { get; set; }
 
         [Display(Name = "Dentures training needed")]
-        public bool? DenturesTraining { get; set; }
+        public bool DenturesTraining { get; set; }
 
         // For tracking who submitted this test data
         public string Username { get; set; } = string.Empty;
