@@ -15,62 +15,202 @@ namespace SimpleGateway.Models
         [Display(Name = "When was the last time you treated a patient?")]
         public string LastPatientTreatment { get; set; } = string.Empty;
 
-        // Registration and Qualifications
-        [Display(Name = "GDC registration number")]
-        public string? GDCRegistrationNumber { get; set; }
+        // Dental Procedures Assessment - Based on CSV structure
+        // Clinical Exam/Assessments
+        [Display(Name = "Clinical Exam/Assessments - Number")]
+        public int? ClinicalExamNumber { get; set; }
+        
+        [Display(Name = "Clinical Exam/Assessments - Confidence (1-6)")]
+        [Range(1, 6, ErrorMessage = "Confidence must be between 1 and 6")]
+        public int? ClinicalExamConfidence { get; set; }
+        
+        [Display(Name = "Clinical Exam/Assessments - Last Date")]
+        public string? ClinicalExamLastDate { get; set; }
+        
+        [Display(Name = "Clinical Exam/Assessments - Need Support?")]
+        public bool ClinicalExamNeedSupport { get; set; }
 
-        [Display(Name = "Date of UK registration as a dentist")]
-        public string? UKRegistrationDate { get; set; }
+        // Basic Periodontal Examinations (BPE)
+        [Display(Name = "BPE - Number")]
+        public int? BPENumber { get; set; }
+        
+        [Display(Name = "BPE - Confidence (1-6)")]
+        [Range(1, 6, ErrorMessage = "Confidence must be between 1 and 6")]
+        public int? BPEConfidence { get; set; }
+        
+        [Display(Name = "BPE - Last Date")]
+        public string? BPELastDate { get; set; }
+        
+        [Display(Name = "BPE - Need Support?")]
+        public bool BPENeedSupport { get; set; }
 
-        [Display(Name = "Gaps in GDC registration explanation")]
-        public string? GDCGapsExplanation { get; set; }
+        // 6-Point Pocket Chart (6PPC)
+        [Display(Name = "6PPC - Number")]
+        public int? SixPPCNumber { get; set; }
+        
+        [Display(Name = "6PPC - Confidence (1-6)")]
+        [Range(1, 6, ErrorMessage = "Confidence must be between 1 and 6")]
+        public int? SixPPCConfidence { get; set; }
+        
+        [Display(Name = "6PPC - Last Date")]
+        public string? SixPPCLastDate { get; set; }
+        
+        [Display(Name = "6PPC - Need Support?")]
+        public bool SixPPCNeedSupport { get; set; }
 
-        // Professional Qualifications
-        [Display(Name = "Primary dental qualification")]
-        public string? PrimaryQualification { get; set; }
+        // Radiographs
+        [Display(Name = "Radiographs - Number")]
+        public int? RadiographsNumber { get; set; }
+        
+        [Display(Name = "Radiographs - Confidence (1-6)")]
+        [Range(1, 6, ErrorMessage = "Confidence must be between 1 and 6")]
+        public int? RadiographsConfidence { get; set; }
+        
+        [Display(Name = "Radiographs - Last Date")]
+        public string? RadiographsLastDate { get; set; }
+        
+        [Display(Name = "Radiographs - Need Support?")]
+        public bool RadiographsNeedSupport { get; set; }
 
-        [Display(Name = "Primary qualification country")]
-        public string? PrimaryQualificationCountry { get; set; }
+        // Extractions
+        [Display(Name = "Extractions - Number")]
+        public int? ExtractionsNumber { get; set; }
+        
+        [Display(Name = "Extractions - Confidence (1-6)")]
+        [Range(1, 6, ErrorMessage = "Confidence must be between 1 and 6")]
+        public int? ExtractionsConfidence { get; set; }
+        
+        [Display(Name = "Extractions - Last Date")]
+        public string? ExtractionsLastDate { get; set; }
+        
+        [Display(Name = "Extractions - Need Support?")]
+        public bool ExtractionsNeedSupport { get; set; }
 
-        [Display(Name = "Primary qualification institution")]
-        public string? PrimaryQualificationInstitution { get; set; }
+        // Extraction with root division
+        [Display(Name = "Root Division Extractions - Number")]
+        public int? RootDivisionNumber { get; set; }
+        
+        [Display(Name = "Root Division Extractions - Confidence (1-6)")]
+        [Range(1, 6, ErrorMessage = "Confidence must be between 1 and 6")]
+        public int? RootDivisionConfidence { get; set; }
+        
+        [Display(Name = "Root Division Extractions - Last Date")]
+        public string? RootDivisionLastDate { get; set; }
+        
+        [Display(Name = "Root Division Extractions - Need Support?")]
+        public bool RootDivisionNeedSupport { get; set; }
 
-        [Display(Name = "Primary qualification year")]
-        public string? PrimaryQualificationYear { get; set; }
+        // Scaling/root debridement
+        [Display(Name = "Scaling/Root Debridement - Number")]
+        public int? ScalingNumber { get; set; }
+        
+        [Display(Name = "Scaling/Root Debridement - Confidence (1-6)")]
+        [Range(1, 6, ErrorMessage = "Confidence must be between 1 and 6")]
+        public int? ScalingConfidence { get; set; }
+        
+        [Display(Name = "Scaling/Root Debridement - Last Date")]
+        public string? ScalingLastDate { get; set; }
+        
+        [Display(Name = "Scaling/Root Debridement - Need Support?")]
+        public bool ScalingNeedSupport { get; set; }
 
-        // Employment History
-        [Display(Name = "Worked in NHS general dental practice")]
-        public string? WorkedInNHS { get; set; }
+        // Amalgam fillings
+        [Display(Name = "Amalgam Fillings - Number")]
+        public int? AmalgamNumber { get; set; }
+        
+        [Display(Name = "Amalgam Fillings - Confidence (1-6)")]
+        [Range(1, 6, ErrorMessage = "Confidence must be between 1 and 6")]
+        public int? AmalgamConfidence { get; set; }
+        
+        [Display(Name = "Amalgam Fillings - Last Date")]
+        public string? AmalgamLastDate { get; set; }
+        
+        [Display(Name = "Amalgam Fillings - Need Support?")]
+        public bool AmalgamNeedSupport { get; set; }
 
-        [Display(Name = "NHS work years")]
-        public int? NHSWorkYears { get; set; }
+        // Composite fillings
+        [Display(Name = "Composite Fillings - Number")]
+        public int? CompositeNumber { get; set; }
+        
+        [Display(Name = "Composite Fillings - Confidence (1-6)")]
+        [Range(1, 6, ErrorMessage = "Confidence must be between 1 and 6")]
+        public int? CompositeConfidence { get; set; }
+        
+        [Display(Name = "Composite Fillings - Last Date")]
+        public string? CompositeLastDate { get; set; }
+        
+        [Display(Name = "Composite Fillings - Need Support?")]
+        public bool CompositeNeedSupport { get; set; }
 
-        [Display(Name = "NHS work months")]
-        public int? NHSWorkMonths { get; set; }
+        // Crowns/Veneers/Onlays
+        [Display(Name = "Crowns/Veneers/Onlays - Number")]
+        public int? CrownsNumber { get; set; }
+        
+        [Display(Name = "Crowns/Veneers/Onlays - Confidence (1-6)")]
+        [Range(1, 6, ErrorMessage = "Confidence must be between 1 and 6")]
+        public int? CrownsConfidence { get; set; }
+        
+        [Display(Name = "Crowns/Veneers/Onlays - Last Date")]
+        public string? CrownsLastDate { get; set; }
+        
+        [Display(Name = "Crowns/Veneers/Onlays - Need Support?")]
+        public bool CrownsNeedSupport { get; set; }
 
-        [Display(Name = "NHS work full-time")]
-        public bool NHSWorkFullTime { get; set; }
+        // Dentures
+        [Display(Name = "Dentures - Number")]
+        public int? DenturesNumber { get; set; }
+        
+        [Display(Name = "Dentures - Confidence (1-6)")]
+        [Range(1, 6, ErrorMessage = "Confidence must be between 1 and 6")]
+        public int? DenturesConfidence { get; set; }
+        
+        [Display(Name = "Dentures - Last Date")]
+        public string? DenturesLastDate { get; set; }
+        
+        [Display(Name = "Dentures - Need Support?")]
+        public bool DenturesNeedSupport { get; set; }
 
-        [Display(Name = "NHS work part-time")]
-        public bool NHSWorkPartTime { get; set; }
+        // Single Root Endo
+        [Display(Name = "Single Root Endo - Number")]
+        public int? SingleEndoNumber { get; set; }
+        
+        [Display(Name = "Single Root Endo - Confidence (1-6)")]
+        [Range(1, 6, ErrorMessage = "Confidence must be between 1 and 6")]
+        public int? SingleEndoConfidence { get; set; }
+        
+        [Display(Name = "Single Root Endo - Last Date")]
+        public string? SingleEndoLastDate { get; set; }
+        
+        [Display(Name = "Single Root Endo - Need Support?")]
+        public bool SingleEndoNeedSupport { get; set; }
 
-        [Display(Name = "NHS work days per week")]
-        public int? NHSWorkDaysPerWeek { get; set; }
+        // Multi-Root Endo
+        [Display(Name = "Multi-Root Endo - Number")]
+        public int? MultiEndoNumber { get; set; }
+        
+        [Display(Name = "Multi-Root Endo - Confidence (1-6)")]
+        [Range(1, 6, ErrorMessage = "Confidence must be between 1 and 6")]
+        public int? MultiEndoConfidence { get; set; }
+        
+        [Display(Name = "Multi-Root Endo - Last Date")]
+        public string? MultiEndoLastDate { get; set; }
+        
+        [Display(Name = "Multi-Root Endo - Need Support?")]
+        public bool MultiEndoNeedSupport { get; set; }
 
-        // Confidence and Experience (simplified to text)
-        [Display(Name = "Describe your confidence levels (1-6 scale) for different procedures")]
-        [DataType(DataType.MultilineText)]
-        public string? ConfidenceLevelsText { get; set; }
-
-        // Last Procedure Dates (simplified to text)
-        [Display(Name = "Describe when you last performed various procedures")]
-        [DataType(DataType.MultilineText)]
-        public string? LastProcedureDatesText { get; set; }
-
-        // Training Needs (simplified to text)
-        [Display(Name = "Describe what training you need in different areas")]
-        [DataType(DataType.MultilineText)]
-        public string? TrainingNeedsText { get; set; }
+        // Peads fillings
+        [Display(Name = "Pediatric Fillings - Number")]
+        public int? PeadsNumber { get; set; }
+        
+        [Display(Name = "Pediatric Fillings - Confidence (1-6)")]
+        [Range(1, 6, ErrorMessage = "Confidence must be between 1 and 6")]
+        public int? PeadsConfidence { get; set; }
+        
+        [Display(Name = "Pediatric Fillings - Last Date")]
+        public string? PeadsLastDate { get; set; }
+        
+        [Display(Name = "Pediatric Fillings - Need Support?")]
+        public bool PeadsNeedSupport { get; set; }
 
         // For tracking who submitted this test data
         public string Username { get; set; } = string.Empty;

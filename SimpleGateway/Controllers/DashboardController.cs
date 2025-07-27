@@ -829,7 +829,7 @@ namespace SimpleGateway.Controllers
                 }
                 else
                 {
-                    Console.WriteLine($"TESTPRACTICE2 DEBUG: Found existing test data for {performerUsername} - UKWorkExperience: {model.UKWorkExperience?.Substring(0, Math.Min(50, model.UKWorkExperience?.Length ?? 0))}..., LastPatientTreatment: {model.LastPatientTreatment?.Substring(0, Math.Min(50, model.LastPatientTreatment?.Length ?? 0))}...");
+                    Console.WriteLine($"TESTPRACTICE2 DEBUG: Found existing test data for {performerUsername} - ID: {model.Id}, Username: {model.Username}");
                 }
                 
                 Console.WriteLine($"TESTPRACTICE2 DEBUG: Total TestData2 records in database: {totalTestData}");

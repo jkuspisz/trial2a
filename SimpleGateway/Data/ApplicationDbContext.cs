@@ -58,14 +58,37 @@ namespace SimpleGateway.Data
                 entity.Property(e => e.LastPatientTreatment).HasColumnType("text");
                 entity.Property(e => e.Username).HasMaxLength(256);
                 
-                // Configure text fields for the simplified model
-                entity.Property(e => e.ConfidenceLevelsText).HasColumnType("text");
-                entity.Property(e => e.LastProcedureDatesText).HasColumnType("text");
-                entity.Property(e => e.TrainingNeedsText).HasColumnType("text");
+                // Configure date fields as text for flexibility
+                entity.Property(e => e.ClinicalExamLastDate).HasMaxLength(50);
+                entity.Property(e => e.BPELastDate).HasMaxLength(50);
+                entity.Property(e => e.SixPPCLastDate).HasMaxLength(50);
+                entity.Property(e => e.RadiographsLastDate).HasMaxLength(50);
+                entity.Property(e => e.ExtractionsLastDate).HasMaxLength(50);
+                entity.Property(e => e.RootDivisionLastDate).HasMaxLength(50);
+                entity.Property(e => e.ScalingLastDate).HasMaxLength(50);
+                entity.Property(e => e.AmalgamLastDate).HasMaxLength(50);
+                entity.Property(e => e.CompositeLastDate).HasMaxLength(50);
+                entity.Property(e => e.CrownsLastDate).HasMaxLength(50);
+                entity.Property(e => e.DenturesLastDate).HasMaxLength(50);
+                entity.Property(e => e.SingleEndoLastDate).HasMaxLength(50);
+                entity.Property(e => e.MultiEndoLastDate).HasMaxLength(50);
+                entity.Property(e => e.PeadsLastDate).HasMaxLength(50);
                 
-                // Ensure boolean fields have proper defaults (only for NHS work fields now)
-                entity.Property(e => e.NHSWorkFullTime).HasDefaultValue(false);
-                entity.Property(e => e.NHSWorkPartTime).HasDefaultValue(false);
+                // Set default values for boolean need support fields
+                entity.Property(e => e.ClinicalExamNeedSupport).HasDefaultValue(false);
+                entity.Property(e => e.BPENeedSupport).HasDefaultValue(false);
+                entity.Property(e => e.SixPPCNeedSupport).HasDefaultValue(false);
+                entity.Property(e => e.RadiographsNeedSupport).HasDefaultValue(false);
+                entity.Property(e => e.ExtractionsNeedSupport).HasDefaultValue(false);
+                entity.Property(e => e.RootDivisionNeedSupport).HasDefaultValue(false);
+                entity.Property(e => e.ScalingNeedSupport).HasDefaultValue(false);
+                entity.Property(e => e.AmalgamNeedSupport).HasDefaultValue(false);
+                entity.Property(e => e.CompositeNeedSupport).HasDefaultValue(false);
+                entity.Property(e => e.CrownsNeedSupport).HasDefaultValue(false);
+                entity.Property(e => e.DenturesNeedSupport).HasDefaultValue(false);
+                entity.Property(e => e.SingleEndoNeedSupport).HasDefaultValue(false);
+                entity.Property(e => e.MultiEndoNeedSupport).HasDefaultValue(false);
+                entity.Property(e => e.PeadsNeedSupport).HasDefaultValue(false);
             });
 
             // Seed initial data
