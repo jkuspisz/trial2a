@@ -58,18 +58,15 @@ namespace SimpleGateway.Data
                 entity.Property(e => e.LastPatientTreatment).HasColumnType("text");
                 entity.Property(e => e.Username).HasMaxLength(256);
                 
-                // Ensure boolean fields have proper defaults
+                // Configure text fields for the simplified model
+                entity.Property(e => e.ClinicalExperienceText).HasColumnType("text");
+                entity.Property(e => e.ConfidenceLevelsText).HasColumnType("text");
+                entity.Property(e => e.LastProcedureDatesText).HasColumnType("text");
+                entity.Property(e => e.TrainingNeedsText).HasColumnType("text");
+                
+                // Ensure boolean fields have proper defaults (only for NHS work fields now)
                 entity.Property(e => e.NHSWorkFullTime).HasDefaultValue(false);
                 entity.Property(e => e.NHSWorkPartTime).HasDefaultValue(false);
-                entity.Property(e => e.SimpleExtractionsTraining).HasDefaultValue(false);
-                entity.Property(e => e.RootDivisionTraining).HasDefaultValue(false);
-                entity.Property(e => e.ClinicalAssessmentTraining).HasDefaultValue(false);
-                entity.Property(e => e.BPETraining).HasDefaultValue(false);
-                entity.Property(e => e.PocketChartsTraining).HasDefaultValue(false);
-                entity.Property(e => e.RadiographsTraining).HasDefaultValue(false);
-                entity.Property(e => e.DeciduousTeethTraining).HasDefaultValue(false);
-                entity.Property(e => e.MechanicalDebridementTraining).HasDefaultValue(false);
-                entity.Property(e => e.DenturesTraining).HasDefaultValue(false);
             });
 
             // Seed initial data

@@ -57,120 +57,25 @@ namespace SimpleGateway.Models
         [Display(Name = "NHS work days per week")]
         public int? NHSWorkDaysPerWeek { get; set; }
 
-        // Clinical Experience Counts
-        [Display(Name = "Simple extractions count")]
-        public int? SimpleExtractionsCount { get; set; }
+        // Clinical Experience (simplified to text)
+        [Display(Name = "Describe your clinical experience and procedure counts")]
+        [DataType(DataType.MultilineText)]
+        public string? ClinicalExperienceText { get; set; }
 
-        [Display(Name = "Root division extractions count")]
-        public int? RootDivisionExtractionsCount { get; set; }
+        // Confidence and Experience (simplified to text)
+        [Display(Name = "Describe your confidence levels (1-6 scale) for different procedures")]
+        [DataType(DataType.MultilineText)]
+        public string? ConfidenceLevelsText { get; set; }
 
-        [Display(Name = "Clinical assessments count")]
-        public int? ClinicalAssessmentsCount { get; set; }
+        // Last Procedure Dates (simplified to text)
+        [Display(Name = "Describe when you last performed various procedures")]
+        [DataType(DataType.MultilineText)]
+        public string? LastProcedureDatesText { get; set; }
 
-        [Display(Name = "BPE examinations count")]
-        public int? BPEExaminationsCount { get; set; }
-
-        [Display(Name = "Pocket charts count")]
-        public int? PocketChartsCount { get; set; }
-
-        [Display(Name = "Radiographs count")]
-        public int? RadiographsCount { get; set; }
-
-        [Display(Name = "Deciduous teeth restored count")]
-        public int? DeciduousTeethCount { get; set; }
-
-        [Display(Name = "Mechanical debridement count")]
-        public int? MechanicalDebridementCount { get; set; }
-
-        [Display(Name = "Dentures provided count")]
-        public int? DenturesCount { get; set; }
-
-        [Display(Name = "Amalgam fillings count")]
-        public int? AmalgamFillingsCount { get; set; }
-
-        // Confidence Levels (1-6 scale)
-        [Display(Name = "Simple extractions confidence")]
-        public int? SimpleExtractionsConfidence { get; set; }
-
-        [Display(Name = "Root division confidence")]
-        public int? RootDivisionConfidence { get; set; }
-
-        [Display(Name = "Clinical assessment confidence")]
-        public int? ClinicalAssessmentConfidence { get; set; }
-
-        [Display(Name = "BPE confidence")]
-        public int? BPEConfidence { get; set; }
-
-        [Display(Name = "Pocket charts confidence")]
-        public int? PocketChartsConfidence { get; set; }
-
-        [Display(Name = "Radiographs confidence")]
-        public int? RadiographsConfidence { get; set; }
-
-        [Display(Name = "Deciduous teeth confidence")]
-        public int? DeciduousTeethConfidence { get; set; }
-
-        [Display(Name = "Mechanical debridement confidence")]
-        public int? MechanicalDebridementConfidence { get; set; }
-
-        [Display(Name = "Dentures confidence")]
-        public int? DenturesConfidence { get; set; }
-
-        // Last Procedure Dates
-        [Display(Name = "Simple extractions last date")]
-        public string? SimpleExtractionsLastDate { get; set; }
-
-        [Display(Name = "Root division last date")]
-        public string? RootDivisionLastDate { get; set; }
-
-        [Display(Name = "Clinical assessment last date")]
-        public string? ClinicalAssessmentLastDate { get; set; }
-
-        [Display(Name = "BPE last date")]
-        public string? BPELastDate { get; set; }
-
-        [Display(Name = "Pocket charts last date")]
-        public string? PocketChartsLastDate { get; set; }
-
-        [Display(Name = "Radiographs last date")]
-        public string? RadiographsLastDate { get; set; }
-
-        [Display(Name = "Deciduous teeth last date")]
-        public string? DeciduousTeethLastDate { get; set; }
-
-        [Display(Name = "Mechanical debridement last date")]
-        public string? MechanicalDebridementLastDate { get; set; }
-
-        [Display(Name = "Dentures last date")]
-        public string? DenturesLastDate { get; set; }
-
-        // Training Needs
-        [Display(Name = "Simple extractions training needed")]
-        public bool SimpleExtractionsTraining { get; set; }
-
-        [Display(Name = "Root division training needed")]
-        public bool RootDivisionTraining { get; set; }
-
-        [Display(Name = "Clinical assessment training needed")]
-        public bool ClinicalAssessmentTraining { get; set; }
-
-        [Display(Name = "BPE training needed")]
-        public bool BPETraining { get; set; }
-
-        [Display(Name = "Pocket charts training needed")]
-        public bool PocketChartsTraining { get; set; }
-
-        [Display(Name = "Radiographs training needed")]
-        public bool RadiographsTraining { get; set; }
-
-        [Display(Name = "Deciduous teeth training needed")]
-        public bool DeciduousTeethTraining { get; set; }
-
-        [Display(Name = "Mechanical debridement training needed")]
-        public bool MechanicalDebridementTraining { get; set; }
-
-        [Display(Name = "Dentures training needed")]
-        public bool DenturesTraining { get; set; }
+        // Training Needs (simplified to text)
+        [Display(Name = "Describe what training you need in different areas")]
+        [DataType(DataType.MultilineText)]
+        public string? TrainingNeedsText { get; set; }
 
         // For tracking who submitted this test data
         public string Username { get; set; } = string.Empty;
