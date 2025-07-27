@@ -124,45 +124,59 @@ try
             var performerDetailsCount = context.PerformerDetails.Count();
             var assignmentsCount = context.Assignments.Count();
             var testDataCount = context.TestData.Count();
+            var testData2Count = context.TestData2.Count();
             
             Console.WriteLine($"Database table verification:");
             Console.WriteLine($"  Users: {usersCount} records");
             Console.WriteLine($"  PerformerDetails: {performerDetailsCount} records");
             Console.WriteLine($"  Assignments: {assignmentsCount} records");
             Console.WriteLine($"  TestData: {testDataCount} records");
+            Console.WriteLine($"  TestData2: {testData2Count} records");
         }
         catch (Exception tableEx)
         {
             Console.WriteLine($"Table verification error: {tableEx.Message}");
             Console.WriteLine("Database tables may not exist properly");
             
-            // If TestData table doesn't exist, try to create it manually
-            if (tableEx.Message.Contains("TestData") || tableEx.Message.Contains("42P01"))
+            // Always attempt to create both TestData tables if there are any table errors
+            Console.WriteLine("Attempting to create TestData tables...");
+            try
             {
-                Console.WriteLine("TestData table missing - attempting to create manually...");
-                try
-                {
-                    // Execute raw SQL to create TestData table
-                    context.Database.ExecuteSqlRaw(@"
-                        CREATE TABLE IF NOT EXISTS ""TestData"" (
-                            ""Id"" serial PRIMARY KEY,
-                            ""UKWorkExperience"" text NOT NULL,
-                            ""LastPatientTreatment"" text NOT NULL,
-                            ""Username"" text NOT NULL,
-                            ""CreatedDate"" timestamp with time zone NOT NULL,
-                            ""ModifiedDate"" timestamp with time zone
-                        );
-                    ");
-                    Console.WriteLine("TestData table created successfully");
-                    
-                    // Verify the table now exists
-                    var testDataCount = context.TestData.Count();
-                    Console.WriteLine($"TestData table verification: {testDataCount} records");
-                }
-                catch (Exception createEx)
-                {
-                    Console.WriteLine($"Failed to create TestData table: {createEx.Message}");
-                }
+                // Execute raw SQL to create TestData table
+                context.Database.ExecuteSqlRaw(@"
+                    CREATE TABLE IF NOT EXISTS ""TestData"" (
+                        ""Id"" serial PRIMARY KEY,
+                        ""UKWorkExperience"" text NOT NULL,
+                        ""LastPatientTreatment"" text NOT NULL,
+                        ""Username"" text NOT NULL,
+                        ""CreatedDate"" timestamp with time zone NOT NULL,
+                        ""ModifiedDate"" timestamp with time zone
+                    );
+                ");
+                Console.WriteLine("TestData table created successfully");
+                
+                // Execute raw SQL to create TestData2 table
+                context.Database.ExecuteSqlRaw(@"
+                    CREATE TABLE IF NOT EXISTS ""TestData2"" (
+                        ""Id"" serial PRIMARY KEY,
+                        ""UKWorkExperience"" text NOT NULL,
+                        ""LastPatientTreatment"" text NOT NULL,
+                        ""Username"" text NOT NULL,
+                        ""CreatedDate"" timestamp with time zone NOT NULL,
+                        ""ModifiedDate"" timestamp with time zone
+                    );
+                ");
+                Console.WriteLine("TestData2 table created successfully");
+                
+                // Verify both tables now exist
+                var testDataCount = context.TestData.Count();
+                var testData2Count = context.TestData2.Count();
+                Console.WriteLine($"TestData table verification: {testDataCount} records");
+                Console.WriteLine($"TestData2 table verification: {testData2Count} records");
+            }
+            catch (Exception createEx)
+            {
+                Console.WriteLine($"Failed to create TestData tables: {createEx.Message}");
             }
         }
         

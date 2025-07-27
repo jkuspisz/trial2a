@@ -1,12 +1,12 @@
-@model SimpleGateway.Models.TestDataModel
+@model SimpleGateway.Models.TestDataModel2
 @{
-    ViewData["Title"] = "Test Practice - PostgreSQL Save";
+    ViewData["Title"] = "Test Practice 2 - PostgreSQL Save";
 }
 
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
-            <h2>Test Practice - @ViewBag.PerformerName</h2>
+            <h2>Test Practice 2 - @ViewBag.PerformerName</h2>
             @if (!string.IsNullOrEmpty(TempData["SuccessMessage"] as string))
             {
                 <div class="alert alert-success">
@@ -85,11 +85,11 @@
         <div class="col-9">
             <div class="card">
                 <div class="card-header">
-                    <h4>Test Practice - PostgreSQL Save Test</h4>
-                    <p class="mb-0 text-muted">This section tests that data can be saved to the PostgreSQL database successfully.</p>
+                    <h4>Test Practice 2 - PostgreSQL Save Test</h4>
+                    <p class="mb-0 text-muted">This section tests that data can be saved to the PostgreSQL database successfully using TestData2 table.</p>
                 </div>
                 <div class="card-body">
-                    <form asp-action="TestPractice" method="post">
+                    <form asp-action="TestPractice2" method="post">
                         <input type="hidden" asp-for="Username" />
                         
                         <!-- Question 1 -->
@@ -114,17 +114,17 @@
                         
                         <!-- Submit Button -->
                         <div class="mb-3">
-                            <button type="submit" class="btn btn-primary btn-lg">Save Test Data to PostgreSQL</button>
+                            <button type="submit" class="btn btn-primary btn-lg">Save Test Data 2 to PostgreSQL</button>
                         </div>
                     </form>
                     
                     <div class="mt-4">
                         <div class="alert alert-info">
                             <h6><strong>Test Information:</strong></h6>
-                            <p><strong>Purpose:</strong> This page tests if data can be successfully saved to the PostgreSQL database using the same pattern as the working PerformerDetails page.</p>
+                            <p><strong>Purpose:</strong> This page tests if data can be successfully saved to the PostgreSQL database using the same pattern as the working TestPractice page.</p>
                             <p><strong>Database:</strong> Railway PostgreSQL</p>
-                            <p><strong>Table:</strong> TestData</p>
-                            <p><strong>Pattern:</strong> Following the exact same successful pattern as PerformerDetails</p>
+                            <p><strong>Table:</strong> TestData2</p>
+                            <p><strong>Pattern:</strong> Following the exact same successful pattern as TestPractice</p>
                         </div>
                     </div>
                 </div>

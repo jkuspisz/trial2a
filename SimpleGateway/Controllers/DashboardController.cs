@@ -773,6 +773,219 @@ namespace SimpleGateway.Controllers
             return View("Performer/TestPractice", model);
         }
 
+        // TestPractice2 methods - identical copy of TestPractice
+        public IActionResult TestPractice2(string performerUsername)
+        {
+            var currentUser = HttpContext.Session.GetString("username");
+            var currentRole = HttpContext.Session.GetString("role");
+            
+            if (string.IsNullOrEmpty(currentUser))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            // Check permissions
+            if (currentRole == "performer" && currentUser != performerUsername)
+            {
+                return RedirectToAction("Index");
+            }
+
+            // Set common ViewBag properties
+            ViewBag.PerformerUsername = performerUsername;
+            ViewBag.CurrentUserRole = currentRole;
+            ViewBag.CurrentUser = currentUser;
+            ViewBag.IsOwnDashboard = (currentUser == performerUsername);
+            ViewBag.CanEdit = (currentRole == "performer" && currentUser == performerUsername);
+            ViewBag.CanComment = (currentRole == "supervisor" || currentRole == "advisor" || currentRole == "superuser");
+            ViewBag.CanApprove = (currentRole == "supervisor" || currentRole == "advisor" || currentRole == "superuser");
+            ViewBag.IsReadOnly = (currentRole == "admin");
+            ViewBag.ActiveSection = "TestPractice2";
+
+            // Get performer's name for display
+            var performer = _context.Users.FirstOrDefault(u => u.Username == performerUsername);
+            if (performer != null)
+            {
+                ViewBag.PerformerName = $"{performer.FirstName} {performer.LastName}";
+            }
+
+            // Get or create test data from database
+            Console.WriteLine($"TESTPRACTICE2 DEBUG: Attempting to retrieve test data for {performerUsername}");
+            var model = _context.TestData2.FirstOrDefault(t => t.Username == performerUsername);
+            if (model == null)
+            {
+                Console.WriteLine($"TESTPRACTICE2 DEBUG: No existing test data found for {performerUsername}, creating new");
+                // Create new test data if not exists
+                model = new TestDataModel2
+                {
+                    Username = performerUsername
+                };
+            }
+            else
+            {
+                Console.WriteLine($"TESTPRACTICE2 DEBUG: Found existing test data for {performerUsername} - UKWorkExperience: {model.UKWorkExperience?.Substring(0, Math.Min(50, model.UKWorkExperience.Length))}..., LastPatientTreatment: {model.LastPatientTreatment?.Substring(0, Math.Min(50, model.LastPatientTreatment.Length))}...");
+            }
+
+            // Check total TestData2 count
+            var totalTestData = _context.TestData2.Count();
+            Console.WriteLine($"TESTPRACTICE2 DEBUG: Total TestData2 records in database: {totalTestData}");
+
+            return View("Performer/TestPractice2", model);
+        }
+
+        [HttpPost]
+        public IActionResult TestPractice2(TestDataModel2 model)
+        {
+            var currentUser = HttpContext.Session.GetString("username");
+            
+            if (string.IsNullOrEmpty(currentUser))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            Console.WriteLine($"TEST PRACTICE2 DEBUG: POST request received for TestData2, user: {currentUser}");
+            Console.WriteLine($"TEST PRACTICE2 DEBUG: Model data - UKWorkExperience: '{model?.UKWorkExperience}', LastPatientTreatment: '{model?.LastPatientTreatment}'");
+            
+            if (model == null)
+            {
+                Console.WriteLine($"TEST PRACTICE2 DEBUG: Model is null");
+                return RedirectToAction("TestPractice2", new { performerUsername = currentUser });
+            }
+
+            // Set the username
+            model.Username = currentUser;
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    Console.WriteLine($"TEST PRACTICE2 DEBUG: Checking for existing test data for {model.Username}");
+                    
+                    // Check if database exists and create if needed
+                    try
+                    {
+                        Console.WriteLine($"TEST PRACTICE2 DEBUG: Checking database connection...");
+                        var canConnect = _context.Database.CanConnect();
+                        Console.WriteLine($"TEST PRACTICE2 DEBUG: Can connect to database: {canConnect}");
+                        
+                        if (!canConnect)
+                        {
+                            Console.WriteLine($"TEST PRACTICE2 DEBUG: Database connection failed, attempting to ensure created...");
+                            _context.Database.EnsureCreated();
+                            Console.WriteLine($"TEST PRACTICE2 DEBUG: Database ensure created completed");
+                        }
+                    }
+                    catch (Exception dbEx)
+                    {
+                        Console.WriteLine($"TEST PRACTICE2 DEBUG: Database connection/creation error: {dbEx.Message}");
+                    }
+                    
+                    // Ensure only one record per user - delete any existing records first
+                    var existingRecords = _context.TestData2.Where(t => t.Username == model.Username).ToList();
+                    
+                    if (existingRecords.Any())
+                    {
+                        Console.WriteLine($"TEST PRACTICE2 DEBUG: Found {existingRecords.Count} existing records for {model.Username} - deleting all");
+                        foreach (var record in existingRecords)
+                        {
+                            Console.WriteLine($"TEST PRACTICE2 DEBUG: Deleting record ID {record.Id} for {model.Username}");
+                        }
+                        _context.TestData2.RemoveRange(existingRecords);
+                        
+                        // Save the deletions first
+                        var deletedRows = _context.SaveChanges();
+                        Console.WriteLine($"TEST PRACTICE2 DEBUG: Deleted {deletedRows} existing records");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"TEST PRACTICE2 DEBUG: No existing records found for {model.Username}");
+                    }
+                    
+                    // Create new record with the latest data
+                    Console.WriteLine($"TEST PRACTICE2 DEBUG: Creating new record for {model.Username}");
+                    Console.WriteLine($"TEST PRACTICE2 DEBUG: New data - UKWorkExperience: '{model.UKWorkExperience}', LastPatientTreatment: '{model.LastPatientTreatment}'");
+                    
+                    // Set audit fields for new record
+                    model.CreatedDate = DateTime.UtcNow;
+                    model.ModifiedDate = null;
+                    
+                    // Add new record
+                    _context.TestData2.Add(model);
+                    
+                    var savedRows = _context.SaveChanges();
+                    Console.WriteLine($"TEST PRACTICE2 DEBUG: SaveChanges() affected {savedRows} rows for {model.Username}");
+                    
+                    if (savedRows > 0)
+                    {
+                        Console.WriteLine($"TEST PRACTICE2 DEBUG: Save successful! Record ID: {model.Id}");
+                        TempData["SuccessMessage"] = $"Test practice 2 data saved successfully to PostgreSQL! Record ID: {model.Id}";
+                        
+                        // Check total TestData2 count
+                        var totalTestData = _context.TestData2.Count();
+                        Console.WriteLine($"TEST PRACTICE2 DEBUG: Total TestData2 records in database: {totalTestData}");
+                        TempData["TotalRecords"] = totalTestData;
+                        
+                        return RedirectToAction("TestPractice2", new { performerUsername = model.Username });
+                    }
+                    else
+                    {
+                        Console.WriteLine($"TEST PRACTICE2 DEBUG: Save failed - no rows affected");
+                        TempData["ErrorMessage"] = "Save failed - no changes were made to the database.";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"TEST PRACTICE2 DEBUG: Exception during save: {ex.Message}");
+                    Console.WriteLine($"TEST PRACTICE2 DEBUG: Stack trace: {ex.StackTrace}");
+                    
+                    var innerEx = ex.InnerException;
+                    var level = 1;
+                    while (innerEx != null)
+                    {
+                        Console.WriteLine($"TEST PRACTICE2 DEBUG: Inner exception level {level}: {innerEx.Message}");
+                        Console.WriteLine($"TEST PRACTICE2 DEBUG: Inner exception level {level} type: {innerEx.GetType().Name}");
+                        if (innerEx.StackTrace != null)
+                        {
+                            Console.WriteLine($"TEST PRACTICE2 DEBUG: Inner exception level {level} stack trace: {innerEx.StackTrace}");
+                        }
+                        innerEx = innerEx.InnerException;
+                        level++;
+                    }
+                    
+                    // Show user-friendly message but log details
+                    var errorMsg = $"Database error: {ex.Message}";
+                    if (ex.InnerException != null)
+                    {
+                        errorMsg += $" | Inner: {ex.InnerException.Message}";
+                    }
+                    TempData["ErrorMessage"] = errorMsg;
+                }
+            }
+            else
+            {
+                Console.WriteLine($"TEST PRACTICE2 DEBUG: Model validation failed, returning to form");
+                TempData["ErrorMessage"] = "Please fill in all required fields.";
+            }
+
+            // Return with ViewBag set up
+            ViewBag.PerformerUsername = model.Username;
+            ViewBag.CurrentUserRole = HttpContext.Session.GetString("role");
+            ViewBag.CurrentUser = currentUser;
+            ViewBag.IsOwnDashboard = (currentUser == model.Username);
+            ViewBag.CanEdit = true;
+            ViewBag.CanComment = false;
+            ViewBag.CanApprove = false;
+            ViewBag.IsReadOnly = false;
+            ViewBag.ActiveSection = "TestPractice2";
+
+            var performer = _context.Users.FirstOrDefault(u => u.Username == model.Username);
+            if (performer != null)
+            {
+                ViewBag.PerformerName = $"{performer.FirstName} {performer.LastName}";
+            }
+
+            return View("Performer/TestPractice2", model);
+        }
+
         public IActionResult StructuredConversation(string performerUsername)
         {
             return HandlePerformerSection(performerUsername, "StructuredConversation");
