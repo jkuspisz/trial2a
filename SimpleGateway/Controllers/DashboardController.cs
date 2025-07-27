@@ -637,11 +637,26 @@ namespace SimpleGateway.Controllers
                 ViewBag.PerformerName = $"{performer.FirstName} {performer.LastName}";
             }
 
-            // Create new empty model for test
-            var model = new TestDataModel
+            // Get or create test data from database
+            Console.WriteLine($"TESTPRACTICE DEBUG: Attempting to retrieve test data for {performerUsername}");
+            var model = _context.TestData.FirstOrDefault(t => t.Username == performerUsername);
+            if (model == null)
             {
-                Username = performerUsername
-            };
+                Console.WriteLine($"TESTPRACTICE DEBUG: No existing test data found for {performerUsername}, creating new");
+                // Create new test data if not exists
+                model = new TestDataModel
+                {
+                    Username = performerUsername
+                };
+            }
+            else
+            {
+                Console.WriteLine($"TESTPRACTICE DEBUG: Found existing test data for {performerUsername} - UKWorkExperience: {model.UKWorkExperience?.Substring(0, Math.Min(50, model.UKWorkExperience.Length))}..., LastPatientTreatment: {model.LastPatientTreatment?.Substring(0, Math.Min(50, model.LastPatientTreatment.Length))}...");
+            }
+
+            // Check total TestData count
+            var totalTestData = _context.TestData.Count();
+            Console.WriteLine($"TESTPRACTICE DEBUG: Total TestData records in database: {totalTestData}");
 
             return View("Performer/TestPractice", model);
         }
