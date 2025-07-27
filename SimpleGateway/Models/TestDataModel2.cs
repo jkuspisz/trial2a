@@ -49,10 +49,10 @@ namespace SimpleGateway.Models
         public int? NHSWorkMonths { get; set; }
 
         [Display(Name = "NHS work full-time")]
-        public bool? NHSWorkFullTime { get; set; }
+        public bool NHSWorkFullTime { get; set; }
 
         [Display(Name = "NHS work part-time")]
-        public bool? NHSWorkPartTime { get; set; }
+        public bool NHSWorkPartTime { get; set; }
 
         [Display(Name = "NHS work days per week")]
         public int? NHSWorkDaysPerWeek { get; set; }
