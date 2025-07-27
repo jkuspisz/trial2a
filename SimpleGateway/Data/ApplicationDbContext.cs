@@ -59,7 +59,6 @@ namespace SimpleGateway.Data
                 entity.Property(e => e.Username).HasMaxLength(256);
                 
                 // Configure text fields for the simplified model
-                entity.Property(e => e.ClinicalExperienceText).HasColumnType("text");
                 entity.Property(e => e.ConfidenceLevelsText).HasColumnType("text");
                 entity.Property(e => e.LastProcedureDatesText).HasColumnType("text");
                 entity.Property(e => e.TrainingNeedsText).HasColumnType("text");

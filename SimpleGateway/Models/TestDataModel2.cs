@@ -57,11 +57,6 @@ namespace SimpleGateway.Models
         [Display(Name = "NHS work days per week")]
         public int? NHSWorkDaysPerWeek { get; set; }
 
-        // Clinical Experience (simplified to text)
-        [Display(Name = "Describe your clinical experience and procedure counts")]
-        [DataType(DataType.MultilineText)]
-        public string? ClinicalExperienceText { get; set; }
-
         // Confidence and Experience (simplified to text)
         [Display(Name = "Describe your confidence levels (1-6 scale) for different procedures")]
         [DataType(DataType.MultilineText)]
