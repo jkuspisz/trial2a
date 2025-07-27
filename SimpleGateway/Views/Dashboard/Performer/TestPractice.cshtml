@@ -1,14 +1,26 @@
+@model SimpleGateway.Models.TestDataModel
 @{
-    ViewData["Title"] = "Previous Experience";
+    ViewData["Title"] = "Test Practice - PostgreSQL Save";
 }
 
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
-            <h2>Previous Experience - @ViewBag.PerformerName</h2>
-            @if (!string.IsNullOrEmpty(TempData["Message"] as string))
+            <h2>Test Practice - @ViewBag.PerformerName</h2>
+            @if (!string.IsNullOrEmpty(TempData["SuccessMessage"] as string))
             {
-                <div class="alert alert-info">@TempData["Message"]</div>
+                <div class="alert alert-success">
+                    @TempData["SuccessMessage"]
+                    @if (TempData["TotalRecords"] != null)
+                    {
+                        <br><strong>Total records in PostgreSQL database:</strong> @TempData["TotalRecords"]
+                    }
+                </div>
+            }
+            
+            @if (!string.IsNullOrEmpty(TempData["ErrorMessage"] as string))
+            {
+                <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
             }
         </div>
     </div>
@@ -73,22 +85,54 @@
         <div class="col-9">
             <div class="card">
                 <div class="card-header">
-                    <h4>Previous Experience</h4>
-                    <p class="mb-0 text-muted">This section is currently under development.</p>
+                    <h4>Test Practice - PostgreSQL Save Test</h4>
+                    <p class="mb-0 text-muted">This section tests that data can be saved to the PostgreSQL database successfully.</p>
                 </div>
                 <div class="card-body">
-                    <div class="alert alert-info">
-                        <h5>Coming Soon</h5>
-                        <p>The Previous Experience section will be available in a future update. This will include:</p>
-                        <ul>
-                            <li>Qualification details</li>
-                            <li>Employment history</li>
-                            <li>Clinical experience</li>
-                            <li>Professional development</li>
-                        </ul>
+                    <form asp-action="TestPractice" method="post">
+                        <input type="hidden" asp-for="Username" />
+                        
+                        <!-- Question 1 -->
+                        <div class="mb-4">
+                            <label asp-for="UKWorkExperience" class="form-label">
+                                <strong>Question 1:</strong> @Html.DisplayNameFor(m => m.UKWorkExperience)
+                            </label>
+                            <textarea asp-for="UKWorkExperience" class="form-control" rows="3" 
+                                     placeholder="Please describe your work experience in the UK, if any. For example: '5 years as a dentist in London' or 'No UK work experience yet'"></textarea>
+                            <span asp-validation-for="UKWorkExperience" class="text-danger"></span>
+                        </div>
+                        
+                        <!-- Question 2 -->
+                        <div class="mb-4">
+                            <label asp-for="LastPatientTreatment" class="form-label">
+                                <strong>Question 2:</strong> @Html.DisplayNameFor(m => m.LastPatientTreatment)
+                            </label>
+                            <textarea asp-for="LastPatientTreatment" class="form-control" rows="3" 
+                                     placeholder="Please describe when you last treated a patient. For example: 'Yesterday - routine cleaning' or 'Last month - filling procedure'"></textarea>
+                            <span asp-validation-for="LastPatientTreatment" class="text-danger"></span>
+                        </div>
+                        
+                        <!-- Submit Button -->
+                        <div class="mb-3">
+                            <button type="submit" class="btn btn-primary btn-lg">Save Test Data to PostgreSQL</button>
+                        </div>
+                    </form>
+                    
+                    <div class="mt-4">
+                        <div class="alert alert-info">
+                            <h6><strong>Test Information:</strong></h6>
+                            <p><strong>Purpose:</strong> This page tests if data can be successfully saved to the PostgreSQL database using the same pattern as the working PerformerDetails page.</p>
+                            <p><strong>Database:</strong> Railway PostgreSQL</p>
+                            <p><strong>Table:</strong> TestData</p>
+                            <p><strong>Pattern:</strong> Following the exact same successful pattern as PerformerDetails</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

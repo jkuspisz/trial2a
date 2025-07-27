@@ -603,6 +603,139 @@ namespace SimpleGateway.Controllers
         }
 
         // Other section methods (simplified for brevity)
+        public IActionResult TestPractice(string performerUsername)
+        {
+            var currentUser = HttpContext.Session.GetString("username");
+            var currentRole = HttpContext.Session.GetString("role");
+            
+            if (string.IsNullOrEmpty(currentUser))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            // Check permissions
+            if (currentRole == "performer" && currentUser != performerUsername)
+            {
+                return RedirectToAction("Index");
+            }
+
+            // Set common ViewBag properties
+            ViewBag.PerformerUsername = performerUsername;
+            ViewBag.CurrentUserRole = currentRole;
+            ViewBag.CurrentUser = currentUser;
+            ViewBag.IsOwnDashboard = (currentUser == performerUsername);
+            ViewBag.CanEdit = (currentRole == "performer" && currentUser == performerUsername);
+            ViewBag.CanComment = (currentRole == "supervisor" || currentRole == "advisor" || currentRole == "superuser");
+            ViewBag.CanApprove = (currentRole == "supervisor" || currentRole == "advisor" || currentRole == "superuser");
+            ViewBag.IsReadOnly = (currentRole == "admin");
+            ViewBag.ActiveSection = "TestPractice";
+
+            // Get performer's name for display
+            var performer = _context.Users.FirstOrDefault(u => u.Username == performerUsername);
+            if (performer != null)
+            {
+                ViewBag.PerformerName = $"{performer.FirstName} {performer.LastName}";
+            }
+
+            // Create new empty model for test
+            var model = new TestDataModel
+            {
+                Username = performerUsername
+            };
+
+            return View("Performer/TestPractice", model);
+        }
+
+        [HttpPost]
+        public IActionResult TestPractice(TestDataModel model)
+        {
+            var currentUser = HttpContext.Session.GetString("username");
+            
+            if (string.IsNullOrEmpty(currentUser))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            Console.WriteLine($"TEST PRACTICE DEBUG: POST request received for TestData, user: {currentUser}");
+            Console.WriteLine($"TEST PRACTICE DEBUG: Model data - UKWorkExperience: '{model?.UKWorkExperience}', LastPatientTreatment: '{model?.LastPatientTreatment}'");
+            
+            if (model == null)
+            {
+                Console.WriteLine($"TEST PRACTICE DEBUG: Model is null");
+                return RedirectToAction("TestPractice", new { performerUsername = currentUser });
+            }
+
+            // Set the username and audit fields
+            model.Username = currentUser;
+            model.CreatedDate = DateTime.UtcNow;
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    Console.WriteLine($"TEST PRACTICE DEBUG: Adding new test data record for {model.Username}");
+                    
+                    // Add new record
+                    _context.TestData.Add(model);
+                    
+                    var savedRows = _context.SaveChanges();
+                    Console.WriteLine($"TEST PRACTICE DEBUG: SaveChanges() affected {savedRows} rows for {model.Username}");
+                    
+                    if (savedRows > 0)
+                    {
+                        Console.WriteLine($"TEST PRACTICE DEBUG: Save successful! Record ID: {model.Id}");
+                        TempData["SuccessMessage"] = $"Test practice data saved successfully to PostgreSQL! Record ID: {model.Id}";
+                        
+                        // Check total TestData count
+                        var totalTestData = _context.TestData.Count();
+                        Console.WriteLine($"TEST PRACTICE DEBUG: Total TestData records in database: {totalTestData}");
+                        TempData["TotalRecords"] = totalTestData;
+                        
+                        return RedirectToAction("TestPractice", new { performerUsername = model.Username });
+                    }
+                    else
+                    {
+                        Console.WriteLine($"TEST PRACTICE DEBUG: Save failed - no rows affected");
+                        TempData["ErrorMessage"] = "Save failed - no changes were made to the database.";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"TEST PRACTICE DEBUG: Exception during save: {ex.Message}");
+                    Console.WriteLine($"TEST PRACTICE DEBUG: Stack trace: {ex.StackTrace}");
+                    if (ex.InnerException != null)
+                    {
+                        Console.WriteLine($"TEST PRACTICE DEBUG: Inner exception: {ex.InnerException.Message}");
+                    }
+                    TempData["ErrorMessage"] = $"Error saving test practice data: {ex.Message}";
+                }
+            }
+            else
+            {
+                Console.WriteLine($"TEST PRACTICE DEBUG: Model validation failed, returning to form");
+                TempData["ErrorMessage"] = "Please fill in all required fields.";
+            }
+
+            // Return with ViewBag set up
+            ViewBag.PerformerUsername = model.Username;
+            ViewBag.CurrentUserRole = HttpContext.Session.GetString("role");
+            ViewBag.CurrentUser = currentUser;
+            ViewBag.IsOwnDashboard = (currentUser == model.Username);
+            ViewBag.CanEdit = true;
+            ViewBag.CanComment = false;
+            ViewBag.CanApprove = false;
+            ViewBag.IsReadOnly = false;
+            ViewBag.ActiveSection = "TestPractice";
+
+            var performer = _context.Users.FirstOrDefault(u => u.Username == model.Username);
+            if (performer != null)
+            {
+                ViewBag.PerformerName = $"{performer.FirstName} {performer.LastName}";
+            }
+
+            return View("Performer/TestPractice", model);
+        }
+
         public IActionResult StructuredConversation(string performerUsername)
         {
             return HandlePerformerSection(performerUsername, "StructuredConversation");
