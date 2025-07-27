@@ -815,6 +815,26 @@ namespace SimpleGateway.Controllers
             
             try
             {
+                // Check database schema and apply migrations if needed
+                try
+                {
+                    var canConnect = _context.Database.CanConnect();
+                    if (canConnect)
+                    {
+                        var pendingMigrations = _context.Database.GetPendingMigrations();
+                        if (pendingMigrations.Any())
+                        {
+                            Console.WriteLine($"TESTPRACTICE2 DEBUG: Found {pendingMigrations.Count()} pending migrations in GET method: {string.Join(", ", pendingMigrations)}");
+                            _context.Database.Migrate();
+                            Console.WriteLine($"TESTPRACTICE2 DEBUG: Migrations applied successfully in GET method");
+                        }
+                    }
+                }
+                catch (Exception migrationEx)
+                {
+                    Console.WriteLine($"TESTPRACTICE2 DEBUG: Migration check/apply failed in GET method: {migrationEx.Message}");
+                }
+                
                 model = _context.TestData2.FirstOrDefault(t => t.Username == performerUsername);
                 totalTestData = _context.TestData2.Count();
                 
@@ -839,14 +859,37 @@ namespace SimpleGateway.Controllers
                 Console.WriteLine($"TESTPRACTICE2 ERROR: Database access failed - {ex.Message}");
                 Console.WriteLine($"TESTPRACTICE2 ERROR: Stack trace - {ex.StackTrace}");
                 
-                // Create new model as fallback
-                model = new TestDataModel2
+                // If it's a column missing error, try to apply migrations
+                if (ex.Message.Contains("column") && ex.Message.Contains("does not exist"))
                 {
-                    Username = performerUsername
-                };
-                
-                // Add error message to TempData
-                TempData["ErrorMessage"] = "Database table may not exist yet. Please ensure migrations are applied. Using blank form for now.";
+                    try
+                    {
+                        Console.WriteLine($"TESTPRACTICE2 DEBUG: Detected missing column error, attempting to apply migrations...");
+                        _context.Database.Migrate();
+                        Console.WriteLine($"TESTPRACTICE2 DEBUG: Migrations applied after column error");
+                        
+                        // Retry the database query
+                        model = _context.TestData2.FirstOrDefault(t => t.Username == performerUsername);
+                        Console.WriteLine($"TESTPRACTICE2 DEBUG: Successfully retrieved data after migration");
+                    }
+                    catch (Exception migrationEx)
+                    {
+                        Console.WriteLine($"TESTPRACTICE2 DEBUG: Migration after column error failed: {migrationEx.Message}");
+                        model = new TestDataModel2 { Username = performerUsername };
+                        TempData["ErrorMessage"] = "Database schema issue detected. The form will work but may not save properly until migrations are applied.";
+                    }
+                }
+                else
+                {
+                    // Create new model as fallback
+                    model = new TestDataModel2
+                    {
+                        Username = performerUsername
+                    };
+                    
+                    // Add error message to TempData
+                    TempData["ErrorMessage"] = "Database table may not exist yet. Please ensure migrations are applied. Using blank form for now.";
+                }
                 Console.WriteLine("TESTPRACTICE2 DEBUG: Using fallback blank model due to database error");
             }
 
@@ -894,10 +937,40 @@ namespace SimpleGateway.Controllers
                             _context.Database.EnsureCreated();
                             Console.WriteLine($"TEST PRACTICE2 DEBUG: Database ensure created completed");
                         }
+                        
+                        // Apply pending migrations (this will handle missing columns)
+                        Console.WriteLine($"TEST PRACTICE2 DEBUG: Checking for pending migrations...");
+                        var pendingMigrations = _context.Database.GetPendingMigrations();
+                        if (pendingMigrations.Any())
+                        {
+                            Console.WriteLine($"TEST PRACTICE2 DEBUG: Found {pendingMigrations.Count()} pending migrations: {string.Join(", ", pendingMigrations)}");
+                            _context.Database.Migrate();
+                            Console.WriteLine($"TEST PRACTICE2 DEBUG: Migrations applied successfully");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"TEST PRACTICE2 DEBUG: No pending migrations found");
+                        }
                     }
                     catch (Exception dbEx)
                     {
-                        Console.WriteLine($"TEST PRACTICE2 DEBUG: Database connection/creation error: {dbEx.Message}");
+                        Console.WriteLine($"TEST PRACTICE2 DEBUG: Database connection/creation/migration error: {dbEx.Message}");
+                        Console.WriteLine($"TEST PRACTICE2 DEBUG: Stack trace: {dbEx.StackTrace}");
+                        
+                        // If we can't apply migrations, try to recreate the database structure
+                        try
+                        {
+                            Console.WriteLine($"TEST PRACTICE2 DEBUG: Attempting to ensure database is created with current model...");
+                            _context.Database.EnsureDeleted();
+                            _context.Database.EnsureCreated();
+                            Console.WriteLine($"TEST PRACTICE2 DEBUG: Database recreated successfully");
+                        }
+                        catch (Exception recreateEx)
+                        {
+                            Console.WriteLine($"TEST PRACTICE2 DEBUG: Database recreation failed: {recreateEx.Message}");
+                            TempData["ErrorMessage"] = "Database schema mismatch. Please contact administrator.";
+                            return View("Performer/TestPractice2", model);
+                        }
                     }
                     
                     // Ensure only one record per user - delete any existing records first
