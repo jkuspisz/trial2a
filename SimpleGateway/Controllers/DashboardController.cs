@@ -680,15 +680,14 @@ namespace SimpleGateway.Controllers
                 return RedirectToAction("TestPractice", new { performerUsername = currentUser });
             }
 
-            // Set the username and audit fields
+            // Set the username
             model.Username = currentUser;
-            model.CreatedDate = DateTime.UtcNow;
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    Console.WriteLine($"TEST PRACTICE DEBUG: Adding new test data record for {model.Username}");
+                    Console.WriteLine($"TEST PRACTICE DEBUG: Checking for existing test data for {model.Username}");
                     
                     // Check if database exists and create if needed
                     try
@@ -709,8 +708,36 @@ namespace SimpleGateway.Controllers
                         Console.WriteLine($"TEST PRACTICE DEBUG: Database connection/creation error: {dbEx.Message}");
                     }
                     
-                    // Add new record
-                    _context.TestData.Add(model);
+                    // Check if test data already exists
+                    var existingTestData = _context.TestData.FirstOrDefault(t => t.Username == model.Username);
+                    
+                    if (existingTestData != null)
+                    {
+                        Console.WriteLine($"TEST PRACTICE DEBUG: Updating existing test data for {model.Username}");
+                        Console.WriteLine($"TEST PRACTICE DEBUG: Before update - UKWorkExperience: '{existingTestData.UKWorkExperience}' -> '{model.UKWorkExperience}'");
+                        Console.WriteLine($"TEST PRACTICE DEBUG: Before update - LastPatientTreatment: '{existingTestData.LastPatientTreatment}' -> '{model.LastPatientTreatment}'");
+                        
+                        // Update existing record
+                        existingTestData.UKWorkExperience = model.UKWorkExperience;
+                        existingTestData.LastPatientTreatment = model.LastPatientTreatment;
+                        existingTestData.ModifiedDate = DateTime.UtcNow;
+                        
+                        _context.TestData.Update(existingTestData);
+                        Console.WriteLine($"TEST PRACTICE DEBUG: After update - UKWorkExperience: '{existingTestData.UKWorkExperience}'");
+                        Console.WriteLine($"TEST PRACTICE DEBUG: After update - LastPatientTreatment: '{existingTestData.LastPatientTreatment}'");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"TEST PRACTICE DEBUG: Creating new test data for {model.Username}");
+                        Console.WriteLine($"TEST PRACTICE DEBUG: New record - UKWorkExperience: '{model.UKWorkExperience}', LastPatientTreatment: '{model.LastPatientTreatment}'");
+                        
+                        // Set audit fields for new record
+                        model.CreatedDate = DateTime.UtcNow;
+                        model.ModifiedDate = null;
+                        
+                        // Add new record
+                        _context.TestData.Add(model);
+                    }
                     
                     var savedRows = _context.SaveChanges();
                     Console.WriteLine($"TEST PRACTICE DEBUG: SaveChanges() affected {savedRows} rows for {model.Username}");
