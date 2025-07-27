@@ -123,11 +123,13 @@ try
             var usersCount = context.Users.Count();
             var performerDetailsCount = context.PerformerDetails.Count();
             var assignmentsCount = context.Assignments.Count();
+            var testDataCount = context.TestData.Count();
             
             Console.WriteLine($"Database table verification:");
             Console.WriteLine($"  Users: {usersCount} records");
             Console.WriteLine($"  PerformerDetails: {performerDetailsCount} records");
             Console.WriteLine($"  Assignments: {assignmentsCount} records");
+            Console.WriteLine($"  TestData: {testDataCount} records");
         }
         catch (Exception tableEx)
         {
