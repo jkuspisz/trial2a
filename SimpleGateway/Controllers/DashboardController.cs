@@ -675,6 +675,25 @@ namespace SimpleGateway.Controllers
                 {
                     Console.WriteLine($"TEST PRACTICE DEBUG: Adding new test data record for {model.Username}");
                     
+                    // Check if database exists and create if needed
+                    try
+                    {
+                        Console.WriteLine($"TEST PRACTICE DEBUG: Checking database connection...");
+                        var canConnect = _context.Database.CanConnect();
+                        Console.WriteLine($"TEST PRACTICE DEBUG: Can connect to database: {canConnect}");
+                        
+                        if (!canConnect)
+                        {
+                            Console.WriteLine($"TEST PRACTICE DEBUG: Database connection failed, attempting to ensure created...");
+                            _context.Database.EnsureCreated();
+                            Console.WriteLine($"TEST PRACTICE DEBUG: Database ensure created completed");
+                        }
+                    }
+                    catch (Exception dbEx)
+                    {
+                        Console.WriteLine($"TEST PRACTICE DEBUG: Database connection/creation error: {dbEx.Message}");
+                    }
+                    
                     // Add new record
                     _context.TestData.Add(model);
                     
@@ -703,11 +722,28 @@ namespace SimpleGateway.Controllers
                 {
                     Console.WriteLine($"TEST PRACTICE DEBUG: Exception during save: {ex.Message}");
                     Console.WriteLine($"TEST PRACTICE DEBUG: Stack trace: {ex.StackTrace}");
+                    
+                    var innerEx = ex.InnerException;
+                    var level = 1;
+                    while (innerEx != null)
+                    {
+                        Console.WriteLine($"TEST PRACTICE DEBUG: Inner exception level {level}: {innerEx.Message}");
+                        Console.WriteLine($"TEST PRACTICE DEBUG: Inner exception level {level} type: {innerEx.GetType().Name}");
+                        if (innerEx.StackTrace != null)
+                        {
+                            Console.WriteLine($"TEST PRACTICE DEBUG: Inner exception level {level} stack trace: {innerEx.StackTrace}");
+                        }
+                        innerEx = innerEx.InnerException;
+                        level++;
+                    }
+                    
+                    // Show user-friendly message but log details
+                    var errorMsg = $"Database error: {ex.Message}";
                     if (ex.InnerException != null)
                     {
-                        Console.WriteLine($"TEST PRACTICE DEBUG: Inner exception: {ex.InnerException.Message}");
+                        errorMsg += $" | Inner: {ex.InnerException.Message}";
                     }
-                    TempData["ErrorMessage"] = $"Error saving test practice data: {ex.Message}";
+                    TempData["ErrorMessage"] = errorMsg;
                 }
             }
             else
