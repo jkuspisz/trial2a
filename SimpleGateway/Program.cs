@@ -166,45 +166,6 @@ try
             }
         }
         
-        // Check if PreviousExperience table exists and create if needed
-        try
-        {
-            var previousExperienceCount = context.PreviousExperience.Count();
-            Console.WriteLine($"PreviousExperience table exists with {previousExperienceCount} records");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"PreviousExperience table doesn't exist: {ex.Message}");
-            
-            if (context.Database.CanConnect())
-            {
-                try
-                {
-                    Console.WriteLine("Creating PreviousExperience table manually...");
-                    context.Database.ExecuteSqlRaw(@"
-                        CREATE TABLE ""PreviousExperience"" (
-                            ""Id"" serial PRIMARY KEY,
-                            ""QualificationCountry"" text NOT NULL,
-                            ""QualificationUniversity"" text NOT NULL,
-                            ""EmploymentHistory"" text NOT NULL,
-                            ""Username"" text NOT NULL,
-                            ""CreatedDate"" timestamp with time zone NOT NULL,
-                            ""ModifiedDate"" timestamp with time zone
-                        );
-                    ");
-                    Console.WriteLine("PreviousExperience table created successfully");
-                    
-                    // Verify the table now exists
-                    var previousExperienceCount = context.PreviousExperience.Count();
-                    Console.WriteLine($"PreviousExperience table verification: {previousExperienceCount} records");
-                }
-                catch (Exception createEx)
-                {
-                    Console.WriteLine($"Failed to create PreviousExperience table: {createEx.Message}");
-                }
-            }
-        }
-        
         // Additional data verification
         try
         {

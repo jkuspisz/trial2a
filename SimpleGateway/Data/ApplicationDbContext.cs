@@ -16,7 +16,6 @@ namespace SimpleGateway.Data
         public DbSet<FileUploadEntry> FileUploadEntries { get; set; }
         public DbSet<AssignmentModel> Assignments { get; set; }
         public DbSet<TestDataModel> TestData { get; set; }
-        public DbSet<PrevExpModel> PreviousExperience { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

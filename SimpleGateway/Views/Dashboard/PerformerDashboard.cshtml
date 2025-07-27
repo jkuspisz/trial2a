@@ -17,9 +17,6 @@
             <li class="list-group-item @(ViewBag.ActiveSection == "PerformerDetails" ? "active" : "")">
                 <a href="/Dashboard/PerformerDetails?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "PerformerDetails" ? "color: white;" : "")">Performer Details</a>
             </li>
-            <li class="list-group-item @(ViewBag.ActiveSection == "PreviousExperience" ? "active" : "")">
-                <a href="/Dashboard/PreviousExperience?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "PreviousExperience" ? "color: white;" : "")">Previous Experience</a>
-            </li>
             <li class="list-group-item @(ViewBag.ActiveSection == "TestPractice" ? "active" : "")">
                 <a href="/Dashboard/TestPractice?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "TestPractice" ? "color: white;" : "")">Test Practice</a>
             </li>
@@ -100,9 +97,6 @@
                         <div class="btn-group" role="group">
                             <a href="/Dashboard/PerformerDetails" class="btn btn-outline-primary">
                                 <i class="bi bi-person-fill"></i> Complete Profile
-                            </a>
-                            <a href="/Dashboard/PreviousExperience?performerUsername=@ViewBag.PerformerUsername" class="btn btn-outline-success">
-                                <i class="bi bi-journal-plus"></i> Log Experience
                             </a>
                             <a href="/Dashboard/Uploads" class="btn btn-outline-info">
                                 <i class="bi bi-cloud-upload"></i> Upload Documents
