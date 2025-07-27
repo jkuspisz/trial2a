@@ -135,6 +135,35 @@ try
         {
             Console.WriteLine($"Table verification error: {tableEx.Message}");
             Console.WriteLine("Database tables may not exist properly");
+            
+            // If TestData table doesn't exist, try to create it manually
+            if (tableEx.Message.Contains("TestData") || tableEx.Message.Contains("42P01"))
+            {
+                Console.WriteLine("TestData table missing - attempting to create manually...");
+                try
+                {
+                    // Execute raw SQL to create TestData table
+                    context.Database.ExecuteSqlRaw(@"
+                        CREATE TABLE IF NOT EXISTS ""TestData"" (
+                            ""Id"" serial PRIMARY KEY,
+                            ""UKWorkExperience"" text NOT NULL,
+                            ""LastPatientTreatment"" text NOT NULL,
+                            ""Username"" text NOT NULL,
+                            ""CreatedDate"" timestamp with time zone NOT NULL,
+                            ""ModifiedDate"" timestamp with time zone
+                        );
+                    ");
+                    Console.WriteLine("TestData table created successfully");
+                    
+                    // Verify the table now exists
+                    var testDataCount = context.TestData.Count();
+                    Console.WriteLine($"TestData table verification: {testDataCount} records");
+                }
+                catch (Exception createEx)
+                {
+                    Console.WriteLine($"Failed to create TestData table: {createEx.Message}");
+                }
+            }
         }
         
         // Additional data verification
