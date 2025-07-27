@@ -708,36 +708,37 @@ namespace SimpleGateway.Controllers
                         Console.WriteLine($"TEST PRACTICE DEBUG: Database connection/creation error: {dbEx.Message}");
                     }
                     
-                    // Check if test data already exists
-                    var existingTestData = _context.TestData.FirstOrDefault(t => t.Username == model.Username);
+                    // Ensure only one record per user - delete any existing records first
+                    var existingRecords = _context.TestData.Where(t => t.Username == model.Username).ToList();
                     
-                    if (existingTestData != null)
+                    if (existingRecords.Any())
                     {
-                        Console.WriteLine($"TEST PRACTICE DEBUG: Updating existing test data for {model.Username}");
-                        Console.WriteLine($"TEST PRACTICE DEBUG: Before update - UKWorkExperience: '{existingTestData.UKWorkExperience}' -> '{model.UKWorkExperience}'");
-                        Console.WriteLine($"TEST PRACTICE DEBUG: Before update - LastPatientTreatment: '{existingTestData.LastPatientTreatment}' -> '{model.LastPatientTreatment}'");
+                        Console.WriteLine($"TEST PRACTICE DEBUG: Found {existingRecords.Count} existing records for {model.Username} - deleting all");
+                        foreach (var record in existingRecords)
+                        {
+                            Console.WriteLine($"TEST PRACTICE DEBUG: Deleting record ID {record.Id} for {model.Username}");
+                        }
+                        _context.TestData.RemoveRange(existingRecords);
                         
-                        // Update existing record
-                        existingTestData.UKWorkExperience = model.UKWorkExperience;
-                        existingTestData.LastPatientTreatment = model.LastPatientTreatment;
-                        existingTestData.ModifiedDate = DateTime.UtcNow;
-                        
-                        _context.TestData.Update(existingTestData);
-                        Console.WriteLine($"TEST PRACTICE DEBUG: After update - UKWorkExperience: '{existingTestData.UKWorkExperience}'");
-                        Console.WriteLine($"TEST PRACTICE DEBUG: After update - LastPatientTreatment: '{existingTestData.LastPatientTreatment}'");
+                        // Save the deletions first
+                        var deletedRows = _context.SaveChanges();
+                        Console.WriteLine($"TEST PRACTICE DEBUG: Deleted {deletedRows} existing records");
                     }
                     else
                     {
-                        Console.WriteLine($"TEST PRACTICE DEBUG: Creating new test data for {model.Username}");
-                        Console.WriteLine($"TEST PRACTICE DEBUG: New record - UKWorkExperience: '{model.UKWorkExperience}', LastPatientTreatment: '{model.LastPatientTreatment}'");
-                        
-                        // Set audit fields for new record
-                        model.CreatedDate = DateTime.UtcNow;
-                        model.ModifiedDate = null;
-                        
-                        // Add new record
-                        _context.TestData.Add(model);
+                        Console.WriteLine($"TEST PRACTICE DEBUG: No existing records found for {model.Username}");
                     }
+                    
+                    // Create new record with the latest data
+                    Console.WriteLine($"TEST PRACTICE DEBUG: Creating new record for {model.Username}");
+                    Console.WriteLine($"TEST PRACTICE DEBUG: New data - UKWorkExperience: '{model.UKWorkExperience}', LastPatientTreatment: '{model.LastPatientTreatment}'");
+                    
+                    // Set audit fields for new record
+                    model.CreatedDate = DateTime.UtcNow;
+                    model.ModifiedDate = null;
+                    
+                    // Add new record
+                    _context.TestData.Add(model);
                     
                     var savedRows = _context.SaveChanges();
                     Console.WriteLine($"TEST PRACTICE DEBUG: SaveChanges() affected {savedRows} rows for {model.Username}");
