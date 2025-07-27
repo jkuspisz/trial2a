@@ -808,26 +808,47 @@ namespace SimpleGateway.Controllers
                 ViewBag.PerformerName = $"{performer.FirstName} {performer.LastName}";
             }
 
-            // Get or create test data from database
+            // Get or create test data from database with proper error handling
             Console.WriteLine($"TESTPRACTICE2 DEBUG: Attempting to retrieve test data for {performerUsername}");
-            var model = _context.TestData2.FirstOrDefault(t => t.Username == performerUsername);
-            if (model == null)
+            TestDataModel2? model = null;
+            int totalTestData = 0;
+            
+            try
             {
-                Console.WriteLine($"TESTPRACTICE2 DEBUG: No existing test data found for {performerUsername}, creating new");
-                // Create new test data if not exists
+                model = _context.TestData2.FirstOrDefault(t => t.Username == performerUsername);
+                totalTestData = _context.TestData2.Count();
+                
+                if (model == null)
+                {
+                    Console.WriteLine($"TESTPRACTICE2 DEBUG: No existing test data found for {performerUsername}, creating new");
+                    // Create new test data if not exists
+                    model = new TestDataModel2
+                    {
+                        Username = performerUsername
+                    };
+                }
+                else
+                {
+                    Console.WriteLine($"TESTPRACTICE2 DEBUG: Found existing test data for {performerUsername} - UKWorkExperience: {model.UKWorkExperience?.Substring(0, Math.Min(50, model.UKWorkExperience?.Length ?? 0))}..., LastPatientTreatment: {model.LastPatientTreatment?.Substring(0, Math.Min(50, model.LastPatientTreatment?.Length ?? 0))}...");
+                }
+                
+                Console.WriteLine($"TESTPRACTICE2 DEBUG: Total TestData2 records in database: {totalTestData}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"TESTPRACTICE2 ERROR: Database access failed - {ex.Message}");
+                Console.WriteLine($"TESTPRACTICE2 ERROR: Stack trace - {ex.StackTrace}");
+                
+                // Create new model as fallback
                 model = new TestDataModel2
                 {
                     Username = performerUsername
                 };
+                
+                // Add error message to TempData
+                TempData["ErrorMessage"] = "Database table may not exist yet. Please ensure migrations are applied. Using blank form for now.";
+                Console.WriteLine("TESTPRACTICE2 DEBUG: Using fallback blank model due to database error");
             }
-            else
-            {
-                Console.WriteLine($"TESTPRACTICE2 DEBUG: Found existing test data for {performerUsername} - UKWorkExperience: {model.UKWorkExperience?.Substring(0, Math.Min(50, model.UKWorkExperience.Length))}..., LastPatientTreatment: {model.LastPatientTreatment?.Substring(0, Math.Min(50, model.LastPatientTreatment.Length))}...");
-            }
-
-            // Check total TestData2 count
-            var totalTestData = _context.TestData2.Count();
-            Console.WriteLine($"TESTPRACTICE2 DEBUG: Total TestData2 records in database: {totalTestData}");
 
             return View("Performer/TestPractice2", model);
         }
