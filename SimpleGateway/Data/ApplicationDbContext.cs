@@ -50,6 +50,28 @@ namespace SimpleGateway.Data
                 entity.Property(e => e.LastPatientTreatment).HasColumnType("text");
             });
 
+            // Configure TestDataModel2
+            modelBuilder.Entity<TestDataModel2>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.UKWorkExperience).HasColumnType("text");
+                entity.Property(e => e.LastPatientTreatment).HasColumnType("text");
+                entity.Property(e => e.Username).HasMaxLength(256);
+                
+                // Ensure boolean fields have proper defaults
+                entity.Property(e => e.NHSWorkFullTime).HasDefaultValue(false);
+                entity.Property(e => e.NHSWorkPartTime).HasDefaultValue(false);
+                entity.Property(e => e.SimpleExtractionsTraining).HasDefaultValue(false);
+                entity.Property(e => e.RootDivisionTraining).HasDefaultValue(false);
+                entity.Property(e => e.ClinicalAssessmentTraining).HasDefaultValue(false);
+                entity.Property(e => e.BPETraining).HasDefaultValue(false);
+                entity.Property(e => e.PocketChartsTraining).HasDefaultValue(false);
+                entity.Property(e => e.RadiographsTraining).HasDefaultValue(false);
+                entity.Property(e => e.DeciduousTeethTraining).HasDefaultValue(false);
+                entity.Property(e => e.MechanicalDebridementTraining).HasDefaultValue(false);
+                entity.Property(e => e.DenturesTraining).HasDefaultValue(false);
+            });
+
             // Seed initial data
             SeedData(modelBuilder);
         }
