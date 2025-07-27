@@ -146,7 +146,7 @@
                         <p class="card-text">Clinical experiences logged</p>
                         @if (ViewBag.CanEdit == true)
                         {
-                            <a href="/Dashboard/PreviousExperience" class="btn btn-sm btn-success">Add Experience</a>
+                            <a href="/Dashboard/PreviousExperience?performerUsername=@ViewBag.PerformerUsername" class="btn btn-sm btn-success">Add Experience</a>
                         }
                     </div>
                 </div>
