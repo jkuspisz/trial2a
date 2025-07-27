@@ -562,11 +562,6 @@ namespace SimpleGateway.Controllers
 
         public IActionResult PreviousExperience(string performerUsername)
         {
-            return HandlePerformerSection(performerUsername, "PreviousExperience");
-        }
-
-        public IActionResult PreviousExperienceForm(string performerUsername)
-        {
             var currentUser = HttpContext.Session.GetString("username");
             var currentRole = HttpContext.Session.GetString("role");
             
@@ -624,7 +619,7 @@ namespace SimpleGateway.Controllers
         }
 
         [HttpPost]
-        public IActionResult PreviousExperienceForm(PrevExpModel model)
+        public IActionResult PreviousExperience(PrevExpModel model)
         {
             var currentUser = HttpContext.Session.GetString("username");
             
@@ -638,7 +633,7 @@ namespace SimpleGateway.Controllers
             if (model == null)
             {
                 Console.WriteLine($"PREVIOUS EXPERIENCE DEBUG: Model is null");
-                return RedirectToAction("PreviousExperienceForm", new { performerUsername = currentUser });
+                return RedirectToAction("PreviousExperience", new { performerUsername = currentUser });
             }
 
             // Set the username
@@ -698,7 +693,7 @@ namespace SimpleGateway.Controllers
                     {
                         Console.WriteLine($"PREVIOUS EXPERIENCE DEBUG: Save successful! Record ID: {model.Id}");
                         TempData["SuccessMessage"] = "Previous experience saved successfully!";
-                        return RedirectToAction("PreviousExperienceForm", new { performerUsername = model.Username });
+                        return RedirectToAction("PreviousExperience", new { performerUsername = model.Username });
                     }
                     else
                     {
