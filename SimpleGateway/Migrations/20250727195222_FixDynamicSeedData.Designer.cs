@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SimpleGateway.Data;
@@ -11,9 +12,11 @@ using SimpleGateway.Data;
 namespace SimpleGateway.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250727195222_FixDynamicSeedData")]
+    partial class FixDynamicSeedData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -248,162 +251,15 @@ namespace SimpleGateway.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("AmalgamFillingsCount")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("BPEConfidence")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("BPEExaminationsCount")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("BPELastDate")
-                        .HasColumnType("text");
-
-                    b.Property<bool?>("BPETraining")
-                        .HasColumnType("boolean");
-
-                    b.Property<int?>("ClinicalAssessmentConfidence")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("ClinicalAssessmentLastDate")
-                        .HasColumnType("text");
-
-                    b.Property<bool?>("ClinicalAssessmentTraining")
-                        .HasColumnType("boolean");
-
-                    b.Property<int?>("ClinicalAssessmentsCount")
-                        .HasColumnType("integer");
-
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<int?>("DeciduousTeethConfidence")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("DeciduousTeethCount")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("DeciduousTeethLastDate")
-                        .HasColumnType("text");
-
-                    b.Property<bool?>("DeciduousTeethTraining")
-                        .HasColumnType("boolean");
-
-                    b.Property<int?>("DenturesConfidence")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("DenturesCount")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("DenturesLastDate")
-                        .HasColumnType("text");
-
-                    b.Property<bool?>("DenturesTraining")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("GDCGapsExplanation")
-                        .HasColumnType("text");
-
-                    b.Property<string>("GDCRegistrationNumber")
-                        .HasColumnType("text");
 
                     b.Property<string>("LastPatientTreatment")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("MechanicalDebridementConfidence")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("MechanicalDebridementCount")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("MechanicalDebridementLastDate")
-                        .HasColumnType("text");
-
-                    b.Property<bool?>("MechanicalDebridementTraining")
-                        .HasColumnType("boolean");
-
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<int?>("NHSWorkDaysPerWeek")
-                        .HasColumnType("integer");
-
-                    b.Property<bool?>("NHSWorkFullTime")
-                        .HasColumnType("boolean");
-
-                    b.Property<int?>("NHSWorkMonths")
-                        .HasColumnType("integer");
-
-                    b.Property<bool?>("NHSWorkPartTime")
-                        .HasColumnType("boolean");
-
-                    b.Property<int?>("NHSWorkYears")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("PocketChartsConfidence")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("PocketChartsCount")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("PocketChartsLastDate")
-                        .HasColumnType("text");
-
-                    b.Property<bool?>("PocketChartsTraining")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("PrimaryQualification")
-                        .HasColumnType("text");
-
-                    b.Property<string>("PrimaryQualificationCountry")
-                        .HasColumnType("text");
-
-                    b.Property<string>("PrimaryQualificationInstitution")
-                        .HasColumnType("text");
-
-                    b.Property<string>("PrimaryQualificationYear")
-                        .HasColumnType("text");
-
-                    b.Property<int?>("RadiographsConfidence")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("RadiographsCount")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("RadiographsLastDate")
-                        .HasColumnType("text");
-
-                    b.Property<bool?>("RadiographsTraining")
-                        .HasColumnType("boolean");
-
-                    b.Property<int?>("RootDivisionConfidence")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("RootDivisionExtractionsCount")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("RootDivisionLastDate")
-                        .HasColumnType("text");
-
-                    b.Property<bool?>("RootDivisionTraining")
-                        .HasColumnType("boolean");
-
-                    b.Property<int?>("SimpleExtractionsConfidence")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("SimpleExtractionsCount")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("SimpleExtractionsLastDate")
-                        .HasColumnType("text");
-
-                    b.Property<bool?>("SimpleExtractionsTraining")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("UKRegistrationDate")
-                        .HasColumnType("text");
 
                     b.Property<string>("UKWorkExperience")
                         .IsRequired()
@@ -411,9 +267,6 @@ namespace SimpleGateway.Migrations
 
                     b.Property<string>("Username")
                         .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("WorkedInNHS")
                         .HasColumnType("text");
 
                     b.HasKey("Id");

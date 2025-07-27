@@ -56,7 +56,9 @@ namespace SimpleGateway.Data
 
         private void SeedData(ModelBuilder modelBuilder)
         {
-            // Seed users
+            // Seed users - using static dates to avoid migration warnings
+            var seedDate = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            
             modelBuilder.Entity<UserModel>().HasData(
                 new UserModel
                 {
@@ -68,7 +70,7 @@ namespace SimpleGateway.Data
                     DisplayName = "Administrator",
                     Role = "Admin",
                     Email = "admin@example.com",
-                    CreatedDate = DateTime.UtcNow
+                    CreatedDate = seedDate
                 },
                 new UserModel
                 {
@@ -80,7 +82,7 @@ namespace SimpleGateway.Data
                     DisplayName = "Dr. John Smith",
                     Role = "Performer",
                     Email = "john.smith@example.com",
-                    CreatedDate = DateTime.UtcNow
+                    CreatedDate = seedDate
                 },
                 new UserModel
                 {
@@ -92,7 +94,7 @@ namespace SimpleGateway.Data
                     DisplayName = "Dr. James Brown",
                     Role = "Performer",
                     Email = "james.brown@example.com",
-                    CreatedDate = DateTime.UtcNow
+                    CreatedDate = seedDate
                 },
                 new UserModel
                 {
@@ -104,7 +106,7 @@ namespace SimpleGateway.Data
                     DisplayName = "Agency Manager",
                     Role = "Agency",
                     Email = "agency@example.com",
-                    CreatedDate = DateTime.UtcNow
+                    CreatedDate = seedDate
                 }
             );
         }
