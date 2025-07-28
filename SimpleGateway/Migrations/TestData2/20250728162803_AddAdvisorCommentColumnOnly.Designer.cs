@@ -12,8 +12,8 @@ using SimpleGateway.Data;
 namespace SimpleGateway.Migrations.TestData2
 {
     [DbContext(typeof(TestData2Context))]
-    [Migration("20250728150053_AddAdvisorCommentField")]
-    partial class AddAdvisorCommentField
+    [Migration("20250728162803_AddAdvisorCommentColumnOnly")]
+    partial class AddAdvisorCommentColumnOnly
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
