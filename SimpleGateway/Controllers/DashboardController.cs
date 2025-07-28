@@ -712,14 +712,29 @@ namespace SimpleGateway.Controllers
                 ViewBag.PerformerName = $"{performer.FirstName} {performer.LastName}";
             }
 
-            // Load existing data (will be single record due to delete-and-recreate)
-            var model = _context.TestData.FirstOrDefault(x => x.Username == performerUsername);
-            if (model == null)
+            try
             {
-                model = new TestDataModel { Username = performerUsername };
-            }
+                // Ensure database and table exist with correct schema
+                _context.Database.EnsureCreated();
+                
+                // Load existing data (will be single record due to delete-and-recreate)
+                var model = _context.TestData.FirstOrDefault(x => x.Username == performerUsername);
+                if (model == null)
+                {
+                    model = new TestDataModel { Username = performerUsername };
+                }
 
-            return View("Performer/TestPractice", model);
+                return View("Performer/TestPractice", model);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"TESTPRACTICE DEBUG: Database error in GET: {ex.Message}");
+                // If there's a schema mismatch, create fresh table
+                TempData["ErrorMessage"] = $"Database schema issue - creating fresh table. Error: {ex.Message}";
+                
+                var model = new TestDataModel { Username = performerUsername };
+                return View("Performer/TestPractice", model);
+            }
         }
 
         [HttpPost]
@@ -745,14 +760,8 @@ namespace SimpleGateway.Controllers
             {
                 try
                 {
-                    // Database connection verification - SAFE METHOD
-                    var canConnect = _context.Database.CanConnect();
-                    if (!canConnect)
-                    {
-                        // ⚠️ ONLY use EnsureCreated() if database doesn't exist at all
-                        // NEVER use EnsureDeleted() - it destroys ALL data
-                        _context.Database.EnsureCreated();
-                    }
+                    // Ensure database and table exist with correct schema
+                    _context.Database.EnsureCreated();
                     
                     // CRITICAL: Delete all existing records for this user first
                     var existingRecords = _context.TestData.Where(x => x.Username == model.Username).ToList();
@@ -791,6 +800,7 @@ namespace SimpleGateway.Controllers
                 {
                     // ✅ SAFE ERROR HANDLING - Log errors without destroying data
                     Console.WriteLine($"TESTPRACTICE DEBUG: Exception: {ex.Message}");
+                    Console.WriteLine($"TESTPRACTICE DEBUG: Inner Exception: {ex.InnerException?.Message}");
                     TempData["ErrorMessage"] = $"Error saving data: {ex.Message}";
                     
                     // 🚨 NEVER DO THIS IN CATCH BLOCKS:
