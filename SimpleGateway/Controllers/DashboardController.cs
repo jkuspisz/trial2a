@@ -105,8 +105,8 @@ namespace SimpleGateway.Controllers
             }
         }
 
-        // Overloaded Index method to handle specific performer dashboard access
-        public IActionResult Index(string performerUsername)
+        // Method for supervisors/advisors to view specific performer dashboards
+        public IActionResult ViewPerformerDashboard(string performerUsername)
         {
             var currentUser = HttpContext.Session.GetString("username");
             var currentRole = HttpContext.Session.GetString("role");
@@ -123,8 +123,9 @@ namespace SimpleGateway.Controllers
             }
 
             // Check permissions - ensure user has access to this performer
-            if (currentRole == "performer" && currentUser != performerUsername)
+            if (currentRole == "performer")
             {
+                // Performers should use the regular Index method for their own dashboard
                 return RedirectToAction("Index");
             }
 
@@ -164,6 +165,14 @@ namespace SimpleGateway.Controllers
                 {
                     return RedirectToAction("Index");
                 }
+            }
+            else if (currentRole == "admin" || currentRole == "superuser")
+            {
+                // Admin/superuser can view any performer dashboard
+            }
+            else
+            {
+                return RedirectToAction("Index");
             }
 
             // Set up ViewBag for performer dashboard view

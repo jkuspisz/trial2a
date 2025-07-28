@@ -10,7 +10,7 @@
     <div class="col-3">
         <ul class="list-group">
             <li class="list-group-item @(ViewBag.ActiveSection == "Dashboard" ? "active" : "")">
-                <a href="/Dashboard/Index?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "Dashboard" ? "color: white;" : "")">
+                <a href="/Dashboard/ViewPerformerDashboard?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "Dashboard" ? "color: white;" : "")">
                     <i class="bi bi-speedometer2"></i> Dashboard Overview
                 </a>
             </li>
