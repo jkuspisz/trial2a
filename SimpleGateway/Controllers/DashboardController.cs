@@ -886,7 +886,20 @@ namespace SimpleGateway.Controllers
                         }
                         else
                         {
-                            Console.WriteLine($"TESTPRACTICE2 DEBUG: No pending migrations found, but column still missing - this may be a schema sync issue");
+                            Console.WriteLine($"TESTPRACTICE2 DEBUG: No pending migrations found, but column still missing - attempting manual column addition");
+                            
+                            // Manual column addition as fallback for cloud platform issues
+                            try
+                            {
+                                var sql = "ALTER TABLE \"TestData2\" ADD COLUMN IF NOT EXISTS \"AdvisorComment\" text NULL;";
+                                Console.WriteLine($"TESTPRACTICE2 DEBUG: Executing manual SQL: {sql}");
+                                _testData2Context.Database.ExecuteSqlRaw(sql);
+                                Console.WriteLine($"TESTPRACTICE2 DEBUG: Manual column addition completed");
+                            }
+                            catch (Exception sqlEx)
+                            {
+                                Console.WriteLine($"TESTPRACTICE2 DEBUG: Manual SQL failed: {sqlEx.Message}");
+                            }
                         }
                         
                         // Retry the database query
@@ -967,7 +980,20 @@ namespace SimpleGateway.Controllers
                         }
                         else
                         {
-                            Console.WriteLine($"TEST PRACTICE2 DEBUG: No pending migrations found");
+                            Console.WriteLine($"TEST PRACTICE2 DEBUG: No pending migrations found - checking if manual column addition needed");
+                            
+                            // Manual column addition as fallback for cloud platform issues
+                            try
+                            {
+                                var sql = "ALTER TABLE \"TestData2\" ADD COLUMN IF NOT EXISTS \"AdvisorComment\" text NULL;";
+                                Console.WriteLine($"TEST PRACTICE2 DEBUG: Executing manual SQL: {sql}");
+                                _testData2Context.Database.ExecuteSqlRaw(sql);
+                                Console.WriteLine($"TEST PRACTICE2 DEBUG: Manual column addition completed");
+                            }
+                            catch (Exception sqlEx)
+                            {
+                                Console.WriteLine($"TEST PRACTICE2 DEBUG: Manual SQL failed (may already exist): {sqlEx.Message}");
+                            }
                         }
                     }
                     catch (Exception dbEx)
