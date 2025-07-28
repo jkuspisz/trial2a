@@ -366,6 +366,10 @@ namespace SimpleGateway.Models
         [Display(Name = "Pediatric Fillings - Need Support?")]
         public bool PeadsNeedSupport { get; set; }
 
+        // Advisor-only comment field
+        [Display(Name = "Advisor Comments")]
+        public string? AdvisorComment { get; set; }
+
         // For tracking who submitted this test data
         public string Username { get; set; } = string.Empty;
         

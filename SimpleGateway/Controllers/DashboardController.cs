@@ -968,6 +968,20 @@ namespace SimpleGateway.Controllers
                     // Ensure only one record per user - delete any existing records first (ISOLATED TO TestData2)
                     var existingRecords = _testData2Context.TestData2.Where(t => t.Username == model.Username).ToList();
                     
+                    // CRITICAL: Preserve AdvisorComment from existing record if user is not advisor/admin
+                    var currentUserRole = HttpContext.Session.GetString("role");
+                    if (existingRecords.Any() && currentUserRole != "advisor" && currentUserRole != "admin")
+                    {
+                        var existingRecord = existingRecords.First();
+                        Console.WriteLine($"TEST PRACTICE2 DEBUG: Preserving AdvisorComment for non-advisor user {model.Username}");
+                        Console.WriteLine($"TEST PRACTICE2 DEBUG: Existing AdvisorComment: '{existingRecord.AdvisorComment}'");
+                        model.AdvisorComment = existingRecord.AdvisorComment; // Preserve existing advisor comment
+                    }
+                    else if (currentUserRole == "advisor" || currentUserRole == "admin")
+                    {
+                        Console.WriteLine($"TEST PRACTICE2 DEBUG: Advisor/Admin user {currentUser} can modify AdvisorComment");
+                    }
+                    
                     if (existingRecords.Any())
                     {
                         Console.WriteLine($"TEST PRACTICE2 DEBUG: Found {existingRecords.Count} existing records for {model.Username} - deleting all");

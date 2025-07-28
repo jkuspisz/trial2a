@@ -693,6 +693,44 @@
                     </div>
                 </div>
 
+                <!-- Advisor Comments Section - Only visible after performer saves -->
+                @if (!string.IsNullOrEmpty(Model.AdvisorComment) || (ViewBag.CurrentUserRole == "advisor" || ViewBag.CurrentUserRole == "admin"))
+                {
+                    <div class="card mb-4">
+                        <div class="card-header" style="background-color: #e8f5e8; color: #2d5a2d;">
+                            <h5 class="mb-0">
+                                <i class="bi bi-chat-dots"></i> Advisor Comments
+                                @if (ViewBag.CurrentUserRole == "advisor" || ViewBag.CurrentUserRole == "admin")
+                                {
+                                    <small class="text-muted ms-2">(Advisor/Admin Only)</small>
+                                }
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            @if (ViewBag.CurrentUserRole == "advisor" || ViewBag.CurrentUserRole == "admin")
+                            {
+                                <div class="mb-3">
+                                    <textarea asp-for="AdvisorComment" class="form-control" rows="4" 
+                                              placeholder="Enter comments for the performer about their assessment..."></textarea>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-info mb-0">
+                                    @if (!string.IsNullOrEmpty(Model.AdvisorComment))
+                                    {
+                                        @Html.Raw(Model.AdvisorComment.Replace("\n", "<br/>"))
+                                    }
+                                    else
+                                    {
+                                        <em>No advisor comments yet.</em>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+
                 <input type="hidden" asp-for="Username" value="@ViewBag.PerformerUsername" />
                 
                 <div class="mt-4">

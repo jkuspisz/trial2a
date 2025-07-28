@@ -31,10 +31,12 @@ public IActionResult [SectionName]([ModelName]Model model)
     {
         try
         {
-            // Database connection verification
+            // Database connection verification - SAFE METHOD
             var canConnect = _context.Database.CanConnect();
             if (!canConnect)
             {
+                // ⚠️ ONLY use EnsureCreated() if database doesn't exist at all
+                // NEVER use EnsureDeleted() - it destroys ALL data
                 _context.Database.EnsureCreated();
             }
             
@@ -73,14 +75,25 @@ public IActionResult [SectionName]([ModelName]Model model)
         }
         catch (Exception ex)
         {
+            // ✅ SAFE ERROR HANDLING - Log errors without destroying data
             Console.WriteLine($"[SECTION] DEBUG: Exception: {ex.Message}");
             TempData["ErrorMessage"] = $"Error saving data: {ex.Message}";
+            
+            // 🚨 NEVER DO THIS IN CATCH BLOCKS:
+            // _context.Database.EnsureDeleted(); // ❌ DESTROYS ALL DATA
+            // _context.Database.EnsureCreated();  // ❌ AFTER DELETION
         }
     }
 
     return View("Performer/[SectionName]", model);
 }
 ```
+
+### 🚨 **CRITICAL SAFETY NOTES:**
+- **NEVER use `EnsureDeleted()`** in production code
+- **Error handling must be non-destructive** - log and return gracefully
+- **Use isolated contexts** for risky operations (like _testData2Context)
+- **Test all error paths** to ensure they don't wipe databases
 
 ## Why Delete-and-Recreate Works Better
 
@@ -245,7 +258,80 @@ For removing fields (reverse process):
 
 **Previous incidents have shown that TestData2 migrations can sometimes cause user data loss on Railway deployments.**
 
-### ⚠️ **RECENT INCIDENT: Dual Context Implementation (July 28, 2025)**
+### 🚨 **NEVER USE THESE DANGEROUS OPERATIONS:**
+
+```csharp
+// ❌ NEVER DO THIS - DELETES ENTIRE DATABASE
+_context.Database.EnsureDeleted();
+
+// ❌ NEVER DO THIS - WIPES ALL USER DATA
+_context.Database.EnsureCreated(); // after EnsureDeleted()
+
+// ❌ NEVER USE IN ERROR HANDLING
+catch (Exception ex)
+{
+    _context.Database.EnsureDeleted(); // THIS DESTROYS EVERYTHING
+    _context.Database.EnsureCreated();
+}
+```
+
+### ✅ **SAFE ALTERNATIVES:**
+
+```csharp
+// ✅ SAFE: Log errors without destroying data
+catch (Exception ex)
+{
+    Console.WriteLine($"Database error: {ex.Message}");
+    TempData["ErrorMessage"] = "Database issue. Contact administrator.";
+    return View(model);
+}
+
+// ✅ SAFE: Use isolated contexts for risky operations
+_testData2Context.Database.Migrate(); // Only affects TestData2
+
+// ✅ SAFE: Check connection without recreation
+var canConnect = _context.Database.CanConnect();
+if (!canConnect)
+{
+    // Log and handle gracefully - DON'T DELETE DATABASE
+    TempData["ErrorMessage"] = "Database connection issue.";
+}
+```
+
+### ⚠️ **RECENT INCIDENT: Database Deletion Bug (July 28, 2025)**
+
+**🚨 CRITICAL BUG DISCOVERED AND FIXED:**
+- **Problem**: TestPractice2 POST method contained `_context.Database.EnsureDeleted()` in error handling
+- **Impact**: When TestPractice2 encountered database migration errors, it **DELETED THE ENTIRE ApplicationDbContext DATABASE**
+- **Affected**: Users, PerformerDetails, TestData tables were completely wiped
+- **Root Cause**: Fallback error handling used destructive database recreation
+- **Result**: Admin users, performer data, and test practice data lost whenever TestPractice2 had issues
+
+**✅ SOLUTION IMPLEMENTED:**
+```csharp
+// ❌ OLD DANGEROUS CODE (REMOVED):
+catch (Exception dbEx)
+{
+    _context.Database.EnsureDeleted();  // DESTROYED EVERYTHING!
+    _context.Database.EnsureCreated();
+}
+
+// ✅ NEW SAFE CODE:
+catch (Exception dbEx)
+{
+    Console.WriteLine($"Database error: {dbEx.Message}");
+    TempData["ErrorMessage"] = "Database schema issue. Contact administrator.";
+    return View("Performer/TestPractice2", model); // PRESERVE ALL DATA
+}
+```
+
+**Key Lessons:**
+- ✅ **NEVER use EnsureDeleted() in production code**
+- ✅ **Use isolated contexts** (_testData2Context) for risky operations
+- ✅ **Log errors and fail gracefully** instead of destroying data
+- ✅ **Test all error paths** to ensure they don't wipe databases
+
+### ⚠️ **PREVIOUS INCIDENT: Dual Context Implementation (July 28, 2025)**
 
 **What Happened:**
 - Implemented TestData2Context isolation to protect user data
@@ -263,12 +349,14 @@ For removing fields (reverse process):
 **Key Finding:** Data recreation during major infrastructure changes serves as a comprehensive testing checkpoint, ensuring system reliability.
 
 ### Known Risk Factors:
-1. **Migration Conflicts**: Multiple pending migrations can cause rollbacks
-2. **Database Recreation**: Failed migrations trigger `EnsureCreated()` which wipes all data
-3. **Railway Deployment**: Schema conflicts during deployment can recreate database
-4. **Timing Issues**: Migration failures during user creation operations
-5. **🚨 NEW: Program.cs Changes**: Modifying database initialization can trigger recreation
-6. **🚨 NEW: Context Restructuring**: Adding new contexts can affect existing data
+1. **🚨 NEW: EnsureDeleted() Operations**: NEVER use `_context.Database.EnsureDeleted()` - it destroys ALL data
+2. **Migration Conflicts**: Multiple pending migrations can cause rollbacks
+3. **Database Recreation**: Failed migrations trigger `EnsureCreated()` which wipes all data
+4. **Railway Deployment**: Schema conflicts during deployment can recreate database
+5. **Timing Issues**: Migration failures during user creation operations
+6. **Program.cs Changes**: Modifying database initialization can trigger recreation
+7. **Context Restructuring**: Adding new contexts can affect existing data
+8. **🚨 NEW: Error Handling**: Destructive fallback logic in catch blocks
 
 ### Safety Protocol Before ANY Database Changes:
 
@@ -277,9 +365,21 @@ For removing fields (reverse process):
 # 2. Create migration during low-activity periods  
 # 3. Monitor Railway deployment logs closely
 # 4. Have admin user credentials ready for immediate restoration
-# 5. 🚨 NEW: Avoid Program.cs database initialization changes during active use
-# 6. 🚨 NEW: Test context changes locally before deployment
+# 5. Avoid Program.cs database initialization changes during active use
+# 6. Test context changes locally before deployment
+# 7. 🚨 NEW: NEVER use EnsureDeleted() in production code
+# 8. 🚨 NEW: Code review all catch blocks for destructive operations
+# 9. 🚨 NEW: Use isolated contexts for risky database operations
 ```
+
+### 🔍 **MANDATORY CODE REVIEW CHECKLIST:**
+
+Before any database-related code changes:
+- [ ] **Search entire codebase for "EnsureDeleted"** - remove ALL instances
+- [ ] **Review all catch blocks** - ensure no destructive database operations
+- [ ] **Verify context isolation** - use _testData2Context for TestData2 operations
+- [ ] **Test error paths locally** - confirm failures don't wipe databases
+- [ ] **Document all database operations** - especially in error handling
 
 ### 🆕 **PROVEN SAFE APPROACH: TestData2Context Isolation**
 
@@ -296,6 +396,8 @@ For removing fields (reverse process):
 - **TestData2Context**: Fully isolated and bulletproof ✅
 - **ApplicationDbContext**: Reliable with Database Integration Pattern ✅
 - **All functionality**: Tested and confirmed working after data refresh ✅
+- **🆕 EnsureDeleted() Bug**: FIXED - dangerous operations removed ✅
+- **🆕 Error Handling**: Converted to safe, non-destructive patterns ✅
 
 ### Emergency User Recovery Plan:
 If users disappear after database deployment:
