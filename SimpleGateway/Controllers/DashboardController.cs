@@ -872,12 +872,8 @@ namespace SimpleGateway.Controllers
                         var canConnect = _testData2Context.Database.CanConnect();
                         Console.WriteLine($"TESTPRACTICE2 DEBUG: TestData2Context can connect: {canConnect}");
                         
-                        if (!canConnect)
-                        {
-                            Console.WriteLine($"TESTPRACTICE2 DEBUG: TestData2Context cannot connect, ensuring database is created...");
-                            _testData2Context.Database.EnsureCreated();
-                            Console.WriteLine($"TESTPRACTICE2 DEBUG: TestData2Context database ensured created");
-                        }
+                        // Don't use EnsureCreated() as it conflicts with migrations
+                        // Just proceed with migration if we can connect
                         
                         // Check for pending migrations specifically
                         var pendingMigrations = _testData2Context.Database.GetPendingMigrations().ToList();
@@ -957,12 +953,8 @@ namespace SimpleGateway.Controllers
                         var canConnect = _testData2Context.Database.CanConnect();
                         Console.WriteLine($"TEST PRACTICE2 DEBUG: Can connect to TestData2 database: {canConnect}");
                         
-                        if (!canConnect)
-                        {
-                            Console.WriteLine($"TEST PRACTICE2 DEBUG: TestData2 database connection failed, attempting to ensure created...");
-                            _testData2Context.Database.EnsureCreated();
-                            Console.WriteLine($"TEST PRACTICE2 DEBUG: TestData2 database ensure created completed");
-                        }
+                        // Don't use EnsureCreated() as it conflicts with existing migrations
+                        // Just proceed with checking for pending migrations
                         
                         // Apply pending migrations to TestData2Context only
                         Console.WriteLine($"TEST PRACTICE2 DEBUG: Checking for TestData2 pending migrations...");
