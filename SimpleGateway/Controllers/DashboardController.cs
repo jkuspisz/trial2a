@@ -8,10 +8,12 @@ namespace SimpleGateway.Controllers
     public class DashboardController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly TestData2Context _testData2Context;
 
-        public DashboardController(ApplicationDbContext context)
+        public DashboardController(ApplicationDbContext context, TestData2Context testData2Context)
         {
             _context = context;
+            _testData2Context = testData2Context;
         }
 
         public IActionResult Index()
@@ -835,8 +837,8 @@ namespace SimpleGateway.Controllers
                     Console.WriteLine($"TESTPRACTICE2 DEBUG: Migration check/apply failed in GET method: {migrationEx.Message}");
                 }
                 
-                model = _context.TestData2.FirstOrDefault(t => t.Username == performerUsername);
-                totalTestData = _context.TestData2.Count();
+                model = _testData2Context.TestData2.FirstOrDefault(t => t.Username == performerUsername);
+                totalTestData = _testData2Context.TestData2.Count();
                 
                 if (model == null)
                 {
@@ -869,7 +871,7 @@ namespace SimpleGateway.Controllers
                         Console.WriteLine($"TESTPRACTICE2 DEBUG: Migrations applied after column error");
                         
                         // Retry the database query
-                        model = _context.TestData2.FirstOrDefault(t => t.Username == performerUsername);
+                        model = _testData2Context.TestData2.FirstOrDefault(t => t.Username == performerUsername);
                         Console.WriteLine($"TESTPRACTICE2 DEBUG: Successfully retrieved data after migration");
                     }
                     catch (Exception migrationEx)
@@ -973,8 +975,8 @@ namespace SimpleGateway.Controllers
                         }
                     }
                     
-                    // Ensure only one record per user - delete any existing records first
-                    var existingRecords = _context.TestData2.Where(t => t.Username == model.Username).ToList();
+                    // Ensure only one record per user - delete any existing records first (ISOLATED TO TestData2)
+                    var existingRecords = _testData2Context.TestData2.Where(t => t.Username == model.Username).ToList();
                     
                     if (existingRecords.Any())
                     {
@@ -983,10 +985,10 @@ namespace SimpleGateway.Controllers
                         {
                             Console.WriteLine($"TEST PRACTICE2 DEBUG: Deleting record ID {record.Id} for {model.Username}");
                         }
-                        _context.TestData2.RemoveRange(existingRecords);
+                        _testData2Context.TestData2.RemoveRange(existingRecords);
                         
-                        // Save the deletions first
-                        var deletedRows = _context.SaveChanges();
+                        // Save the deletions first (ISOLATED CONTEXT)
+                        var deletedRows = _testData2Context.SaveChanges();
                         Console.WriteLine($"TEST PRACTICE2 DEBUG: Deleted {deletedRows} existing records");
                     }
                     else
@@ -1002,10 +1004,10 @@ namespace SimpleGateway.Controllers
                     model.CreatedDate = DateTime.UtcNow;
                     model.ModifiedDate = null;
                     
-                    // Add new record
-                    _context.TestData2.Add(model);
+                    // Add new record (ISOLATED CONTEXT)
+                    _testData2Context.TestData2.Add(model);
                     
-                    var savedRows = _context.SaveChanges();
+                    var savedRows = _testData2Context.SaveChanges();
                     Console.WriteLine($"TEST PRACTICE2 DEBUG: SaveChanges() affected {savedRows} rows for {model.Username}");
                     
                     if (savedRows > 0)
@@ -1013,8 +1015,8 @@ namespace SimpleGateway.Controllers
                         Console.WriteLine($"TEST PRACTICE2 DEBUG: Save successful! Record ID: {model.Id}");
                         TempData["SuccessMessage"] = $"Test practice 2 data saved successfully to PostgreSQL! Record ID: {model.Id}";
                         
-                        // Check total TestData2 count
-                        var totalTestData = _context.TestData2.Count();
+                        // Check total TestData2 count (ISOLATED)
+                        var totalTestData = _testData2Context.TestData2.Count();
                         Console.WriteLine($"TEST PRACTICE2 DEBUG: Total TestData2 records in database: {totalTestData}");
                         TempData["TotalRecords"] = totalTestData;
                         

@@ -32,7 +32,8 @@ builder.Logging.AddConsole();
 builder.Services.AddControllersWithViews();
 builder.Services.AddSession();
 
-// Add Entity Framework - Railway PostgreSQL database
+// Add Entity Framework - Railway PostgreSQL database with SEPARATE CONTEXTS
+// Main context for critical data (Users, PerformerDetails, etc.)
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     // Railway PostgreSQL connection - try multiple possible environment variable names
@@ -65,8 +66,35 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     }
     
     // Always use PostgreSQL for Railway deployment
-    Console.WriteLine("Using PostgreSQL database (Railway)");
+    Console.WriteLine("Using PostgreSQL database (Railway) - Main Context");
     options.UseNpgsql(connectionString);
+});
+
+// ISOLATED TestData2 context - separate migrations, separate safety
+builder.Services.AddDbContext<TestData2Context>(options =>
+{
+    // Use same connection but different migration history
+    var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL") 
+                   ?? Environment.GetEnvironmentVariable("POSTGRES_URL")
+                   ?? Environment.GetEnvironmentVariable("POSTGRESQL_URL");
+    
+    string connectionString;
+    
+    if (!string.IsNullOrEmpty(databaseUrl))
+    {
+        connectionString = databaseUrl;
+    }
+    else
+    {
+        connectionString = "Host=postgres.railway.internal;Database=railway;Username=postgres;Password=JqzUsDviTmzGBwiuibsJFPMflWkgiGAS;Port=5432;";
+    }
+    
+    Console.WriteLine("Using PostgreSQL database (Railway) - TestData2 Context (ISOLATED)");
+    options.UseNpgsql(connectionString, npgsqlOptions => 
+    {
+        // Use separate migration history table to isolate TestData2 migrations
+        npgsqlOptions.MigrationsHistoryTable("__EFMigrationsHistory_TestData2");
+    });
 });
 
 var app = builder.Build();

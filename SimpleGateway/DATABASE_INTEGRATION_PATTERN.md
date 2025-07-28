@@ -235,8 +235,37 @@ For removing fields (reverse process):
 
 ## This Pattern Has Proven Success With:
 
-- ✅ **TestPractice2**: Added 16 Registration & Employment fields seamlessly
+- ✅ **TestPractice2**: Added 16 Registration & Employment fields seamlessly  
 - ✅ **Complex Forms**: Tables, dropdowns, checkboxes, textareas
 - ✅ **Railway PostgreSQL**: Auto-migration handling works perfectly
 - ✅ **Zero Data Loss**: Existing records preserved during field additions
 - ✅ **User Experience**: No downtime or broken functionality
+
+## ⚠️ **CRITICAL WARNING: User Data Protection**
+
+**Previous incidents have shown that TestData2 migrations can sometimes cause user data loss on Railway deployments.**
+
+### Known Risk Factors:
+1. **Migration Conflicts**: Multiple pending migrations can cause rollbacks
+2. **Database Recreation**: Failed migrations trigger `EnsureCreated()` which wipes all data
+3. **Railway Deployment**: Schema conflicts during deployment can recreate database
+4. **Timing Issues**: Migration failures during user creation operations
+
+### Safety Protocol Before ANY TestData2 Changes:
+
+```bash
+# 1. ALWAYS backup user data first (Document current users)
+# 2. Create migration during low-activity periods  
+# 3. Monitor Railway deployment logs closely
+# 4. Have admin user credentials ready for immediate restoration
+```
+
+### Emergency User Recovery Plan:
+If users disappear after TestData2 deployment:
+1. **Check Railway logs** for migration errors
+2. **Verify database connection** is working
+3. **Re-add critical admin users** via Program.cs seed logic
+4. **Document which users were lost** for manual restoration
+
+### Recommended: Separate TestData2 from User Management
+Consider creating a separate database context or service for TestData2 to isolate it from critical user management functions.
