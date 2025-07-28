@@ -105,6 +105,95 @@ namespace SimpleGateway.Controllers
             }
         }
 
+        // Overloaded Index method to handle specific performer dashboard access
+        public IActionResult Index(string performerUsername)
+        {
+            var currentUser = HttpContext.Session.GetString("username");
+            var currentRole = HttpContext.Session.GetString("role");
+            
+            if (string.IsNullOrEmpty(currentUser))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            // If no performer specified, redirect to main index
+            if (string.IsNullOrEmpty(performerUsername))
+            {
+                return Index();
+            }
+
+            // Check permissions - ensure user has access to this performer
+            if (currentRole == "performer" && currentUser != performerUsername)
+            {
+                return RedirectToAction("Index");
+            }
+
+            // For non-performers, check if they have access to this performer
+            if (currentRole == "supervisor" || currentRole == "advisor")
+            {
+                var currentUserId = _context.Users.FirstOrDefault(u => u.Username == currentUser)?.Id;
+                if (currentUserId.HasValue)
+                {
+                    bool hasAccess = false;
+                    var performer = _context.Users.FirstOrDefault(u => u.Username == performerUsername);
+                    
+                    if (performer != null)
+                    {
+                        if (currentRole == "supervisor")
+                        {
+                            hasAccess = _context.Assignments
+                                .Any(a => a.SupervisorId == currentUserId.Value && 
+                                         a.PerformerId == performer.Id && 
+                                         a.IsActive);
+                        }
+                        else if (currentRole == "advisor")
+                        {
+                            hasAccess = _context.Assignments
+                                .Any(a => a.AdvisorId == currentUserId.Value && 
+                                         a.PerformerId == performer.Id && 
+                                         a.IsActive);
+                        }
+                    }
+                    
+                    if (!hasAccess)
+                    {
+                        return RedirectToAction("Index");
+                    }
+                }
+                else
+                {
+                    return RedirectToAction("Index");
+                }
+            }
+
+            // Set up ViewBag for performer dashboard view
+            ViewBag.PerformerUsername = performerUsername;
+            ViewBag.CurrentUser = currentUser;
+            ViewBag.CurrentRole = currentRole;
+            ViewBag.CurrentUserRole = currentRole;
+            ViewBag.IsOwnDashboard = (currentUser == performerUsername);
+            ViewBag.CanEdit = (currentRole == "performer" && currentUser == performerUsername);
+            ViewBag.CanComment = (currentRole == "advisor" || currentRole == "supervisor");
+            ViewBag.CanApprove = (currentRole == "supervisor");
+            ViewBag.IsReadOnly = !(currentRole == "performer" && currentUser == performerUsername);
+            ViewBag.ActiveSection = "Dashboard";
+
+            // Get performer's name for display
+            var performerUser = _context.Users.FirstOrDefault(u => u.Username == performerUsername);
+            if (performerUser != null)
+            {
+                ViewBag.DisplayName = $"{performerUser.FirstName} {performerUser.LastName}";
+                ViewBag.PerformerName = $"{performerUser.FirstName} {performerUser.LastName}";
+            }
+            else
+            {
+                ViewBag.DisplayName = performerUsername;
+                ViewBag.PerformerName = performerUsername;
+            }
+
+            return View("PerformerDashboard");
+        }
+
         public IActionResult PerformerDetails(string performerUsername)
         {
             var currentUser = HttpContext.Session.GetString("username");

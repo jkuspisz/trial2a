@@ -4,29 +4,8 @@
 }
 
 <div class="container-fluid">
-    <div class="row                        <div c                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label asp-for="SupportingDentist" class="form-label"></label>
-                                <input asp-for="SupportingDentist" class="form-control" readonly="@(!ViewBag.CanEditPerformerDetails)" />
-                                <span asp-validation-for="SupportingDentist" class="text-danger"></span>
-                            </div>
-                            <div class="col-md-6">
-                                <label asp-for="SupportingDentistContactNumber" class="form-label"></label>
-                                <input asp-for="SupportingDentistContactNumber" class="form-control" readonly="@(!ViewBag.CanEditPerformerDetails)" />
-                                <span asp-validation-for="SupportingDentistContactNumber" class="text-danger"></span>
-                            </div>
-                        </div>-3">
-                            <div class="col-md-8">
-                                <label asp-for="PracticeAddress" class="form-label"></label>
-                                <textarea asp-for="PracticeAddress" class="form-control" rows="3" readonly="@(!ViewBag.CanEditPerformerDetails)"></textarea>
-                                <span asp-validation-for="PracticeAddress" class="text-danger"></span>
-                            </div>
-                            <div class="col-md-4">
-                                <label asp-for="PracticePostCode" class="form-label"></label>
-                                <input asp-for="PracticePostCode" class="form-control" readonly="@(!ViewBag.CanEditPerformerDetails)" />
-                                <span asp-validation-for="PracticePostCode" class="text-danger"></span>
-                            </div>
-                        </div><div class="col-12">
+    <div class="row">
+        <div class="col-12">
             <h2>Performer Details - @ViewBag.PerformerName</h2>
             @if (!string.IsNullOrEmpty(ViewBag.SuccessMessage))
             {
@@ -38,7 +17,7 @@
         <div class="col-3">
             <ul class="list-group">
                 <li class="list-group-item @(ViewBag.ActiveSection == "Dashboard" ? "active" : "")">
-                    <a href="/Dashboard/Index" style="@(ViewBag.ActiveSection == "Dashboard" ? "color: white;" : "")">
+                    <a href="/Dashboard/Index?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "Dashboard" ? "color: white;" : "")">
                         <i class="bi bi-speedometer2"></i> Dashboard Overview
                     </a>
                 </li>
