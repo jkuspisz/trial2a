@@ -112,6 +112,7 @@ try
 {
     using (var scope = app.Services.CreateScope())
     {
+        // Initialize MAIN context (Users, PerformerDetails, etc.)
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         
         var connectionString = context.Database.GetConnectionString();
@@ -127,6 +128,20 @@ try
             Console.WriteLine("Database connection failed. Attempting to create database...");
             context.Database.EnsureCreated();
             Console.WriteLine("Database creation attempted");
+        }
+        
+        // Initialize ISOLATED TestData2 context separately
+        var testData2Context = scope.ServiceProvider.GetRequiredService<TestData2Context>();
+        Console.WriteLine("Initializing isolated TestData2Context...");
+        
+        var testData2CanConnect = testData2Context.Database.CanConnect();
+        Console.WriteLine($"TestData2Context connection test: {(testData2CanConnect ? "SUCCESS" : "FAILED")}");
+        
+        if (!testData2CanConnect)
+        {
+            Console.WriteLine("TestData2Context connection failed. Attempting to create...");
+            testData2Context.Database.EnsureCreated();
+            Console.WriteLine("TestData2Context creation attempted");
         }
         
         // Use migrations to ensure database is up to date
@@ -148,9 +163,33 @@ try
                 Console.WriteLine("No pending migrations found");
             }
             
-            // Apply migrations
+            // Apply migrations for MAIN context
             context.Database.Migrate();
-            Console.WriteLine("Database migrations completed successfully");
+            Console.WriteLine("Main database migrations completed successfully");
+            
+            // Apply migrations for ISOLATED TestData2 context
+            try
+            {
+                var testData2PendingMigrations = testData2Context.Database.GetPendingMigrations().ToList();
+                if (testData2PendingMigrations.Any())
+                {
+                    Console.WriteLine($"Found {testData2PendingMigrations.Count} pending TestData2 migrations:");
+                    foreach (var migration in testData2PendingMigrations)
+                    {
+                        Console.WriteLine($"  - {migration}");
+                    }
+                }
+                
+                testData2Context.Database.Migrate();
+                Console.WriteLine("TestData2Context migrations completed successfully");
+            }
+            catch (Exception testData2MigrationEx)
+            {
+                Console.WriteLine($"TestData2Context migration error: {testData2MigrationEx.Message}");
+                // Try to ensure created for TestData2Context
+                testData2Context.Database.EnsureCreated();
+                Console.WriteLine("TestData2Context ensure created completed");
+            }
             
             // Verify applied migrations
             var appliedMigrations = context.Database.GetAppliedMigrations().ToList();
@@ -187,14 +226,16 @@ try
             var performerDetailsCount = context.PerformerDetails.Count();
             var assignmentsCount = context.Assignments.Count();
             var testDataCount = context.TestData.Count();
-            var testData2Count = context.TestData2.Count();
+            
+            // TestData2 is now in isolated context
+            var testData2Count = testData2Context.TestData2.Count();
             
             Console.WriteLine($"Database table verification:");
             Console.WriteLine($"  Users: {usersCount} records");
             Console.WriteLine($"  PerformerDetails: {performerDetailsCount} records");
             Console.WriteLine($"  Assignments: {assignmentsCount} records");
             Console.WriteLine($"  TestData: {testDataCount} records");
-            Console.WriteLine($"  TestData2: {testData2Count} records");
+            Console.WriteLine($"  TestData2: {testData2Count} records (ISOLATED CONTEXT)");
         }
         catch (Exception tableEx)
         {
