@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SimpleGateway.Models;
 using SimpleGateway.Data;
+using System.Reflection;
 
 namespace SimpleGateway.Controllers
 {
@@ -950,8 +951,17 @@ namespace SimpleGateway.Controllers
                 return RedirectToAction("TestPractice2", new { performerUsername = currentUser });
             }
 
-            // Set the username
-            model.Username = currentUser;
+            // Don't set the username to currentUser - it should come from the form's hidden field
+            // This allows advisors to edit performer data without creating new rows
+            Console.WriteLine($"TEST PRACTICE2 DEBUG: Form submitted with Username: {model.Username}, CurrentUser: {currentUser}");
+
+            // Permission check: only the performer themselves OR advisors/admins can submit
+            var currentRole = HttpContext.Session.GetString("role");
+            if (model.Username != currentUser && currentRole != "advisor" && currentRole != "admin" && currentRole != "superuser")
+            {
+                Console.WriteLine($"TEST PRACTICE2 DEBUG: Permission denied - {currentUser} ({currentRole}) cannot edit {model.Username}'s data");
+                return RedirectToAction("Index");
+            }
 
             if (ModelState.IsValid)
             {
@@ -1010,20 +1020,59 @@ namespace SimpleGateway.Controllers
                     // Ensure only one record per user - delete any existing records first (ISOLATED TO TestData2)
                     var existingRecords = _testData2Context.TestData2.Where(t => t.Username == model.Username).ToList();
                     
-                    // CRITICAL: Preserve AdvisorComment from existing record if user is not advisor/admin
-                    var currentUserRole = HttpContext.Session.GetString("role");
-                    if (existingRecords.Any() && currentUserRole != "advisor" && currentUserRole != "admin")
+                    // CRITICAL: Implement field-level permissions for TestPractice2
+                    if (existingRecords.Any())
                     {
                         var existingRecord = existingRecords.First();
-                        Console.WriteLine($"TEST PRACTICE2 DEBUG: Preserving AdvisorComment for non-advisor user {model.Username}");
-                        Console.WriteLine($"TEST PRACTICE2 DEBUG: Existing AdvisorComment: '{existingRecord.AdvisorComment}'");
-                        model.AdvisorComment = existingRecord.AdvisorComment; // Preserve existing advisor comment
+                        
+                        if (currentRole == "advisor" || currentRole == "admin" || currentRole == "superuser")
+                        {
+                            // Advisors can ONLY edit AdvisorComment - preserve all other fields from existing record
+                            Console.WriteLine($"TEST PRACTICE2 DEBUG: Advisor {currentUser} editing AdvisorComment only for {model.Username}");
+                            Console.WriteLine($"TEST PRACTICE2 DEBUG: New AdvisorComment: '{model.AdvisorComment}'");
+                            
+                            // Copy all fields from existing record EXCEPT AdvisorComment
+                            var newAdvisorComment = model.AdvisorComment; // Save the new comment
+                            
+                            // Use reflection to copy all properties except AdvisorComment
+                            var properties = typeof(TestDataModel2).GetProperties();
+                            foreach (var prop in properties)
+                            {
+                                if (prop.Name != "AdvisorComment" && prop.Name != "Id" && prop.CanWrite)
+                                {
+                                    var existingValue = prop.GetValue(existingRecord);
+                                    prop.SetValue(model, existingValue);
+                                }
+                            }
+                            
+                            // Restore the new AdvisorComment
+                            model.AdvisorComment = newAdvisorComment;
+                        }
+                        else if (model.Username == currentUser) // Performer editing their own data
+                        {
+                            // Performers can edit everything EXCEPT AdvisorComment
+                            Console.WriteLine($"TEST PRACTICE2 DEBUG: Performer {currentUser} editing their own data - preserving AdvisorComment");
+                            Console.WriteLine($"TEST PRACTICE2 DEBUG: Existing AdvisorComment: '{existingRecord.AdvisorComment}'");
+                            model.AdvisorComment = existingRecord.AdvisorComment; // Preserve existing advisor comment
+                        }
+                        else
+                        {
+                            Console.WriteLine($"TEST PRACTICE2 DEBUG: Permission denied - {currentUser} ({currentRole}) cannot edit {model.Username}'s data");
+                            return RedirectToAction("Index");
+                        }
                     }
-                    else if (currentUserRole == "advisor" || currentUserRole == "admin")
+                    else
                     {
-                        Console.WriteLine($"TEST PRACTICE2 DEBUG: Advisor/Admin user {currentUser} can modify AdvisorComment");
+                        // No existing record - only performers can create new records
+                        if (model.Username != currentUser)
+                        {
+                            Console.WriteLine($"TEST PRACTICE2 DEBUG: Cannot create new record for {model.Username} by {currentUser}");
+                            return RedirectToAction("Index");
+                        }
+                        Console.WriteLine($"TEST PRACTICE2 DEBUG: Creating new record for performer {model.Username}");
                     }
                     
+                    // Delete existing records before creating new one (following delete-and-recreate pattern)
                     if (existingRecords.Any())
                     {
                         Console.WriteLine($"TEST PRACTICE2 DEBUG: Found {existingRecords.Count} existing records for {model.Username} - deleting all");
