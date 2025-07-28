@@ -1333,6 +1333,15 @@ namespace SimpleGateway.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
+            if (model == null)
+            {
+                return RedirectToAction("StructuredConversation", new { performerUsername = currentUser });
+            }
+
+            // CRITICAL: Username comes from form (performer being viewed), not logged-in user
+            // This allows advisors to edit performer data without creating new rows
+            Console.WriteLine($"STRUCTURED CONVERSATION DEBUG: Form submitted with Username: {model.Username}, CurrentUser: {currentUser}");
+
             // Permission check - only advisors/admins can edit
             var canEditAdvisorFields = (currentRole == "advisor" || currentRole == "admin" || currentRole == "superuser");
             
@@ -1349,35 +1358,57 @@ namespace SimpleGateway.Controllers
             {
                 try
                 {
-                    // Delete existing records first (following delete-and-recreate pattern)
+                    // Database connection verification - SAFE METHOD (following DATABASE_INTEGRATION_PATTERN.md)
+                    var canConnect = _context.Database.CanConnect();
+                    if (!canConnect)
+                    {
+                        // ⚠️ ONLY use EnsureCreated() if database doesn't exist at all
+                        // NEVER use EnsureDeleted() - it destroys ALL data
+                        _context.Database.EnsureCreated();
+                    }
+                    
+                    // CRITICAL: Delete all existing records for this user first (delete-and-recreate pattern)
                     var existingRecords = _context.StructuredConversations.Where(x => x.Username == model.Username).ToList();
                     
                     if (existingRecords.Any())
                     {
                         Console.WriteLine($"STRUCTURED CONVERSATION DEBUG: Found {existingRecords.Count} existing records for {model.Username} - deleting all");
-                        foreach (var record in existingRecords)
-                        {
-                            Console.WriteLine($"STRUCTURED CONVERSATION DEBUG: Deleting record ID {record.Id} for {record.Username}");
-                        }
                         _context.StructuredConversations.RemoveRange(existingRecords);
-                        _context.SaveChanges();
+                        
+                        // Save deletions first
+                        var deletedRows = _context.SaveChanges();
+                        Console.WriteLine($"STRUCTURED CONVERSATION DEBUG: Deleted {deletedRows} existing records");
                     }
-
-                    // Create new record
-                    model.CreatedDate = DateTime.UtcNow;
-                    model.ModifiedDate = DateTime.UtcNow;
                     
+                    // Create new record with latest data
                     Console.WriteLine($"STRUCTURED CONVERSATION DEBUG: Creating new record for {model.Username}");
+                    
+                    model.CreatedDate = DateTime.UtcNow;
+                    model.ModifiedDate = null;
+                    
                     _context.StructuredConversations.Add(model);
-                    _context.SaveChanges();
-
-                    TempData["SuccessMessage"] = "Structured conversation saved successfully!";
-                    Console.WriteLine($"STRUCTURED CONVERSATION SUCCESS: Data saved for {model.Username}");
+                    
+                    var savedRows = _context.SaveChanges();
+                    
+                    if (savedRows > 0)
+                    {
+                        TempData["SuccessMessage"] = "Structured conversation saved successfully!";
+                        return RedirectToAction("StructuredConversation", new { performerUsername = model.Username });
+                    }
+                    else
+                    {
+                        TempData["ErrorMessage"] = "Save failed - no changes were made.";
+                    }
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"STRUCTURED CONVERSATION ERROR: {ex.Message}");
+                    // ✅ SAFE ERROR HANDLING - Log errors without destroying data
+                    Console.WriteLine($"STRUCTURED CONVERSATION DEBUG: Exception: {ex.Message}");
                     TempData["ErrorMessage"] = $"Error saving structured conversation: {ex.Message}";
+                    
+                    // 🚨 NEVER DO THIS IN CATCH BLOCKS:
+                    // _context.Database.EnsureDeleted(); // ❌ DESTROYS ALL DATA
+                    // _context.Database.EnsureCreated();  // ❌ AFTER DELETION
                 }
             }
             else
@@ -1386,8 +1417,7 @@ namespace SimpleGateway.Controllers
                 TempData["ErrorMessage"] = "Please correct the validation errors and try again.";
             }
 
-            // Redirect back to the same page
-            return RedirectToAction("StructuredConversation", new { performerUsername = model.Username });
+            return View("Performer/StructuredConversation", model);
         }
 
         public IActionResult AgreementTerms(string performerUsername)
