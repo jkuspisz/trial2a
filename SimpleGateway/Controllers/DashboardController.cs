@@ -867,8 +867,31 @@ namespace SimpleGateway.Controllers
                     try
                     {
                         Console.WriteLine($"TESTPRACTICE2 DEBUG: Detected missing column error, attempting to apply TestData2Context migrations...");
-                        _testData2Context.Database.Migrate(); // Use isolated context for TestData2 migrations
-                        Console.WriteLine($"TESTPRACTICE2 DEBUG: TestData2Context migrations applied after column error");
+                        
+                        // First ensure the database can connect
+                        var canConnect = _testData2Context.Database.CanConnect();
+                        Console.WriteLine($"TESTPRACTICE2 DEBUG: TestData2Context can connect: {canConnect}");
+                        
+                        if (!canConnect)
+                        {
+                            Console.WriteLine($"TESTPRACTICE2 DEBUG: TestData2Context cannot connect, ensuring database is created...");
+                            _testData2Context.Database.EnsureCreated();
+                            Console.WriteLine($"TESTPRACTICE2 DEBUG: TestData2Context database ensured created");
+                        }
+                        
+                        // Check for pending migrations specifically
+                        var pendingMigrations = _testData2Context.Database.GetPendingMigrations().ToList();
+                        Console.WriteLine($"TESTPRACTICE2 DEBUG: Found {pendingMigrations.Count} pending migrations: {string.Join(", ", pendingMigrations)}");
+                        
+                        if (pendingMigrations.Any())
+                        {
+                            _testData2Context.Database.Migrate(); // Use isolated context for TestData2 migrations
+                            Console.WriteLine($"TESTPRACTICE2 DEBUG: TestData2Context migrations applied after column error");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"TESTPRACTICE2 DEBUG: No pending migrations found, but column still missing - this may be a schema sync issue");
+                        }
                         
                         // Retry the database query
                         model = _testData2Context.TestData2.FirstOrDefault(t => t.Username == performerUsername);
@@ -877,6 +900,7 @@ namespace SimpleGateway.Controllers
                     catch (Exception migrationEx)
                     {
                         Console.WriteLine($"TESTPRACTICE2 DEBUG: Migration after column error failed: {migrationEx.Message}");
+                        Console.WriteLine($"TESTPRACTICE2 DEBUG: Migration exception stack trace: {migrationEx.StackTrace}");
                         model = new TestDataModel2 { Username = performerUsername };
                         TempData["ErrorMessage"] = "Database schema issue detected. The form will work but may not save properly until migrations are applied.";
                     }
