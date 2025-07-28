@@ -56,6 +56,135 @@
             <form method="post" asp-action="TestPractice2">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 
+                <!-- Registration and Qualifications -->
+                <div class="card mb-4">
+                    <div class="card-header" style="background-color: #9bb3d1; color: #4a5568;">
+                        <h5 class="mb-0">Registration and Qualifications</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="GDCRegistrationNumber" class="form-label">GDC registration number:</label>
+                                <input asp-for="GDCRegistrationNumber" class="form-control" />
+                                <span asp-validation-for="GDCRegistrationNumber" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="UKRegistrationDate" class="form-label">Date of UK registration as a dentist:</label>
+                                <input asp-for="UKRegistrationDate" class="form-control" placeholder="e.g. July 2020" />
+                                <span asp-validation-for="UKRegistrationDate" class="text-danger"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="GDCRegistrationGaps" class="form-label">If there are any gaps in your registration with the GDC please explain:</label>
+                            <textarea asp-for="GDCRegistrationGaps" class="form-control" rows="2"></textarea>
+                            <span asp-validation-for="GDCRegistrationGaps" class="text-danger"></span>
+                        </div>
+                        
+                        <h6 class="mt-4 mb-3">Please list your professional qualifications in relation to your role as a dentist/specialist (with your primary dental qualification first). Add additional rows if necessary:</h6>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="width: 25%;">Qualification:</th>
+                                        <th style="width: 25%;">Country where obtained:</th>
+                                        <th style="width: 25%;">Institution where obtained:</th>
+                                        <th style="width: 25%;">Year obtained:</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><input asp-for="PrimaryQualification" class="form-control" /></td>
+                                        <td><input asp-for="PrimaryQualificationCountry" class="form-control" /></td>
+                                        <td><input asp-for="PrimaryQualificationInstitution" class="form-control" /></td>
+                                        <td><input asp-for="PrimaryQualificationYear" class="form-control" placeholder="e.g. 2018" /></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Employment History -->
+                <div class="card mb-4">
+                    <div class="card-header" style="background-color: #9bb3d1; color: #4a5568;">
+                        <h5 class="mb-0">Employment History</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <label asp-for="NHSExperience" class="form-label">Have you worked as a dentist in NHS general dental practice primary care in the UK?</label>
+                                <select asp-for="NHSExperience" class="form-control">
+                                    <option value="">Select...</option>
+                                    <option value="YES">YES</option>
+                                    <option value="NO">NO</option>
+                                </select>
+                                <span asp-validation-for="NHSExperience" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-3">
+                                <label asp-for="NHSExperienceYears" class="form-label">Years:</label>
+                                <input asp-for="NHSExperienceYears" class="form-control" />
+                                <span asp-validation-for="NHSExperienceYears" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-3">
+                                <label asp-for="NHSExperienceMonths" class="form-label">Months:</label>
+                                <input asp-for="NHSExperienceMonths" class="form-control" />
+                                <span asp-validation-for="NHSExperienceMonths" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Was this:</label>
+                                <div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" asp-for="NHSExperienceType" value="Full-time" id="fulltime" />
+                                        <label class="form-check-label" for="fulltime">Full-time?</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" asp-for="NHSExperienceType" value="Part-time" id="parttime" />
+                                        <label class="form-check-label" for="parttime">Part-time?</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="NHSExperienceDaysPerWeek" class="form-label">No. of days per week (if part-time):</label>
+                            <input asp-for="NHSExperienceDaysPerWeek" class="form-control" style="width: 200px;" />
+                            <span asp-validation-for="NHSExperienceDaysPerWeek" class="text-danger"></span>
+                        </div>
+                        
+                        <h6 class="mt-4 mb-3">Please list your work as a dentist since initial qualification (most recent first):</h6>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="width: 15%;">From (MM/YYYY):</th>
+                                        <th style="width: 15%;">To (MM/YYYY):</th>
+                                        <th style="width: 25%;">Job title/position:</th>
+                                        <th style="width: 30%;">Address:</th>
+                                        <th style="width: 15%;">Patient types:</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><input asp-for="MostRecentJobFromDate" class="form-control" placeholder="MM/YYYY" /></td>
+                                        <td><input asp-for="MostRecentJobToDate" class="form-control" placeholder="MM/YYYY" /></td>
+                                        <td><input asp-for="MostRecentJobTitle" class="form-control" /></td>
+                                        <td><input asp-for="MostRecentJobAddress" class="form-control" /></td>
+                                        <td>
+                                            <input type="checkbox" asp-for="MostRecentJobAdultPatients" class="form-check-input" />
+                                            <label class="form-check-label">Adult</label><br>
+                                            <input type="checkbox" asp-for="MostRecentJobChildPatients" class="form-check-input" />
+                                            <label class="form-check-label">Child</label>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
                 <!-- Basic Questions -->
                 <div class="card mb-4">
                     <div class="card-header">

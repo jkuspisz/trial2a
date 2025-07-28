@@ -15,6 +15,62 @@ namespace SimpleGateway.Models
         [Display(Name = "When was the last time you treated a patient?")]
         public string LastPatientTreatment { get; set; } = string.Empty;
 
+        // Registration and Qualifications Fields
+        [Display(Name = "GDC registration number")]
+        public string? GDCRegistrationNumber { get; set; }
+        
+        [Display(Name = "Date of UK registration as a dentist")]
+        public string? UKRegistrationDate { get; set; }
+        
+        [Display(Name = "GDC registration gaps explanation")]
+        public string? GDCRegistrationGaps { get; set; }
+        
+        [Display(Name = "Primary qualification")]
+        public string? PrimaryQualification { get; set; }
+        
+        [Display(Name = "Primary qualification country")]
+        public string? PrimaryQualificationCountry { get; set; }
+        
+        [Display(Name = "Primary qualification institution")]
+        public string? PrimaryQualificationInstitution { get; set; }
+        
+        [Display(Name = "Primary qualification year")]
+        public string? PrimaryQualificationYear { get; set; }
+
+        // Employment History Fields
+        [Display(Name = "NHS experience")]
+        public string? NHSExperience { get; set; }
+        
+        [Display(Name = "NHS experience years")]
+        public string? NHSExperienceYears { get; set; }
+        
+        [Display(Name = "NHS experience months")]
+        public string? NHSExperienceMonths { get; set; }
+        
+        [Display(Name = "NHS experience type")]
+        public string? NHSExperienceType { get; set; }
+        
+        [Display(Name = "NHS experience days per week")]
+        public string? NHSExperienceDaysPerWeek { get; set; }
+        
+        [Display(Name = "Most recent job from date")]
+        public string? MostRecentJobFromDate { get; set; }
+        
+        [Display(Name = "Most recent job to date")]
+        public string? MostRecentJobToDate { get; set; }
+        
+        [Display(Name = "Most recent job title")]
+        public string? MostRecentJobTitle { get; set; }
+        
+        [Display(Name = "Most recent job address")]
+        public string? MostRecentJobAddress { get; set; }
+        
+        [Display(Name = "Most recent job - adult patients")]
+        public bool MostRecentJobAdultPatients { get; set; }
+        
+        [Display(Name = "Most recent job - child patients")]
+        public bool MostRecentJobChildPatients { get; set; }
+
         // Dental Procedures Assessment - Based on CSV structure
         // Clinical Exam/Assessments
         [Display(Name = "Clinical Exam/Assessments - Number")]
