@@ -4,8 +4,29 @@
 }
 
 <div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
+    <div class="row                        <div c                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="SupportingDentist" class="form-label"></label>
+                                <input asp-for="SupportingDentist" class="form-control" readonly="@(!ViewBag.CanEditPerformerDetails)" />
+                                <span asp-validation-for="SupportingDentist" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="SupportingDentistContactNumber" class="form-label"></label>
+                                <input asp-for="SupportingDentistContactNumber" class="form-control" readonly="@(!ViewBag.CanEditPerformerDetails)" />
+                                <span asp-validation-for="SupportingDentistContactNumber" class="text-danger"></span>
+                            </div>
+                        </div>-3">
+                            <div class="col-md-8">
+                                <label asp-for="PracticeAddress" class="form-label"></label>
+                                <textarea asp-for="PracticeAddress" class="form-control" rows="3" readonly="@(!ViewBag.CanEditPerformerDetails)"></textarea>
+                                <span asp-validation-for="PracticeAddress" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="PracticePostCode" class="form-label"></label>
+                                <input asp-for="PracticePostCode" class="form-control" readonly="@(!ViewBag.CanEditPerformerDetails)" />
+                                <span asp-validation-for="PracticePostCode" class="text-danger"></span>
+                            </div>
+                        </div><div class="col-12">
             <h2>Performer Details - @ViewBag.PerformerName</h2>
             @if (!string.IsNullOrEmpty(ViewBag.SuccessMessage))
             {
@@ -91,12 +112,12 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label asp-for="FirstName" class="form-label"></label>
-                                <input asp-for="FirstName" class="form-control" />
+                                <input asp-for="FirstName" class="form-control" readonly="@(!ViewBag.CanEditPerformerDetails)" />
                                 <span asp-validation-for="FirstName" class="text-danger"></span>
                             </div>
                             <div class="col-md-6">
                                 <label asp-for="LastName" class="form-label"></label>
-                                <input asp-for="LastName" class="form-control" />
+                                <input asp-for="LastName" class="form-control" readonly="@(!ViewBag.CanEditPerformerDetails)" />
                                 <span asp-validation-for="LastName" class="text-danger"></span>
                             </div>
                         </div>
@@ -104,12 +125,12 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label asp-for="Email" class="form-label"></label>
-                                <input asp-for="Email" type="email" class="form-control" />
+                                <input asp-for="Email" type="email" class="form-control" readonly="@(!ViewBag.CanEditPerformerDetails)" />
                                 <span asp-validation-for="Email" class="text-danger"></span>
                             </div>
                             <div class="col-md-6">
                                 <label asp-for="ContactNumber" class="form-label"></label>
-                                <input asp-for="ContactNumber" class="form-control" />
+                                <input asp-for="ContactNumber" class="form-control" readonly="@(!ViewBag.CanEditPerformerDetails)" />
                                 <span asp-validation-for="ContactNumber" class="text-danger"></span>
                             </div>
                         </div>
@@ -124,12 +145,12 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label asp-for="GDCNumber" class="form-label"></label>
-                                <input asp-for="GDCNumber" class="form-control" />
+                                <input asp-for="GDCNumber" class="form-control" readonly="@(!ViewBag.CanEditPerformerDetails)" />
                                 <span asp-validation-for="GDCNumber" class="text-danger"></span>
                             </div>
                             <div class="col-md-6">
                                 <label asp-for="DateOfUKRegistration" class="form-label"></label>
-                                <input asp-for="DateOfUKRegistration" type="date" class="form-control" />
+                                <input asp-for="DateOfUKRegistration" type="date" class="form-control" readonly="@(!ViewBag.CanEditPerformerDetails)" />
                                 <span asp-validation-for="DateOfUKRegistration" class="text-danger"></span>
                             </div>
                         </div>
@@ -137,12 +158,12 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label asp-for="DateOfDentalQualification" class="form-label"></label>
-                                <input asp-for="DateOfDentalQualification" type="date" class="form-control" />
+                                <input asp-for="DateOfDentalQualification" type="date" class="form-control" readonly="@(!ViewBag.CanEditPerformerDetails)" />
                                 <span asp-validation-for="DateOfDentalQualification" class="text-danger"></span>
                             </div>
                             <div class="col-md-6">
                                 <label asp-for="UniversityCountryOfQualification" class="form-label"></label>
-                                <input asp-for="UniversityCountryOfQualification" class="form-control" placeholder="e.g., University of London, UK" />
+                                <input asp-for="UniversityCountryOfQualification" class="form-control" placeholder="e.g., University of London, UK" readonly="@(!ViewBag.CanEditPerformerDetails)" />
                                 <span asp-validation-for="UniversityCountryOfQualification" class="text-danger"></span>
                             </div>
                         </div>
@@ -191,7 +212,10 @@
                         <div class="row mt-4">
                             <div class="col-12">
                                 <hr>
-                                <button type="submit" class="btn btn-primary btn-lg me-3">Save Details</button>
+                                @if (ViewBag.CanEditPerformerDetails)
+                                {
+                                    <button type="submit" class="btn btn-primary btn-lg me-3">Save Details</button>
+                                }
                                 @if (Model.IsCompleted)
                                 {
                                     <span class="badge bg-success fs-6">✓ Profile Complete</span>

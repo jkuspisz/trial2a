@@ -130,6 +130,12 @@ namespace SimpleGateway.Controllers
             ViewBag.CanComment = (currentRole == "supervisor" || currentRole == "advisor" || currentRole == "superuser");
             ViewBag.CanApprove = (currentRole == "supervisor" || currentRole == "advisor" || currentRole == "superuser");
             ViewBag.IsReadOnly = (currentRole == "admin");
+            
+            // PERFORMER DETAILS SPECIFIC PERMISSIONS
+            // Only performers (editing their own) and admin/superuser can edit fields
+            ViewBag.CanEditPerformerDetails = ((currentRole == "performer" && currentUser == performerUsername) || 
+                                             currentRole == "admin" || currentRole == "superuser");
+            
             ViewBag.ActiveSection = "PerformerDetails";
 
             // Get performer's name for display
@@ -180,6 +186,19 @@ namespace SimpleGateway.Controllers
                 Console.WriteLine($"DASHBOARD DEBUG: Model is null");
                 return RedirectToAction("PerformerDetails", new { performerUsername = currentUser });
             }
+
+            // PERFORMER DETAILS PERMISSION CHECK
+            var currentRole = HttpContext.Session.GetString("role");
+            var canEditPerformerDetails = ((currentRole == "performer" && model.Username == currentUser) || 
+                                         currentRole == "admin" || currentRole == "superuser");
+            
+            if (!canEditPerformerDetails)
+            {
+                Console.WriteLine($"DASHBOARD DEBUG: Permission denied - {currentUser} ({currentRole}) cannot edit {model.Username}'s performer details");
+                return RedirectToAction("Index");
+            }
+            
+            Console.WriteLine($"DASHBOARD DEBUG: Permission granted - {currentUser} ({currentRole}) can edit performer details for {model.Username}");
 
             Console.WriteLine($"DASHBOARD DEBUG: ModelState.IsValid = {ModelState.IsValid}");
             if (!ModelState.IsValid)
