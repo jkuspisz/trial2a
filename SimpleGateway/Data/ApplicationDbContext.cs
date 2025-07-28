@@ -17,6 +17,7 @@ namespace SimpleGateway.Data
         public DbSet<AssignmentModel> Assignments { get; set; }
         public DbSet<TestDataModel> TestData { get; set; }
         public DbSet<TestDataModel2> TestData2 { get; set; }
+        public DbSet<StructuredConversationModel> StructuredConversations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -89,6 +90,17 @@ namespace SimpleGateway.Data
                 entity.Property(e => e.SingleEndoNeedSupport).HasDefaultValue(false);
                 entity.Property(e => e.MultiEndoNeedSupport).HasDefaultValue(false);
                 entity.Property(e => e.PeadsNeedSupport).HasDefaultValue(false);
+            });
+
+            // Configure StructuredConversationModel
+            modelBuilder.Entity<StructuredConversationModel>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Username).HasMaxLength(256);
+                entity.Property(e => e.ClinicalExperienceSummary).HasColumnType("text");
+                entity.Property(e => e.DevelopmentNeeds).HasColumnType("text");
+                entity.Property(e => e.SupervisorSummary).HasColumnType("text");
+                entity.Property(e => e.AdvisorComments).HasColumnType("text");
             });
 
             // Seed initial data

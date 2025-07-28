@@ -1287,7 +1287,107 @@ namespace SimpleGateway.Controllers
 
         public IActionResult StructuredConversation(string performerUsername)
         {
-            return HandlePerformerSection(performerUsername, "StructuredConversation");
+            var currentUser = HttpContext.Session.GetString("username");
+            var currentRole = HttpContext.Session.GetString("role");
+            
+            if (string.IsNullOrEmpty(currentUser))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            // Get performer for validation
+            var performer = _context.Users.FirstOrDefault(u => u.Username == performerUsername);
+            if (performer == null)
+            {
+                return NotFound("Performer not found");
+            }
+
+            // Get existing structured conversation data
+            var existingData = _context.StructuredConversations
+                .FirstOrDefault(sc => sc.Username == performerUsername);
+
+            var model = existingData ?? new StructuredConversationModel { Username = performerUsername };
+
+            // Set ViewBag properties for permissions
+            ViewBag.PerformerUsername = performerUsername;
+            ViewBag.CurrentUser = currentUser;
+            ViewBag.CurrentUserRole = currentRole;
+            ViewBag.IsOwnDashboard = (currentUser == performerUsername);
+            ViewBag.ActiveSection = "StructuredConversation";
+            ViewBag.PerformerName = $"{performer.FirstName} {performer.LastName}";
+            
+            // Advisors can edit all fields, others can only view
+            ViewBag.CanEditAdvisorFields = (currentRole == "advisor" || currentRole == "admin" || currentRole == "superuser");
+
+            return View("Performer/StructuredConversation", model);
+        }
+
+        [HttpPost]
+        public IActionResult StructuredConversation(StructuredConversationModel model)
+        {
+            var currentUser = HttpContext.Session.GetString("username");
+            var currentRole = HttpContext.Session.GetString("role");
+            
+            if (string.IsNullOrEmpty(currentUser))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            // Permission check - only advisors/admins can edit
+            var canEditAdvisorFields = (currentRole == "advisor" || currentRole == "admin" || currentRole == "superuser");
+            
+            if (!canEditAdvisorFields)
+            {
+                Console.WriteLine($"STRUCTURED CONVERSATION DEBUG: Access denied - role {currentRole} cannot edit structured conversation");
+                TempData["ErrorMessage"] = "Only advisors and administrators can edit structured conversations.";
+                return RedirectToAction("StructuredConversation", new { performerUsername = model.Username });
+            }
+
+            Console.WriteLine($"STRUCTURED CONVERSATION DEBUG: {currentRole} user {currentUser} authorized to edit structured conversation for {model.Username}");
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    // Delete existing records first (following delete-and-recreate pattern)
+                    var existingRecords = _context.StructuredConversations.Where(x => x.Username == model.Username).ToList();
+                    
+                    if (existingRecords.Any())
+                    {
+                        Console.WriteLine($"STRUCTURED CONVERSATION DEBUG: Found {existingRecords.Count} existing records for {model.Username} - deleting all");
+                        foreach (var record in existingRecords)
+                        {
+                            Console.WriteLine($"STRUCTURED CONVERSATION DEBUG: Deleting record ID {record.Id} for {record.Username}");
+                        }
+                        _context.StructuredConversations.RemoveRange(existingRecords);
+                        _context.SaveChanges();
+                    }
+
+                    // Create new record
+                    model.CreatedDate = DateTime.UtcNow;
+                    model.ModifiedDate = DateTime.UtcNow;
+                    
+                    Console.WriteLine($"STRUCTURED CONVERSATION DEBUG: Creating new record for {model.Username}");
+                    _context.StructuredConversations.Add(model);
+                    _context.SaveChanges();
+
+                    TempData["SuccessMessage"] = "Structured conversation saved successfully!";
+                    Console.WriteLine($"STRUCTURED CONVERSATION SUCCESS: Data saved for {model.Username}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"STRUCTURED CONVERSATION ERROR: {ex.Message}");
+                    TempData["ErrorMessage"] = $"Error saving structured conversation: {ex.Message}";
+                }
+            }
+            else
+            {
+                Console.WriteLine($"STRUCTURED CONVERSATION DEBUG: ModelState invalid, redisplaying form");
+                TempData["ErrorMessage"] = "Please correct the validation errors and try again.";
+            }
+
+            // Redirect back to the same page
+            return RedirectToAction("StructuredConversation", new { performerUsername = model.Username });
         }
 
         public IActionResult AgreementTerms(string performerUsername)
