@@ -714,23 +714,40 @@ namespace SimpleGateway.Controllers
 
             try
             {
-                // Ensure database and table exist with correct schema
-                _context.Database.EnsureCreated();
-                
-                // Load existing data (will be single record due to delete-and-recreate)
-                var model = _context.TestData.FirstOrDefault(x => x.Username == performerUsername);
-                if (model == null)
+                // Check if we can query the table with the current model
+                try
                 {
-                    model = new TestDataModel { Username = performerUsername };
+                    var testQuery = _context.TestData.FirstOrDefault(x => x.Username == performerUsername);
+                    var model = testQuery ?? new TestDataModel { Username = performerUsername };
+                    return View("Performer/TestPractice", model);
                 }
-
-                return View("Performer/TestPractice", model);
+                catch (Exception schemaEx)
+                {
+                    Console.WriteLine($"TESTPRACTICE DEBUG: Schema mismatch detected: {schemaEx.Message}");
+                    
+                    // Schema mismatch - need to recreate table with correct structure
+                    if (schemaEx.Message.Contains("column") && schemaEx.Message.Contains("does not exist"))
+                    {
+                        Console.WriteLine($"TESTPRACTICE DEBUG: Dropping and recreating TestData table due to missing columns");
+                        
+                        // Drop the existing table and recreate it with correct schema
+                        _context.Database.ExecuteSqlRaw("DROP TABLE IF EXISTS \"TestData\"");
+                        
+                        // Recreate with correct schema
+                        _context.Database.EnsureCreated();
+                        
+                        Console.WriteLine($"TESTPRACTICE DEBUG: TestData table recreated with supervisor fields");
+                        TempData["SuccessMessage"] = "Database table recreated with updated fields. Ready to use!";
+                    }
+                    
+                    var model = new TestDataModel { Username = performerUsername };
+                    return View("Performer/TestPractice", model);
+                }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"TESTPRACTICE DEBUG: Database error in GET: {ex.Message}");
-                // If there's a schema mismatch, create fresh table
-                TempData["ErrorMessage"] = $"Database schema issue - creating fresh table. Error: {ex.Message}";
+                TempData["ErrorMessage"] = $"Database error: {ex.Message}";
                 
                 var model = new TestDataModel { Username = performerUsername };
                 return View("Performer/TestPractice", model);
@@ -760,8 +777,8 @@ namespace SimpleGateway.Controllers
             {
                 try
                 {
-                    // Ensure database and table exist with correct schema
-                    _context.Database.EnsureCreated();
+                    // Check if table schema matches the model
+                    var canQuery = _context.TestData.Any(); // This will fail if schema is wrong
                     
                     // CRITICAL: Delete all existing records for this user first
                     var existingRecords = _context.TestData.Where(x => x.Username == model.Username).ToList();
@@ -794,6 +811,33 @@ namespace SimpleGateway.Controllers
                     else
                     {
                         TempData["ErrorMessage"] = "Save failed - no changes were made.";
+                    }
+                }
+                catch (Exception schemaEx) when (schemaEx.Message.Contains("column") && schemaEx.Message.Contains("does not exist"))
+                {
+                    Console.WriteLine($"TESTPRACTICE DEBUG: Schema mismatch in POST: {schemaEx.Message}");
+                    
+                    // Drop and recreate table with correct schema
+                    _context.Database.ExecuteSqlRaw("DROP TABLE IF EXISTS \"TestData\"");
+                    _context.Database.EnsureCreated();
+                    
+                    Console.WriteLine($"TESTPRACTICE DEBUG: TestData table recreated in POST method");
+                    
+                    // Now try to save again with fresh table
+                    model.CreatedDate = DateTime.UtcNow;
+                    model.ModifiedDate = null;
+                    
+                    _context.TestData.Add(model);
+                    var savedRows = _context.SaveChanges();
+                    
+                    if (savedRows > 0)
+                    {
+                        TempData["SuccessMessage"] = "Data saved successfully! (Table recreated with updated schema)";
+                        return RedirectToAction("TestPractice", new { performerUsername = model.Username });
+                    }
+                    else
+                    {
+                        TempData["ErrorMessage"] = "Save failed after table recreation.";
                     }
                 }
                 catch (Exception ex)
