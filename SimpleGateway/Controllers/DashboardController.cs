@@ -926,28 +926,28 @@ namespace SimpleGateway.Controllers
                 {
                     Console.WriteLine($"TEST PRACTICE2 DEBUG: Checking for existing test data for {model.Username}");
                     
-                    // Check if database exists and create if needed
+                    // Check if TestData2 database exists and create if needed - USE ISOLATED CONTEXT
                     try
                     {
-                        Console.WriteLine($"TEST PRACTICE2 DEBUG: Checking database connection...");
-                        var canConnect = _context.Database.CanConnect();
-                        Console.WriteLine($"TEST PRACTICE2 DEBUG: Can connect to database: {canConnect}");
+                        Console.WriteLine($"TEST PRACTICE2 DEBUG: Checking TestData2Context database connection...");
+                        var canConnect = _testData2Context.Database.CanConnect();
+                        Console.WriteLine($"TEST PRACTICE2 DEBUG: Can connect to TestData2 database: {canConnect}");
                         
                         if (!canConnect)
                         {
-                            Console.WriteLine($"TEST PRACTICE2 DEBUG: Database connection failed, attempting to ensure created...");
-                            _context.Database.EnsureCreated();
-                            Console.WriteLine($"TEST PRACTICE2 DEBUG: Database ensure created completed");
+                            Console.WriteLine($"TEST PRACTICE2 DEBUG: TestData2 database connection failed, attempting to ensure created...");
+                            _testData2Context.Database.EnsureCreated();
+                            Console.WriteLine($"TEST PRACTICE2 DEBUG: TestData2 database ensure created completed");
                         }
                         
-                        // Apply pending migrations (this will handle missing columns)
-                        Console.WriteLine($"TEST PRACTICE2 DEBUG: Checking for pending migrations...");
-                        var pendingMigrations = _context.Database.GetPendingMigrations();
+                        // Apply pending migrations to TestData2Context only
+                        Console.WriteLine($"TEST PRACTICE2 DEBUG: Checking for TestData2 pending migrations...");
+                        var pendingMigrations = _testData2Context.Database.GetPendingMigrations();
                         if (pendingMigrations.Any())
                         {
-                            Console.WriteLine($"TEST PRACTICE2 DEBUG: Found {pendingMigrations.Count()} pending migrations: {string.Join(", ", pendingMigrations)}");
-                            _context.Database.Migrate();
-                            Console.WriteLine($"TEST PRACTICE2 DEBUG: Migrations applied successfully");
+                            Console.WriteLine($"TEST PRACTICE2 DEBUG: Found {pendingMigrations.Count()} TestData2 pending migrations: {string.Join(", ", pendingMigrations)}");
+                            _testData2Context.Database.Migrate();
+                            Console.WriteLine($"TEST PRACTICE2 DEBUG: TestData2 migrations applied successfully");
                         }
                         else
                         {
@@ -959,20 +959,10 @@ namespace SimpleGateway.Controllers
                         Console.WriteLine($"TEST PRACTICE2 DEBUG: Database connection/creation/migration error: {dbEx.Message}");
                         Console.WriteLine($"TEST PRACTICE2 DEBUG: Stack trace: {dbEx.StackTrace}");
                         
-                        // If we can't apply migrations, try to recreate the database structure
-                        try
-                        {
-                            Console.WriteLine($"TEST PRACTICE2 DEBUG: Attempting to ensure database is created with current model...");
-                            _context.Database.EnsureDeleted();
-                            _context.Database.EnsureCreated();
-                            Console.WriteLine($"TEST PRACTICE2 DEBUG: Database recreated successfully");
-                        }
-                        catch (Exception recreateEx)
-                        {
-                            Console.WriteLine($"TEST PRACTICE2 DEBUG: Database recreation failed: {recreateEx.Message}");
-                            TempData["ErrorMessage"] = "Database schema mismatch. Please contact administrator.";
-                            return View("Performer/TestPractice2", model);
-                        }
+                        // SAFETY: Do NOT delete any database! Just log the error and continue
+                        Console.WriteLine($"TEST PRACTICE2 DEBUG: Database migration failed, but continuing without destroying data");
+                        TempData["ErrorMessage"] = "Database schema issue detected. Please contact administrator to apply migrations.";
+                        return View("Performer/TestPractice2", model);
                     }
                     
                     // Ensure only one record per user - delete any existing records first (ISOLATED TO TestData2)
@@ -1073,6 +1063,7 @@ namespace SimpleGateway.Controllers
             ViewBag.IsReadOnly = false;
             ViewBag.ActiveSection = "TestPractice2";
 
+            // Use main context for performer name lookup - this is safe as it's read-only
             var performer = _context.Users.FirstOrDefault(u => u.Username == model.Username);
             if (performer != null)
             {
