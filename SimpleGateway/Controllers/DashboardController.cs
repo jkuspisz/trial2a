@@ -817,17 +817,17 @@ namespace SimpleGateway.Controllers
             
             try
             {
-                // Check database schema and apply migrations if needed
+                // Check database schema and apply migrations if needed for TestData2Context
                 try
                 {
-                    var canConnect = _context.Database.CanConnect();
+                    var canConnect = _testData2Context.Database.CanConnect();
                     if (canConnect)
                     {
-                        var pendingMigrations = _context.Database.GetPendingMigrations();
+                        var pendingMigrations = _testData2Context.Database.GetPendingMigrations();
                         if (pendingMigrations.Any())
                         {
                             Console.WriteLine($"TESTPRACTICE2 DEBUG: Found {pendingMigrations.Count()} pending migrations in GET method: {string.Join(", ", pendingMigrations)}");
-                            _context.Database.Migrate();
+                            _testData2Context.Database.Migrate();
                             Console.WriteLine($"TESTPRACTICE2 DEBUG: Migrations applied successfully in GET method");
                         }
                     }
