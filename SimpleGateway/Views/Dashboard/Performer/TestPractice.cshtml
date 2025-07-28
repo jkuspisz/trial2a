@@ -90,6 +90,21 @@
                         <h6><strong>Instructions for Supervisor/Supporting Dentist:</strong></h6>
                         <p class="mb-0">Please complete this form with your professional details and experience. This information helps ensure appropriate supervision and support for the performer during their assessment period.</p>
                     </div>
+                    
+                    @if (!ViewBag.CanEditSupervisorFields)
+                    {
+                        <div class="alert alert-info mt-2 mb-0">
+                            <i class="bi bi-eye"></i> <strong>View-Only Access:</strong> 
+                            You can view all supervisor information, but only supervisors and administrators can edit this form.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-success mt-2 mb-0">
+                            <i class="bi bi-pencil-square"></i> <strong>Edit Access:</strong> 
+                            You have permission to edit and save supervisor information for this performer.
+                        </div>
+                    }
                 </div>
                 <div class="card-body">
                     <form asp-action="TestPractice" method="post">
@@ -102,7 +117,8 @@
                                 <strong>1.</strong> @Html.DisplayNameFor(m => m.GDCNumber) <span class="text-danger">*</span>
                             </label>
                             <input asp-for="GDCNumber" class="form-control" type="text" 
-                                   placeholder="Enter your GDC registration number" required />
+                                   placeholder="Enter your GDC registration number" required
+                                   readonly="@(!ViewBag.CanEditSupervisorFields)" />
                             <span asp-validation-for="GDCNumber" class="text-danger"></span>
                         </div>
                         
@@ -112,7 +128,8 @@
                                 <strong>2.</strong> @Html.DisplayNameFor(m => m.YearsOnPerformersList) <span class="text-danger">*</span>
                             </label>
                             <textarea asp-for="YearsOnPerformersList" class="form-control" rows="3" 
-                                     placeholder="Please specify the number of years and provide any relevant details about your time on the performers list" required></textarea>
+                                     placeholder="Please specify the number of years and provide any relevant details about your time on the performers list" required
+                                     readonly="@(!ViewBag.CanEditSupervisorFields)"></textarea>
                             <span asp-validation-for="YearsOnPerformersList" class="text-danger"></span>
                         </div>
                         
@@ -122,7 +139,8 @@
                                 <strong>3.</strong> @Html.DisplayNameFor(m => m.TrainingCoursesAttended) <span class="text-danger">*</span>
                             </label>
                             <textarea asp-for="TrainingCoursesAttended" class="form-control" rows="4" 
-                                     placeholder="List the relevant training courses, certifications, and qualifications you have completed. Include course names, providers, and dates where possible." required></textarea>
+                                     placeholder="List the relevant training courses, certifications, and qualifications you have completed. Include course names, providers, and dates where possible." required
+                                     readonly="@(!ViewBag.CanEditSupervisorFields)"></textarea>
                             <span asp-validation-for="TrainingCoursesAttended" class="text-danger"></span>
                         </div>
                         
@@ -132,7 +150,8 @@
                                 <strong>4.</strong> @Html.DisplayNameFor(m => m.CurrentSupervisionExperience) <span class="text-danger">*</span>
                             </label>
                             <textarea asp-for="CurrentSupervisionExperience" class="form-control" rows="4" 
-                                     placeholder="If you supervise dental care professionals, please describe your experience, the types of supervision you provide, and for how long. If you don't currently supervise anyone, please state 'No current supervision responsibilities'." required></textarea>
+                                     placeholder="If you supervise dental care professionals, please describe your experience, the types of supervision you provide, and for how long. If you don't currently supervise anyone, please state 'No current supervision responsibilities'." required
+                                     readonly="@(!ViewBag.CanEditSupervisorFields)"></textarea>
                             <span asp-validation-for="CurrentSupervisionExperience" class="text-danger"></span>
                         </div>
                         
@@ -142,7 +161,8 @@
                                 <strong>5.</strong> @Html.DisplayNameFor(m => m.CurrentConditionsRestrictions) <span class="text-danger">*</span>
                             </label>
                             <textarea asp-for="CurrentConditionsRestrictions" class="form-control" rows="4" 
-                                     placeholder="Please detail any conditions, restrictions, or limitations on your practice. If you have no current conditions or restrictions, please state 'No current conditions or restrictions'." required></textarea>
+                                     placeholder="Please detail any conditions, restrictions, or limitations on your practice. If you have no current conditions or restrictions, please state 'No current conditions or restrictions'." required
+                                     readonly="@(!ViewBag.CanEditSupervisorFields)"></textarea>
                             <span asp-validation-for="CurrentConditionsRestrictions" class="text-danger"></span>
                         </div>
                         
@@ -152,7 +172,8 @@
                                 <strong>6.</strong> @Html.DisplayNameFor(m => m.CPDCompliance) <span class="text-danger">*</span>
                             </label>
                             <textarea asp-for="CPDCompliance" class="form-control" rows="4" 
-                                     placeholder="Please confirm your CPD compliance status. If you are compliant, state 'Compliant with all CPD requirements'. If not compliant, please provide details of any shortfalls and your plan to address them." required></textarea>
+                                     placeholder="Please confirm your CPD compliance status. If you are compliant, state 'Compliant with all CPD requirements'. If not compliant, please provide details of any shortfalls and your plan to address them." required
+                                     readonly="@(!ViewBag.CanEditSupervisorFields)"></textarea>
                             <span asp-validation-for="CPDCompliance" class="text-danger"></span>
                         </div>
 
@@ -206,7 +227,8 @@
                                     </div>
                                     
                                     <div class="text-center">
-                                        <button type="button" class="btn btn-warning btn-lg" id="signDeclarationBtn">
+                                        <button type="button" class="btn btn-warning btn-lg" id="signDeclarationBtn"
+                                                disabled="@(!ViewBag.CanEditSupervisorFields)">
                                             <i class="bi bi-pen"></i> Sign Declaration
                                         </button>
                                     </div>
@@ -221,9 +243,20 @@
                         
                         <!-- Submit Button -->
                         <div class="mb-3">
-                            <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="bi bi-check-circle"></i> Save Supervisor Information
-                            </button>
+                            @if (ViewBag.CanEditSupervisorFields)
+                            {
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-check-circle"></i> Save Supervisor Information
+                                </button>
+                            }
+                            else
+                            {
+                                <div class="alert alert-info">
+                                    <i class="bi bi-info-circle"></i> <strong>View-Only Access</strong><br/>
+                                    This form contains supervisor information that can only be edited by supervisors and administrators. 
+                                    You can view all the information but cannot make changes.
+                                </div>
+                            }
                         </div>
                     </form>
                     

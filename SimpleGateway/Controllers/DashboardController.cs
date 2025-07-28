@@ -694,15 +694,19 @@ namespace SimpleGateway.Controllers
             // REMOVED USER RESTRICTIONS - All users can access TestPractice now
             Console.WriteLine($"TESTPRACTICE DEBUG: {currentRole} user {currentUser} accessing TestPractice for {performerUsername}");
 
+            // FIELD-LEVEL PERMISSIONS PATTERN: TestPractice supervisor information
+            // ALL users can view, only supervisors/admin can edit
+            ViewBag.CanEditSupervisorFields = (currentRole == "supervisor" || currentRole == "admin" || currentRole == "superuser");
+            ViewBag.CanViewSupervisorFields = true; // All users can view
+
             // Set common ViewBag properties  
             ViewBag.PerformerUsername = performerUsername;
             ViewBag.CurrentUserRole = currentRole;
             ViewBag.CurrentUser = currentUser;
             ViewBag.IsOwnDashboard = (performerUsername == currentUser);
-            ViewBag.CanEdit = true; // Everyone can edit for now
             ViewBag.CanComment = false;
             ViewBag.CanApprove = false;
-            ViewBag.IsReadOnly = false;
+            ViewBag.IsReadOnly = !ViewBag.CanEditSupervisorFields; // Readonly for non-supervisors
             ViewBag.ActiveSection = "TestPractice";
 
             // Get performer's name for display
@@ -770,8 +774,21 @@ namespace SimpleGateway.Controllers
             }
 
             // CRITICAL: Username comes from form (performer being viewed), not logged-in user
-            // This allows different users to edit performer data without creating new rows
+            // This allows supervisors to edit performer data without creating new rows
             Console.WriteLine($"TESTPRACTICE DEBUG: Form submitted with Username: {model.Username}, CurrentUser: {currentUser}");
+
+            // FIELD-LEVEL PERMISSIONS: Only supervisors/admin can edit supervisor information
+            var currentRole = HttpContext.Session.GetString("role");
+            var canEditSupervisorFields = (currentRole == "supervisor" || currentRole == "admin" || currentRole == "superuser");
+            
+            if (!canEditSupervisorFields)
+            {
+                Console.WriteLine($"TESTPRACTICE DEBUG: Access denied - role {currentRole} cannot edit supervisor information");
+                TempData["ErrorMessage"] = "Only supervisors and administrators can edit supervisor information.";
+                return RedirectToAction("TestPractice", new { performerUsername = model.Username });
+            }
+
+            Console.WriteLine($"TESTPRACTICE DEBUG: {currentRole} user {currentUser} authorized to edit supervisor data for {model.Username}");
 
             if (ModelState.IsValid)
             {
