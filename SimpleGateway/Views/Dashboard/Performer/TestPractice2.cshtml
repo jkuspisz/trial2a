@@ -95,10 +95,40 @@
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td><input asp-for="PrimaryQualification" class="form-control" /></td>
-                                        <td><input asp-for="PrimaryQualificationCountry" class="form-control" /></td>
-                                        <td><input asp-for="PrimaryQualificationInstitution" class="form-control" /></td>
-                                        <td><input asp-for="PrimaryQualificationYear" class="form-control" placeholder="e.g. 2018" /></td>
+                                        <td><input asp-for="Qualification1" class="form-control" /></td>
+                                        <td><input asp-for="Qualification1Country" class="form-control" /></td>
+                                        <td><input asp-for="Qualification1Institution" class="form-control" /></td>
+                                        <td><input asp-for="Qualification1Year" class="form-control" placeholder="e.g. 2018" /></td>
+                                    </tr>
+                                    <tr>
+                                        <td><input asp-for="Qualification2" class="form-control" /></td>
+                                        <td><input asp-for="Qualification2Country" class="form-control" /></td>
+                                        <td><input asp-for="Qualification2Institution" class="form-control" /></td>
+                                        <td><input asp-for="Qualification2Year" class="form-control" placeholder="e.g. 2018" /></td>
+                                    </tr>
+                                    <tr>
+                                        <td><input asp-for="Qualification3" class="form-control" /></td>
+                                        <td><input asp-for="Qualification3Country" class="form-control" /></td>
+                                        <td><input asp-for="Qualification3Institution" class="form-control" /></td>
+                                        <td><input asp-for="Qualification3Year" class="form-control" placeholder="e.g. 2018" /></td>
+                                    </tr>
+                                    <tr>
+                                        <td><input asp-for="Qualification4" class="form-control" /></td>
+                                        <td><input asp-for="Qualification4Country" class="form-control" /></td>
+                                        <td><input asp-for="Qualification4Institution" class="form-control" /></td>
+                                        <td><input asp-for="Qualification4Year" class="form-control" placeholder="e.g. 2018" /></td>
+                                    </tr>
+                                    <tr>
+                                        <td><input asp-for="Qualification5" class="form-control" /></td>
+                                        <td><input asp-for="Qualification5Country" class="form-control" /></td>
+                                        <td><input asp-for="Qualification5Institution" class="form-control" /></td>
+                                        <td><input asp-for="Qualification5Year" class="form-control" placeholder="e.g. 2018" /></td>
+                                    </tr>
+                                    <tr>
+                                        <td><input asp-for="Qualification6" class="form-control" /></td>
+                                        <td><input asp-for="Qualification6Country" class="form-control" /></td>
+                                        <td><input asp-for="Qualification6Institution" class="form-control" /></td>
+                                        <td><input asp-for="Qualification6Year" class="form-control" placeholder="e.g. 2018" /></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -112,70 +142,132 @@
                         <h5 class="mb-0">Employment History</h5>
                     </div>
                     <div class="card-body">
-                        <div class="row mb-3">
-                            <div class="col-md-3">
-                                <label asp-for="NHSExperience" class="form-label">Have you worked as a dentist in NHS general dental practice primary care in the UK?</label>
-                                <select asp-for="NHSExperience" class="form-control">
-                                    <option value="">Select...</option>
-                                    <option value="YES">YES</option>
-                                    <option value="NO">NO</option>
-                                </select>
-                                <span asp-validation-for="NHSExperience" class="text-danger"></span>
-                            </div>
-                            <div class="col-md-3">
-                                <label asp-for="NHSExperienceYears" class="form-label">Years:</label>
-                                <input asp-for="NHSExperienceYears" class="form-control" />
-                                <span asp-validation-for="NHSExperienceYears" class="text-danger"></span>
-                            </div>
-                            <div class="col-md-3">
-                                <label asp-for="NHSExperienceMonths" class="form-label">Months:</label>
-                                <input asp-for="NHSExperienceMonths" class="form-control" />
-                                <span asp-validation-for="NHSExperienceMonths" class="text-danger"></span>
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Was this:</label>
-                                <div>
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="radio" asp-for="NHSExperienceType" value="Full-time" id="fulltime" />
-                                        <label class="form-check-label" for="fulltime">Full-time?</label>
-                                    </div>
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="radio" asp-for="NHSExperienceType" value="Part-time" id="parttime" />
-                                        <label class="form-check-label" for="parttime">Part-time?</label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label asp-for="NHSExperienceDaysPerWeek" class="form-label">No. of days per week (if part-time):</label>
-                            <input asp-for="NHSExperienceDaysPerWeek" class="form-control" style="width: 200px;" />
-                            <span asp-validation-for="NHSExperienceDaysPerWeek" class="text-danger"></span>
-                        </div>
-                        
-                        <h6 class="mt-4 mb-3">Please list your work as a dentist since initial qualification (most recent first):</h6>
+                        <h6 class="mt-2 mb-3">Please list your work as a dentist since initial qualification (most recent first):</h6>
                         
                         <div class="table-responsive">
                             <table class="table table-bordered">
                                 <thead class="table-light">
                                     <tr>
-                                        <th style="width: 15%;">From (MM/YYYY):</th>
-                                        <th style="width: 15%;">To (MM/YYYY):</th>
-                                        <th style="width: 25%;">Job title/position:</th>
-                                        <th style="width: 30%;">Address:</th>
-                                        <th style="width: 15%;">Patient types:</th>
+                                        <th style="width: 12%;">From (MM/YYYY):</th>
+                                        <th style="width: 12%;">To (MM/YYYY):</th>
+                                        <th style="width: 20%;">Job title/position:</th>
+                                        <th style="width: 25%;">Address:</th>
+                                        <th style="width: 13%;">Private/NHS:</th>
+                                        <th style="width: 18%;">Patient types:</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td><input asp-for="MostRecentJobFromDate" class="form-control" placeholder="MM/YYYY" /></td>
-                                        <td><input asp-for="MostRecentJobToDate" class="form-control" placeholder="MM/YYYY" /></td>
-                                        <td><input asp-for="MostRecentJobTitle" class="form-control" /></td>
-                                        <td><input asp-for="MostRecentJobAddress" class="form-control" /></td>
+                                        <td><input asp-for="Job1FromDate" class="form-control" placeholder="MM/YYYY" /></td>
+                                        <td><input asp-for="Job1ToDate" class="form-control" placeholder="MM/YYYY" /></td>
+                                        <td><input asp-for="Job1Title" class="form-control" /></td>
+                                        <td><input asp-for="Job1Address" class="form-control" /></td>
                                         <td>
-                                            <input type="checkbox" asp-for="MostRecentJobAdultPatients" class="form-check-input" />
+                                            <select asp-for="Job1Type" class="form-control">
+                                                <option value="">Select...</option>
+                                                <option value="Private">Private</option>
+                                                <option value="NHS">NHS</option>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input type="checkbox" asp-for="Job1AdultPatients" class="form-check-input" />
                                             <label class="form-check-label">Adult</label><br>
-                                            <input type="checkbox" asp-for="MostRecentJobChildPatients" class="form-check-input" />
+                                            <input type="checkbox" asp-for="Job1ChildPatients" class="form-check-input" />
+                                            <label class="form-check-label">Child</label>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><input asp-for="Job2FromDate" class="form-control" placeholder="MM/YYYY" /></td>
+                                        <td><input asp-for="Job2ToDate" class="form-control" placeholder="MM/YYYY" /></td>
+                                        <td><input asp-for="Job2Title" class="form-control" /></td>
+                                        <td><input asp-for="Job2Address" class="form-control" /></td>
+                                        <td>
+                                            <select asp-for="Job2Type" class="form-control">
+                                                <option value="">Select...</option>
+                                                <option value="Private">Private</option>
+                                                <option value="NHS">NHS</option>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input type="checkbox" asp-for="Job2AdultPatients" class="form-check-input" />
+                                            <label class="form-check-label">Adult</label><br>
+                                            <input type="checkbox" asp-for="Job2ChildPatients" class="form-check-input" />
+                                            <label class="form-check-label">Child</label>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><input asp-for="Job3FromDate" class="form-control" placeholder="MM/YYYY" /></td>
+                                        <td><input asp-for="Job3ToDate" class="form-control" placeholder="MM/YYYY" /></td>
+                                        <td><input asp-for="Job3Title" class="form-control" /></td>
+                                        <td><input asp-for="Job3Address" class="form-control" /></td>
+                                        <td>
+                                            <select asp-for="Job3Type" class="form-control">
+                                                <option value="">Select...</option>
+                                                <option value="Private">Private</option>
+                                                <option value="NHS">NHS</option>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input type="checkbox" asp-for="Job3AdultPatients" class="form-check-input" />
+                                            <label class="form-check-label">Adult</label><br>
+                                            <input type="checkbox" asp-for="Job3ChildPatients" class="form-check-input" />
+                                            <label class="form-check-label">Child</label>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><input asp-for="Job4FromDate" class="form-control" placeholder="MM/YYYY" /></td>
+                                        <td><input asp-for="Job4ToDate" class="form-control" placeholder="MM/YYYY" /></td>
+                                        <td><input asp-for="Job4Title" class="form-control" /></td>
+                                        <td><input asp-for="Job4Address" class="form-control" /></td>
+                                        <td>
+                                            <select asp-for="Job4Type" class="form-control">
+                                                <option value="">Select...</option>
+                                                <option value="Private">Private</option>
+                                                <option value="NHS">NHS</option>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input type="checkbox" asp-for="Job4AdultPatients" class="form-check-input" />
+                                            <label class="form-check-label">Adult</label><br>
+                                            <input type="checkbox" asp-for="Job4ChildPatients" class="form-check-input" />
+                                            <label class="form-check-label">Child</label>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><input asp-for="Job5FromDate" class="form-control" placeholder="MM/YYYY" /></td>
+                                        <td><input asp-for="Job5ToDate" class="form-control" placeholder="MM/YYYY" /></td>
+                                        <td><input asp-for="Job5Title" class="form-control" /></td>
+                                        <td><input asp-for="Job5Address" class="form-control" /></td>
+                                        <td>
+                                            <select asp-for="Job5Type" class="form-control">
+                                                <option value="">Select...</option>
+                                                <option value="Private">Private</option>
+                                                <option value="NHS">NHS</option>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input type="checkbox" asp-for="Job5AdultPatients" class="form-check-input" />
+                                            <label class="form-check-label">Adult</label><br>
+                                            <input type="checkbox" asp-for="Job5ChildPatients" class="form-check-input" />
+                                            <label class="form-check-label">Child</label>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><input asp-for="Job6FromDate" class="form-control" placeholder="MM/YYYY" /></td>
+                                        <td><input asp-for="Job6ToDate" class="form-control" placeholder="MM/YYYY" /></td>
+                                        <td><input asp-for="Job6Title" class="form-control" /></td>
+                                        <td><input asp-for="Job6Address" class="form-control" /></td>
+                                        <td>
+                                            <select asp-for="Job6Type" class="form-control">
+                                                <option value="">Select...</option>
+                                                <option value="Private">Private</option>
+                                                <option value="NHS">NHS</option>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input type="checkbox" asp-for="Job6AdultPatients" class="form-check-input" />
+                                            <label class="form-check-label">Adult</label><br>
+                                            <input type="checkbox" asp-for="Job6ChildPatients" class="form-check-input" />
                                             <label class="form-check-label">Child</label>
                                         </td>
                                     </tr>

@@ -25,51 +25,151 @@ namespace SimpleGateway.Models
         [Display(Name = "GDC registration gaps explanation")]
         public string? GDCRegistrationGaps { get; set; }
         
-        [Display(Name = "Primary qualification")]
-        public string? PrimaryQualification { get; set; }
-        
-        [Display(Name = "Primary qualification country")]
-        public string? PrimaryQualificationCountry { get; set; }
-        
-        [Display(Name = "Primary qualification institution")]
-        public string? PrimaryQualificationInstitution { get; set; }
-        
-        [Display(Name = "Primary qualification year")]
-        public string? PrimaryQualificationYear { get; set; }
+        // Qualifications (6 entries)
+        [Display(Name = "Qualification 1")]
+        public string? Qualification1 { get; set; }
+        [Display(Name = "Qualification 1 country")]
+        public string? Qualification1Country { get; set; }
+        [Display(Name = "Qualification 1 institution")]
+        public string? Qualification1Institution { get; set; }
+        [Display(Name = "Qualification 1 year")]
+        public string? Qualification1Year { get; set; }
 
-        // Employment History Fields
-        [Display(Name = "NHS experience")]
-        public string? NHSExperience { get; set; }
-        
-        [Display(Name = "NHS experience years")]
-        public string? NHSExperienceYears { get; set; }
-        
-        [Display(Name = "NHS experience months")]
-        public string? NHSExperienceMonths { get; set; }
-        
-        [Display(Name = "NHS experience type")]
-        public string? NHSExperienceType { get; set; }
-        
-        [Display(Name = "NHS experience days per week")]
-        public string? NHSExperienceDaysPerWeek { get; set; }
-        
-        [Display(Name = "Most recent job from date")]
-        public string? MostRecentJobFromDate { get; set; }
-        
-        [Display(Name = "Most recent job to date")]
-        public string? MostRecentJobToDate { get; set; }
-        
-        [Display(Name = "Most recent job title")]
-        public string? MostRecentJobTitle { get; set; }
-        
-        [Display(Name = "Most recent job address")]
-        public string? MostRecentJobAddress { get; set; }
-        
-        [Display(Name = "Most recent job - adult patients")]
-        public bool MostRecentJobAdultPatients { get; set; }
-        
-        [Display(Name = "Most recent job - child patients")]
-        public bool MostRecentJobChildPatients { get; set; }
+        [Display(Name = "Qualification 2")]
+        public string? Qualification2 { get; set; }
+        [Display(Name = "Qualification 2 country")]
+        public string? Qualification2Country { get; set; }
+        [Display(Name = "Qualification 2 institution")]
+        public string? Qualification2Institution { get; set; }
+        [Display(Name = "Qualification 2 year")]
+        public string? Qualification2Year { get; set; }
+
+        [Display(Name = "Qualification 3")]
+        public string? Qualification3 { get; set; }
+        [Display(Name = "Qualification 3 country")]
+        public string? Qualification3Country { get; set; }
+        [Display(Name = "Qualification 3 institution")]
+        public string? Qualification3Institution { get; set; }
+        [Display(Name = "Qualification 3 year")]
+        public string? Qualification3Year { get; set; }
+
+        [Display(Name = "Qualification 4")]
+        public string? Qualification4 { get; set; }
+        [Display(Name = "Qualification 4 country")]
+        public string? Qualification4Country { get; set; }
+        [Display(Name = "Qualification 4 institution")]
+        public string? Qualification4Institution { get; set; }
+        [Display(Name = "Qualification 4 year")]
+        public string? Qualification4Year { get; set; }
+
+        [Display(Name = "Qualification 5")]
+        public string? Qualification5 { get; set; }
+        [Display(Name = "Qualification 5 country")]
+        public string? Qualification5Country { get; set; }
+        [Display(Name = "Qualification 5 institution")]
+        public string? Qualification5Institution { get; set; }
+        [Display(Name = "Qualification 5 year")]
+        public string? Qualification5Year { get; set; }
+
+        [Display(Name = "Qualification 6")]
+        public string? Qualification6 { get; set; }
+        [Display(Name = "Qualification 6 country")]
+        public string? Qualification6Country { get; set; }
+        [Display(Name = "Qualification 6 institution")]
+        public string? Qualification6Institution { get; set; }
+        [Display(Name = "Qualification 6 year")]
+        public string? Qualification6Year { get; set; }
+
+        // Employment History (6 entries) - Simplified without NHS-specific questions
+        [Display(Name = "Job 1 from date")]
+        public string? Job1FromDate { get; set; }
+        [Display(Name = "Job 1 to date")]
+        public string? Job1ToDate { get; set; }
+        [Display(Name = "Job 1 title")]
+        public string? Job1Title { get; set; }
+        [Display(Name = "Job 1 address")]
+        public string? Job1Address { get; set; }
+        [Display(Name = "Job 1 type")]
+        public string? Job1Type { get; set; } // Private or NHS
+        [Display(Name = "Job 1 adult patients")]
+        public bool Job1AdultPatients { get; set; }
+        [Display(Name = "Job 1 child patients")]
+        public bool Job1ChildPatients { get; set; }
+
+        [Display(Name = "Job 2 from date")]
+        public string? Job2FromDate { get; set; }
+        [Display(Name = "Job 2 to date")]
+        public string? Job2ToDate { get; set; }
+        [Display(Name = "Job 2 title")]
+        public string? Job2Title { get; set; }
+        [Display(Name = "Job 2 address")]
+        public string? Job2Address { get; set; }
+        [Display(Name = "Job 2 type")]
+        public string? Job2Type { get; set; } // Private or NHS
+        [Display(Name = "Job 2 adult patients")]
+        public bool Job2AdultPatients { get; set; }
+        [Display(Name = "Job 2 child patients")]
+        public bool Job2ChildPatients { get; set; }
+
+        [Display(Name = "Job 3 from date")]
+        public string? Job3FromDate { get; set; }
+        [Display(Name = "Job 3 to date")]
+        public string? Job3ToDate { get; set; }
+        [Display(Name = "Job 3 title")]
+        public string? Job3Title { get; set; }
+        [Display(Name = "Job 3 address")]
+        public string? Job3Address { get; set; }
+        [Display(Name = "Job 3 type")]
+        public string? Job3Type { get; set; } // Private or NHS
+        [Display(Name = "Job 3 adult patients")]
+        public bool Job3AdultPatients { get; set; }
+        [Display(Name = "Job 3 child patients")]
+        public bool Job3ChildPatients { get; set; }
+
+        [Display(Name = "Job 4 from date")]
+        public string? Job4FromDate { get; set; }
+        [Display(Name = "Job 4 to date")]
+        public string? Job4ToDate { get; set; }
+        [Display(Name = "Job 4 title")]
+        public string? Job4Title { get; set; }
+        [Display(Name = "Job 4 address")]
+        public string? Job4Address { get; set; }
+        [Display(Name = "Job 4 type")]
+        public string? Job4Type { get; set; } // Private or NHS
+        [Display(Name = "Job 4 adult patients")]
+        public bool Job4AdultPatients { get; set; }
+        [Display(Name = "Job 4 child patients")]
+        public bool Job4ChildPatients { get; set; }
+
+        [Display(Name = "Job 5 from date")]
+        public string? Job5FromDate { get; set; }
+        [Display(Name = "Job 5 to date")]
+        public string? Job5ToDate { get; set; }
+        [Display(Name = "Job 5 title")]
+        public string? Job5Title { get; set; }
+        [Display(Name = "Job 5 address")]
+        public string? Job5Address { get; set; }
+        [Display(Name = "Job 5 type")]
+        public string? Job5Type { get; set; } // Private or NHS
+        [Display(Name = "Job 5 adult patients")]
+        public bool Job5AdultPatients { get; set; }
+        [Display(Name = "Job 5 child patients")]
+        public bool Job5ChildPatients { get; set; }
+
+        [Display(Name = "Job 6 from date")]
+        public string? Job6FromDate { get; set; }
+        [Display(Name = "Job 6 to date")]
+        public string? Job6ToDate { get; set; }
+        [Display(Name = "Job 6 title")]
+        public string? Job6Title { get; set; }
+        [Display(Name = "Job 6 address")]
+        public string? Job6Address { get; set; }
+        [Display(Name = "Job 6 type")]
+        public string? Job6Type { get; set; } // Private or NHS
+        [Display(Name = "Job 6 adult patients")]
+        public bool Job6AdultPatients { get; set; }
+        [Display(Name = "Job 6 child patients")]
+        public bool Job6ChildPatients { get; set; }
 
         // Dental Procedures Assessment - Based on CSV structure
         // Clinical Exam/Assessments
