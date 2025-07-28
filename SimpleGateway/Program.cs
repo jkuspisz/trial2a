@@ -168,8 +168,13 @@ try
             Console.WriteLine("Main database migrations completed successfully");
             
             // Apply migrations for ISOLATED TestData2 context
+            Console.WriteLine("=== TESTDATA2 CONTEXT MIGRATION START ===");
             try
             {
+                // Check connection specifically for TestData2Context
+                var testData2CanConnectForMigration = testData2Context.Database.CanConnect();
+                Console.WriteLine($"TestData2Context migration connection test: {(testData2CanConnectForMigration ? "SUCCESS" : "FAILED")}");
+                
                 var testData2PendingMigrations = testData2Context.Database.GetPendingMigrations().ToList();
                 if (testData2PendingMigrations.Any())
                 {
@@ -179,17 +184,49 @@ try
                         Console.WriteLine($"  - {migration}");
                     }
                 }
+                else
+                {
+                    Console.WriteLine("No pending TestData2 migrations found");
+                }
                 
+                // Apply TestData2Context migrations
+                Console.WriteLine("Applying TestData2Context migrations...");
                 testData2Context.Database.Migrate();
                 Console.WriteLine("TestData2Context migrations completed successfully");
+                
+                // Verify TestData2 table exists
+                try
+                {
+                    var testData2Count = testData2Context.TestData2.Count();
+                    Console.WriteLine($"TestData2 table verification: {testData2Count} records found");
+                }
+                catch (Exception verifyEx)
+                {
+                    Console.WriteLine($"TestData2 table verification failed: {verifyEx.Message}");
+                }
             }
             catch (Exception testData2MigrationEx)
             {
                 Console.WriteLine($"TestData2Context migration error: {testData2MigrationEx.Message}");
-                // Try to ensure created for TestData2Context
-                testData2Context.Database.EnsureCreated();
-                Console.WriteLine("TestData2Context ensure created completed");
+                Console.WriteLine($"TestData2Context migration stack trace: {testData2MigrationEx.StackTrace}");
+                
+                // Try to ensure created for TestData2Context as fallback
+                try
+                {
+                    Console.WriteLine("Attempting TestData2Context.Database.EnsureCreated() as fallback...");
+                    testData2Context.Database.EnsureCreated();
+                    Console.WriteLine("TestData2Context ensure created completed");
+                    
+                    // Verify after EnsureCreated
+                    var testData2Count = testData2Context.TestData2.Count();
+                    Console.WriteLine($"TestData2 table created via EnsureCreated: {testData2Count} records found");
+                }
+                catch (Exception ensureEx)
+                {
+                    Console.WriteLine($"TestData2Context EnsureCreated also failed: {ensureEx.Message}");
+                }
             }
+            Console.WriteLine("=== TESTDATA2 CONTEXT MIGRATION END ===");
             
             // Verify applied migrations
             var appliedMigrations = context.Database.GetAppliedMigrations().ToList();
