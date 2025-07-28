@@ -866,13 +866,13 @@ namespace SimpleGateway.Controllers
                 {
                     try
                     {
-                        Console.WriteLine($"TESTPRACTICE2 DEBUG: Detected missing column error, attempting to apply migrations...");
-                        _context.Database.Migrate();
-                        Console.WriteLine($"TESTPRACTICE2 DEBUG: Migrations applied after column error");
+                        Console.WriteLine($"TESTPRACTICE2 DEBUG: Detected missing column error, attempting to apply TestData2Context migrations...");
+                        _testData2Context.Database.Migrate(); // Use isolated context for TestData2 migrations
+                        Console.WriteLine($"TESTPRACTICE2 DEBUG: TestData2Context migrations applied after column error");
                         
                         // Retry the database query
                         model = _testData2Context.TestData2.FirstOrDefault(t => t.Username == performerUsername);
-                        Console.WriteLine($"TESTPRACTICE2 DEBUG: Successfully retrieved data after migration");
+                        Console.WriteLine($"TESTPRACTICE2 DEBUG: Successfully retrieved data after TestData2Context migration");
                     }
                     catch (Exception migrationEx)
                     {
