@@ -680,7 +680,7 @@ namespace SimpleGateway.Controllers
             return RedirectToAction("Uploads", new { performerUsername });
         }
 
-        // Other section methods (simplified for brevity)
+        // TestPractice - Supervisor/Supporting Dentist Information
         public IActionResult TestPractice(string performerUsername)
         {
             var currentUser = HttpContext.Session.GetString("username");
@@ -691,9 +691,11 @@ namespace SimpleGateway.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            // Check permissions
-            if (currentRole == "performer" && currentUser != performerUsername)
+            // Permission check: Only supervisors/admin can access this page (it's supervisor information about the performer)
+            if (currentRole != "supervisor" && currentRole != "admin" && currentRole != "superuser")
             {
+                Console.WriteLine($"TESTPRACTICE DEBUG: Access denied - role {currentRole} cannot view supervisor information");
+                TempData["ErrorMessage"] = "Only supervisors can access this information.";
                 return RedirectToAction("Index");
             }
 
@@ -701,11 +703,11 @@ namespace SimpleGateway.Controllers
             ViewBag.PerformerUsername = performerUsername;
             ViewBag.CurrentUserRole = currentRole;
             ViewBag.CurrentUser = currentUser;
-            ViewBag.IsOwnDashboard = (currentUser == performerUsername);
-            ViewBag.CanEdit = (currentRole == "performer" && currentUser == performerUsername);
-            ViewBag.CanComment = (currentRole == "supervisor" || currentRole == "advisor" || currentRole == "superuser");
-            ViewBag.CanApprove = (currentRole == "supervisor" || currentRole == "advisor" || currentRole == "superuser");
-            ViewBag.IsReadOnly = (currentRole == "admin");
+            ViewBag.IsOwnDashboard = false; // Supervisor viewing performer's data
+            ViewBag.CanEdit = (currentRole == "supervisor" || currentRole == "admin" || currentRole == "superuser");
+            ViewBag.CanComment = false;
+            ViewBag.CanApprove = false;
+            ViewBag.IsReadOnly = false;
             ViewBag.ActiveSection = "TestPractice";
 
             // Get performer's name for display
@@ -716,11 +718,11 @@ namespace SimpleGateway.Controllers
             }
 
             // Get or create test data from database
-            Console.WriteLine($"TESTPRACTICE DEBUG: Attempting to retrieve test data for {performerUsername}");
+            Console.WriteLine($"TESTPRACTICE DEBUG: Supervisor {currentUser} accessing supervisor information for performer {performerUsername}");
             var model = _context.TestData.FirstOrDefault(t => t.Username == performerUsername);
             if (model == null)
             {
-                Console.WriteLine($"TESTPRACTICE DEBUG: No existing test data found for {performerUsername}, creating new");
+                Console.WriteLine($"TESTPRACTICE DEBUG: No existing supervisor data found for {performerUsername}, creating new");
                 // Create new test data if not exists
                 model = new TestDataModel
                 {
@@ -729,7 +731,7 @@ namespace SimpleGateway.Controllers
             }
             else
             {
-                Console.WriteLine($"TESTPRACTICE DEBUG: Found existing test data for {performerUsername} - UKWorkExperience: {model.UKWorkExperience?.Substring(0, Math.Min(50, model.UKWorkExperience.Length))}..., LastPatientTreatment: {model.LastPatientTreatment?.Substring(0, Math.Min(50, model.LastPatientTreatment.Length))}...");
+                Console.WriteLine($"TESTPRACTICE DEBUG: Found existing supervisor data for {performerUsername} - GDC: {model.GDCNumber}, Declaration: {model.DeclarationSigned}");
             }
 
             // Check total TestData count
@@ -743,6 +745,7 @@ namespace SimpleGateway.Controllers
         public IActionResult TestPractice(TestDataModel model)
         {
             var currentUser = HttpContext.Session.GetString("username");
+            var currentRole = HttpContext.Session.GetString("role");
             
             if (string.IsNullOrEmpty(currentUser))
             {
@@ -750,7 +753,7 @@ namespace SimpleGateway.Controllers
             }
 
             Console.WriteLine($"TEST PRACTICE DEBUG: POST request received for TestData, user: {currentUser}");
-            Console.WriteLine($"TEST PRACTICE DEBUG: Model data - UKWorkExperience: '{model?.UKWorkExperience}', LastPatientTreatment: '{model?.LastPatientTreatment}'");
+            Console.WriteLine($"TEST PRACTICE DEBUG: Form submitted with Username: {model?.Username}, CurrentUser: {currentUser}");
             
             if (model == null)
             {
@@ -758,8 +761,17 @@ namespace SimpleGateway.Controllers
                 return RedirectToAction("TestPractice", new { performerUsername = currentUser });
             }
 
-            // Set the username
-            model.Username = currentUser;
+            // CRITICAL: Username comes from form (performer being viewed), not logged-in user
+            // This allows supervisors to edit performer data without creating new rows
+            Console.WriteLine($"TEST PRACTICE DEBUG: Data being saved to performer: {model.Username}");
+
+            // Permission check: only supervisor/admin can edit this page (it's supervisor information)
+            if (currentRole != "supervisor" && currentRole != "admin" && currentRole != "superuser")
+            {
+                Console.WriteLine($"TEST PRACTICE DEBUG: Access denied - role {currentRole} cannot edit supervisor information");
+                TempData["ErrorMessage"] = "Only supervisors can edit this information.";
+                return RedirectToAction("Index");
+            }
 
             if (ModelState.IsValid)
             {
@@ -808,8 +820,8 @@ namespace SimpleGateway.Controllers
                     }
                     
                     // Create new record with the latest data
-                    Console.WriteLine($"TEST PRACTICE DEBUG: Creating new record for {model.Username}");
-                    Console.WriteLine($"TEST PRACTICE DEBUG: New data - UKWorkExperience: '{model.UKWorkExperience}', LastPatientTreatment: '{model.LastPatientTreatment}'");
+                    Console.WriteLine($"TEST PRACTICE DEBUG: Creating new record for performer {model.Username} with supervisor information");
+                    Console.WriteLine($"TEST PRACTICE DEBUG: New data - GDC: '{model.GDCNumber}', Declaration: {model.DeclarationSigned}");
                     
                     // Set audit fields for new record
                     model.CreatedDate = DateTime.UtcNow;
@@ -824,7 +836,7 @@ namespace SimpleGateway.Controllers
                     if (savedRows > 0)
                     {
                         Console.WriteLine($"TEST PRACTICE DEBUG: Save successful! Record ID: {model.Id}");
-                        TempData["SuccessMessage"] = $"Test practice data saved successfully to PostgreSQL! Record ID: {model.Id}";
+                        TempData["SuccessMessage"] = $"Supervisor information saved successfully to performer's record! Record ID: {model.Id}";
                         
                         // Check total TestData count
                         var totalTestData = _context.TestData.Count();
@@ -877,8 +889,8 @@ namespace SimpleGateway.Controllers
             ViewBag.PerformerUsername = model.Username;
             ViewBag.CurrentUserRole = HttpContext.Session.GetString("role");
             ViewBag.CurrentUser = currentUser;
-            ViewBag.IsOwnDashboard = (currentUser == model.Username);
-            ViewBag.CanEdit = true;
+            ViewBag.IsOwnDashboard = false; // Supervisor editing performer's data
+            ViewBag.CanEdit = (currentRole == "supervisor" || currentRole == "admin" || currentRole == "superuser");
             ViewBag.CanComment = false;
             ViewBag.CanApprove = false;
             ViewBag.IsReadOnly = false;

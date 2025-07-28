@@ -93,7 +93,8 @@
                 </div>
                 <div class="card-body">
                     <form asp-action="TestPractice" method="post">
-                        <input type="hidden" asp-for="Username" />
+                        <!-- CRITICAL: Hidden field ensures data ownership - supervisor edits performer's data -->
+                        <input type="hidden" asp-for="Username" value="@ViewBag.PerformerUsername" />
                         
                         <!-- GDC Number -->
                         <div class="mb-4">
