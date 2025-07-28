@@ -1,6 +1,6 @@
 @model SimpleGateway.Models.TestDataModel
 @{
-    ViewData["Title"] = "Test Practice - Simple Form";
+    ViewData["Title"] = "Test Practice - Supervisor/Supporting Dentist Information";
 }
 
 <div class="container-fluid">
@@ -85,46 +85,154 @@
         <div class="col-9">
             <div class="card">
                 <div class="card-header">
-                    <h4>Test Practice - Simple PostgreSQL Test</h4>
-                    <p class="mb-0 text-muted">This section tests that data can be saved to the PostgreSQL database successfully using the simple 2-field form.</p>
+                    <h4>Supervisor/Supporting Dentist Information</h4>
+                    <div class="alert alert-primary mb-0">
+                        <h6><strong>Instructions for Supervisor/Supporting Dentist:</strong></h6>
+                        <p class="mb-0">Please complete this form with your professional details and experience. This information helps ensure appropriate supervision and support for the performer during their assessment period.</p>
+                    </div>
                 </div>
                 <div class="card-body">
                     <form asp-action="TestPractice" method="post">
                         <input type="hidden" asp-for="Username" />
                         
-                        <!-- Question 1 -->
+                        <!-- GDC Number -->
                         <div class="mb-4">
-                            <label asp-for="UKWorkExperience" class="form-label">
-                                <strong>Question 1:</strong> @Html.DisplayNameFor(m => m.UKWorkExperience)
+                            <label asp-for="GDCNumber" class="form-label">
+                                <strong>1.</strong> @Html.DisplayNameFor(m => m.GDCNumber) <span class="text-danger">*</span>
                             </label>
-                            <textarea asp-for="UKWorkExperience" class="form-control" rows="3" 
-                                     placeholder="Please describe your work experience in the UK, if any. For example: '5 years as a dentist in London' or 'No UK work experience yet'"></textarea>
-                            <span asp-validation-for="UKWorkExperience" class="text-danger"></span>
+                            <input asp-for="GDCNumber" class="form-control" type="text" 
+                                   placeholder="Enter your GDC registration number" required />
+                            <span asp-validation-for="GDCNumber" class="text-danger"></span>
                         </div>
                         
-                        <!-- Question 2 -->
+                        <!-- Years on Performers List -->
                         <div class="mb-4">
-                            <label asp-for="LastPatientTreatment" class="form-label">
-                                <strong>Question 2:</strong> @Html.DisplayNameFor(m => m.LastPatientTreatment)
+                            <label asp-for="YearsOnPerformersList" class="form-label">
+                                <strong>2.</strong> @Html.DisplayNameFor(m => m.YearsOnPerformersList) <span class="text-danger">*</span>
                             </label>
-                            <textarea asp-for="LastPatientTreatment" class="form-control" rows="3" 
-                                     placeholder="Please describe when you last treated a patient. For example: 'Yesterday - routine cleaning' or 'Last month - filling procedure'"></textarea>
-                            <span asp-validation-for="LastPatientTreatment" class="text-danger"></span>
+                            <textarea asp-for="YearsOnPerformersList" class="form-control" rows="3" 
+                                     placeholder="Please specify the number of years and provide any relevant details about your time on the performers list" required></textarea>
+                            <span asp-validation-for="YearsOnPerformersList" class="text-danger"></span>
+                        </div>
+                        
+                        <!-- Training Courses -->
+                        <div class="mb-4">
+                            <label asp-for="TrainingCoursesAttended" class="form-label">
+                                <strong>3.</strong> @Html.DisplayNameFor(m => m.TrainingCoursesAttended) <span class="text-danger">*</span>
+                            </label>
+                            <textarea asp-for="TrainingCoursesAttended" class="form-control" rows="4" 
+                                     placeholder="List the relevant training courses, certifications, and qualifications you have completed. Include course names, providers, and dates where possible." required></textarea>
+                            <span asp-validation-for="TrainingCoursesAttended" class="text-danger"></span>
+                        </div>
+                        
+                        <!-- Current Supervision Experience -->
+                        <div class="mb-4">
+                            <label asp-for="CurrentSupervisionExperience" class="form-label">
+                                <strong>4.</strong> @Html.DisplayNameFor(m => m.CurrentSupervisionExperience) <span class="text-danger">*</span>
+                            </label>
+                            <textarea asp-for="CurrentSupervisionExperience" class="form-control" rows="4" 
+                                     placeholder="If you supervise dental care professionals, please describe your experience, the types of supervision you provide, and for how long. If you don't currently supervise anyone, please state 'No current supervision responsibilities'." required></textarea>
+                            <span asp-validation-for="CurrentSupervisionExperience" class="text-danger"></span>
+                        </div>
+                        
+                        <!-- Current Conditions or Restrictions -->
+                        <div class="mb-4">
+                            <label asp-for="CurrentConditionsRestrictions" class="form-label">
+                                <strong>5.</strong> @Html.DisplayNameFor(m => m.CurrentConditionsRestrictions) <span class="text-danger">*</span>
+                            </label>
+                            <textarea asp-for="CurrentConditionsRestrictions" class="form-control" rows="4" 
+                                     placeholder="Please detail any conditions, restrictions, or limitations on your practice. If you have no current conditions or restrictions, please state 'No current conditions or restrictions'." required></textarea>
+                            <span asp-validation-for="CurrentConditionsRestrictions" class="text-danger"></span>
+                        </div>
+                        
+                        <!-- CPD Compliance -->
+                        <div class="mb-4">
+                            <label asp-for="CPDCompliance" class="form-label">
+                                <strong>6.</strong> @Html.DisplayNameFor(m => m.CPDCompliance) <span class="text-danger">*</span>
+                            </label>
+                            <textarea asp-for="CPDCompliance" class="form-control" rows="4" 
+                                     placeholder="Please confirm your CPD compliance status. If you are compliant, state 'Compliant with all CPD requirements'. If not compliant, please provide details of any shortfalls and your plan to address them." required></textarea>
+                            <span asp-validation-for="CPDCompliance" class="text-danger"></span>
+                        </div>
+
+                        <!-- Legacy Fields (hidden but preserved for data continuity) -->
+                        <input type="hidden" asp-for="UKWorkExperience" value="@(Model?.UKWorkExperience ?? "Legacy data - see supervisor information above")" />
+                        <input type="hidden" asp-for="LastPatientTreatment" value="@(Model?.LastPatientTreatment ?? "Legacy data - see supervisor information above")" />
+                        
+                        <!-- Declaration Section -->
+                        <div class="card mb-4" style="border: 2px solid #dc3545;">
+                            <div class="card-header" style="background-color: #f8d7da; color: #721c24;">
+                                <h5 class="mb-0"><i class="bi bi-clipboard-check"></i> Supervisor Declaration</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="alert alert-warning">
+                                    <h6><strong>Important:</strong></h6>
+                                    <p class="mb-0">Please read each statement carefully and confirm your agreement by signing the declaration below.</p>
+                                </div>
+                                
+                                <div class="declaration-statements mb-4">
+                                    <ol style="line-height: 1.8;">
+                                        <li><strong>I confirm that I am not aware of any current or recent disciplinary proceedings or investigations by NHS England, NHS BSA or GDC in relation to me.</strong></li>
+                                        <li><strong>I confirm that I do not have a conflict of interest with the proposed supported dentist.</strong></li>
+                                        <li><strong>I/the practice are able to offer a mentoring placement for a period of up to 12 months for a full-time appointment or pro rata to a maximum of 24 months.</strong></li>
+                                        <li><strong>I/the practice agree to provide a GDC registered dental nurse who is familiar with the practice processes and protocols.</strong></li>
+                                        <li><strong>I understand that I must be available from the date on which the supported dentist starts in the practice to provide support.</strong></li>
+                                        <li><strong>I confirm I am not currently acting as supporting dentist/supervisor for any other dentist and will not take on additional supporting dentist/supervisor roles whilst supporting the current dentist without prior agreement of NHSE.</strong></li>
+                                    </ol>
+                                </div>
+                                
+                                @if (Model?.DeclarationSigned == true && Model?.DeclarationSignedDate != null)
+                                {
+                                    <!-- Declaration already signed - show status -->
+                                    <div class="alert alert-success">
+                                        <h6><i class="bi bi-check-circle-fill"></i> Declaration Signed</h6>
+                                        <p><strong>Signed by:</strong> @Model.DeclarationSignedBy</p>
+                                        <p><strong>Date:</strong> @Model.DeclarationSignedDate?.ToString("dddd, MMMM dd, yyyy 'at' h:mm tt")</p>
+                                        <p class="mb-0"><em>This declaration has been digitally recorded and timestamped.</em></p>
+                                    </div>
+                                    
+                                    <!-- Hidden fields to preserve declaration data -->
+                                    <input type="hidden" asp-for="DeclarationSigned" />
+                                    <input type="hidden" asp-for="DeclarationSignedDate" />
+                                    <input type="hidden" asp-for="DeclarationSignedBy" />
+                                }
+                                else
+                                {
+                                    <!-- Declaration not signed - show signing area -->
+                                    <div class="alert alert-info">
+                                        <h6><i class="bi bi-info-circle"></i> Declaration Required</h6>
+                                        <p class="mb-0">By clicking "Sign Declaration" below, you confirm that you have read and agree to all statements above.</p>
+                                    </div>
+                                    
+                                    <div class="text-center">
+                                        <button type="button" class="btn btn-warning btn-lg" id="signDeclarationBtn">
+                                            <i class="bi bi-pen"></i> Sign Declaration
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- Hidden fields for declaration data (will be populated by JavaScript) -->
+                                    <input type="hidden" asp-for="DeclarationSigned" id="declarationSigned" />
+                                    <input type="hidden" asp-for="DeclarationSignedDate" id="declarationSignedDate" />
+                                    <input type="hidden" asp-for="DeclarationSignedBy" id="declarationSignedBy" />
+                                }
+                            </div>
                         </div>
                         
                         <!-- Submit Button -->
                         <div class="mb-3">
-                            <button type="submit" class="btn btn-primary btn-lg">Save Test Data to PostgreSQL</button>
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-check-circle"></i> Save Supervisor Information
+                            </button>
                         </div>
                     </form>
                     
                     <div class="mt-4">
                         <div class="alert alert-info">
-                            <h6><strong>Test Information:</strong></h6>
-                            <p><strong>Purpose:</strong> This page tests if data can be successfully saved to the PostgreSQL database using a simple 2-field form.</p>
-                            <p><strong>Database:</strong> Railway PostgreSQL</p>
-                            <p><strong>Table:</strong> TestData</p>
-                            <p><strong>Pattern:</strong> Simple form with just UK work experience and last patient treatment questions</p>
+                            <h6><strong>Form Information:</strong></h6>
+                            <p><strong>Purpose:</strong> This form collects essential information from the supervisor or supporting dentist to ensure appropriate oversight and support during the assessment period.</p>
+                            <p><strong>Required Fields:</strong> All fields marked with <span class="text-danger">*</span> are required and must be completed before submission.</p>
+                            <p><strong>Data Storage:</strong> Information is securely stored in the PostgreSQL database and is accessible to relevant assessment team members.</p>
+                            <p><strong>Note:</strong> Please ensure all information provided is accurate and up-to-date as this will be used to determine supervision arrangements.</p>
                         </div>
                     </div>
                 </div>
@@ -135,4 +243,53 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const signDeclarationBtn = document.getElementById('signDeclarationBtn');
+            
+            if (signDeclarationBtn) {
+                signDeclarationBtn.addEventListener('click', function() {
+                    // Confirm the user wants to sign
+                    const confirmed = confirm('By clicking "OK", you confirm that you have read and agree to all the declaration statements above. This action will be timestamped and recorded. Do you wish to proceed?');
+                    
+                    if (confirmed) {
+                        // Get current user (supervisor name)
+                        const supervisorName = '@ViewBag.PerformerName'; // This will be the supervisor's name
+                        const currentTime = new Date().toISOString();
+                        
+                        // Set the hidden field values
+                        document.getElementById('declarationSigned').value = 'true';
+                        document.getElementById('declarationSignedDate').value = currentTime;
+                        document.getElementById('declarationSignedBy').value = supervisorName;
+                        
+                        // Update the UI to show signed status
+                        const declarationCard = signDeclarationBtn.closest('.card-body');
+                        declarationCard.innerHTML = `
+                            <div class="alert alert-success">
+                                <h6><i class="bi bi-check-circle-fill"></i> Declaration Signed Successfully</h6>
+                                <p><strong>Signed by:</strong> ${supervisorName}</p>
+                                <p><strong>Date:</strong> ${new Date().toLocaleDateString('en-US', { 
+                                    weekday: 'long', 
+                                    year: 'numeric', 
+                                    month: 'long', 
+                                    day: 'numeric',
+                                    hour: 'numeric',
+                                    minute: '2-digit',
+                                    hour12: true
+                                })}</p>
+                                <p class="mb-0"><em>This declaration has been digitally recorded and will be saved when you submit the form.</em></p>
+                            </div>
+                            <input type="hidden" name="DeclarationSigned" value="true" />
+                            <input type="hidden" name="DeclarationSignedDate" value="${currentTime}" />
+                            <input type="hidden" name="DeclarationSignedBy" value="${supervisorName}" />
+                        `;
+                        
+                        // Show success message
+                        alert('Declaration signed successfully! Please remember to save the form to record your signature.');
+                    }
+                });
+            }
+        });
+    </script>
 }
