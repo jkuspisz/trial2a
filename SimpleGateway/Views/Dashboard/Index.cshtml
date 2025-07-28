@@ -54,7 +54,7 @@ else
                                     <div class="card-body">
                                         <p><strong>Email:</strong> @user.Email</p>
                                         <p><strong>Role:</strong> @user.Role</p>
-                                        <a href="@Url.Action("PerformerDetails", new { performerUsername = user.Username })" 
+                                        <a href="@Url.Action("ViewPerformerDashboard", new { performerUsername = user.Username })" 
                                            class="btn btn-primary">View Dashboard</a>
                                         
                                         @if (ViewBag.CurrentRole == "admin" || ViewBag.CurrentRole == "superuser")
