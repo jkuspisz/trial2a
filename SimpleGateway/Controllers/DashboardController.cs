@@ -802,6 +802,13 @@ namespace SimpleGateway.Controllers
             ViewBag.CanComment = (currentRole == "supervisor" || currentRole == "advisor" || currentRole == "superuser");
             ViewBag.CanApprove = (currentRole == "supervisor" || currentRole == "advisor" || currentRole == "superuser");
             ViewBag.IsReadOnly = (currentRole == "admin");
+            
+            // TESTPRACTICE2 SPECIFIC PERMISSIONS
+            // Main form fields: Performers can edit their own data, supervisors/advisors/admins can view
+            ViewBag.CanEditMainFields = (currentRole == "performer" && currentUser == performerUsername);
+            // AdvisorComment: Only advisors and admins can edit
+            ViewBag.CanEditAdvisorComment = (currentRole == "advisor" || currentRole == "admin" || currentRole == "superuser");
+            
             ViewBag.ActiveSection = "TestPractice2";
 
             // Get performer's name for display
@@ -955,13 +962,21 @@ namespace SimpleGateway.Controllers
             // This allows advisors to edit performer data without creating new rows
             Console.WriteLine($"TEST PRACTICE2 DEBUG: Form submitted with Username: {model.Username}, CurrentUser: {currentUser}");
 
-            // Permission check: only the performer themselves OR advisors/admins can submit
+            // TESTPRACTICE2 PERMISSION CHECK
             var currentRole = HttpContext.Session.GetString("role");
-            if (model.Username != currentUser && currentRole != "advisor" && currentRole != "admin" && currentRole != "superuser")
+            
+            // Performers can edit their own main fields, advisors/admins can edit AdvisorComment
+            var isPerformerEditingOwn = (currentRole == "performer" && model.Username == currentUser);
+            var canEditAdvisorComment = (currentRole == "advisor" || currentRole == "admin" || currentRole == "superuser");
+            
+            // Must be either performer editing their own data OR advisor/admin editing comments
+            if (!isPerformerEditingOwn && !canEditAdvisorComment)
             {
                 Console.WriteLine($"TEST PRACTICE2 DEBUG: Permission denied - {currentUser} ({currentRole}) cannot edit {model.Username}'s data");
                 return RedirectToAction("Index");
             }
+            
+            Console.WriteLine($"TEST PRACTICE2 DEBUG: Permissions - IsPerformerEditingOwn: {isPerformerEditingOwn}, CanEditAdvisorComment: {canEditAdvisorComment}");
 
             if (ModelState.IsValid)
             {
@@ -1020,15 +1035,15 @@ namespace SimpleGateway.Controllers
                     // Ensure only one record per user - delete any existing records first (ISOLATED TO TestData2)
                     var existingRecords = _testData2Context.TestData2.Where(t => t.Username == model.Username).ToList();
                     
-                    // CRITICAL: Implement field-level permissions for TestPractice2
+                    // TESTPRACTICE2 FIELD-LEVEL PERMISSIONS - CORRECTED
                     if (existingRecords.Any())
                     {
                         var existingRecord = existingRecords.First();
                         
-                        if (currentRole == "advisor" || currentRole == "admin" || currentRole == "superuser")
+                        if (canEditAdvisorComment && !isPerformerEditingOwn)
                         {
-                            // Advisors can ONLY edit AdvisorComment - preserve all other fields from existing record
-                            Console.WriteLine($"TEST PRACTICE2 DEBUG: Advisor {currentUser} editing AdvisorComment only for {model.Username}");
+                            // Advisors/Admins can ONLY edit AdvisorComment - preserve all other fields from existing record
+                            Console.WriteLine($"TEST PRACTICE2 DEBUG: User {currentUser} ({currentRole}) editing AdvisorComment only for {model.Username}");
                             Console.WriteLine($"TEST PRACTICE2 DEBUG: New AdvisorComment: '{model.AdvisorComment}'");
                             
                             // Copy all fields from existing record EXCEPT AdvisorComment
@@ -1048,25 +1063,20 @@ namespace SimpleGateway.Controllers
                             // Restore the new AdvisorComment
                             model.AdvisorComment = newAdvisorComment;
                         }
-                        else if (model.Username == currentUser) // Performer editing their own data
+                        else if (isPerformerEditingOwn)
                         {
-                            // Performers can edit everything EXCEPT AdvisorComment
-                            Console.WriteLine($"TEST PRACTICE2 DEBUG: Performer {currentUser} editing their own data - preserving AdvisorComment");
+                            // Performers can edit main fields but NOT AdvisorComment - preserve AdvisorComment
+                            Console.WriteLine($"TEST PRACTICE2 DEBUG: Performer {currentUser} editing their own main fields - preserving AdvisorComment");
                             Console.WriteLine($"TEST PRACTICE2 DEBUG: Existing AdvisorComment: '{existingRecord.AdvisorComment}'");
                             model.AdvisorComment = existingRecord.AdvisorComment; // Preserve existing advisor comment
-                        }
-                        else
-                        {
-                            Console.WriteLine($"TEST PRACTICE2 DEBUG: Permission denied - {currentUser} ({currentRole}) cannot edit {model.Username}'s data");
-                            return RedirectToAction("Index");
                         }
                     }
                     else
                     {
-                        // No existing record - only performers can create new records
-                        if (model.Username != currentUser)
+                        // No existing record - only performers can create new records for themselves
+                        if (!isPerformerEditingOwn)
                         {
-                            Console.WriteLine($"TEST PRACTICE2 DEBUG: Cannot create new record for {model.Username} by {currentUser}");
+                            Console.WriteLine($"TEST PRACTICE2 DEBUG: Cannot create new record for {model.Username} by {currentUser} - must be performer creating their own record");
                             return RedirectToAction("Index");
                         }
                         Console.WriteLine($"TEST PRACTICE2 DEBUG: Creating new record for performer {model.Username}");

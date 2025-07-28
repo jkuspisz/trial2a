@@ -187,116 +187,116 @@
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td><input asp-for="Job1FromDate" class="form-control" readonly="@(!ViewBag.CanEditMainFields)" placeholder="MM/YYYY" /></td>
-                                        <td><input asp-for="Job1ToDate" class="form-control" readonly="@(!ViewBag.CanEditMainFields)" placeholder="MM/YYYY" /></td>
-                                        <td><input asp-for="Job1Title" class="form-control" readonly="@(!ViewBag.CanEditMainFields)" /></td>
-                                        <td><input asp-for="Job1Address" class="form-control" readonly="@(!ViewBag.CanEditMainFields)" /></td>
+                                        <td><input asp-for="Job1FromDate" class="form-control" placeholder="MM/YYYY" /></td>
+                                        <td><input asp-for="Job1ToDate" class="form-control" placeholder="MM/YYYY" /></td>
+                                        <td><input asp-for="Job1Title" class="form-control" /></td>
+                                        <td><input asp-for="Job1Address" class="form-control" /></td>
                                         <td>
-                                            <select asp-for="Job1Type" class="form-control" disabled="@(!ViewBag.CanEditMainFields)">
+                                            <select asp-for="Job1Type" class="form-control">
                                                 <option value="">Select...</option>
                                                 <option value="Private">Private</option>
                                                 <option value="NHS">NHS</option>
                                             </select>
                                         </td>
                                         <td>
-                                            <input type="checkbox" asp-for="Job1AdultPatients" class="form-check-input" disabled="@(!ViewBag.CanEditMainFields)" />
+                                            <input type="checkbox" asp-for="Job1AdultPatients" class="form-check-input" />
                                             <label class="form-check-label">Adult</label><br>
-                                            <input type="checkbox" asp-for="Job1ChildPatients" class="form-check-input" disabled="@(!ViewBag.CanEditMainFields)" />
+                                            <input type="checkbox" asp-for="Job1ChildPatients" class="form-check-input" />
                                             <label class="form-check-label">Child</label>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td><input asp-for="Job2FromDate" class="form-control" readonly="@(!ViewBag.CanEditMainFields)" placeholder="MM/YYYY" /></td>
-                                        <td><input asp-for="Job2ToDate" class="form-control" readonly="@(!ViewBag.CanEditMainFields)" placeholder="MM/YYYY" /></td>
-                                        <td><input asp-for="Job2Title" class="form-control" readonly="@(!ViewBag.CanEditMainFields)" /></td>
-                                        <td><input asp-for="Job2Address" class="form-control" readonly="@(!ViewBag.CanEditMainFields)" /></td>
+                                        <td><input asp-for="Job2FromDate" class="form-control" placeholder="MM/YYYY" /></td>
+                                        <td><input asp-for="Job2ToDate" class="form-control" placeholder="MM/YYYY" /></td>
+                                        <td><input asp-for="Job2Title" class="form-control" /></td>
+                                        <td><input asp-for="Job2Address" class="form-control" /></td>
                                         <td>
-                                            <select asp-for="Job2Type" class="form-control" disabled="@(!ViewBag.CanEditMainFields)">
+                                            <select asp-for="Job2Type" class="form-control">
                                                 <option value="">Select...</option>
                                                 <option value="Private">Private</option>
                                                 <option value="NHS">NHS</option>
                                             </select>
                                         </td>
                                         <td>
-                                            <input type="checkbox" asp-for="Job2AdultPatients" class="form-check-input" disabled="@(!ViewBag.CanEditMainFields)" />
+                                            <input type="checkbox" asp-for="Job2AdultPatients" class="form-check-input" />
                                             <label class="form-check-label">Adult</label><br>
-                                            <input type="checkbox" asp-for="Job2ChildPatients" class="form-check-input" disabled="@(!ViewBag.CanEditMainFields)" />
+                                            <input type="checkbox" asp-for="Job2ChildPatients" class="form-check-input" />
                                             <label class="form-check-label">Child</label>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td><input asp-for="Job3FromDate" class="form-control" readonly="@(!ViewBag.CanEditMainFields)" placeholder="MM/YYYY" /></td>
-                                        <td><input asp-for="Job3ToDate" class="form-control" readonly="@(!ViewBag.CanEditMainFields)" placeholder="MM/YYYY" /></td>
-                                        <td><input asp-for="Job3Title" class="form-control" readonly="@(!ViewBag.CanEditMainFields)" /></td>
-                                        <td><input asp-for="Job3Address" class="form-control" readonly="@(!ViewBag.CanEditMainFields)" /></td>
+                                        <td><input asp-for="Job3FromDate" class="form-control" placeholder="MM/YYYY" /></td>
+                                        <td><input asp-for="Job3ToDate" class="form-control" placeholder="MM/YYYY" /></td>
+                                        <td><input asp-for="Job3Title" class="form-control" /></td>
+                                        <td><input asp-for="Job3Address" class="form-control" /></td>
                                         <td>
-                                            <select asp-for="Job3Type" class="form-control" disabled="@(!ViewBag.CanEditMainFields)">
+                                            <select asp-for="Job3Type" class="form-control">
                                                 <option value="">Select...</option>
                                                 <option value="Private">Private</option>
                                                 <option value="NHS">NHS</option>
                                             </select>
                                         </td>
                                         <td>
-                                            <input type="checkbox" asp-for="Job3AdultPatients" class="form-check-input" disabled="@(!ViewBag.CanEditMainFields)" />
+                                            <input type="checkbox" asp-for="Job3AdultPatients" class="form-check-input" />
                                             <label class="form-check-label">Adult</label><br>
-                                            <input type="checkbox" asp-for="Job3ChildPatients" class="form-check-input" disabled="@(!ViewBag.CanEditMainFields)" />
+                                            <input type="checkbox" asp-for="Job3ChildPatients" class="form-check-input" />
                                             <label class="form-check-label">Child</label>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td><input asp-for="Job4FromDate" class="form-control" readonly="@(!ViewBag.CanEditMainFields)" placeholder="MM/YYYY" /></td>
-                                        <td><input asp-for="Job4ToDate" class="form-control" readonly="@(!ViewBag.CanEditMainFields)" placeholder="MM/YYYY" /></td>
-                                        <td><input asp-for="Job4Title" class="form-control" readonly="@(!ViewBag.CanEditMainFields)" /></td>
-                                        <td><input asp-for="Job4Address" class="form-control" readonly="@(!ViewBag.CanEditMainFields)" /></td>
+                                        <td><input asp-for="Job4FromDate" class="form-control" placeholder="MM/YYYY" /></td>
+                                        <td><input asp-for="Job4ToDate" class="form-control" placeholder="MM/YYYY" /></td>
+                                        <td><input asp-for="Job4Title" class="form-control" /></td>
+                                        <td><input asp-for="Job4Address" class="form-control" /></td>
                                         <td>
-                                            <select asp-for="Job4Type" class="form-control" disabled="@(!ViewBag.CanEditMainFields)">
+                                            <select asp-for="Job4Type" class="form-control">
                                                 <option value="">Select...</option>
                                                 <option value="Private">Private</option>
                                                 <option value="NHS">NHS</option>
                                             </select>
                                         </td>
                                         <td>
-                                            <input type="checkbox" asp-for="Job4AdultPatients" class="form-check-input" disabled="@(!ViewBag.CanEditMainFields)" />
+                                            <input type="checkbox" asp-for="Job4AdultPatients" class="form-check-input" />
                                             <label class="form-check-label">Adult</label><br>
-                                            <input type="checkbox" asp-for="Job4ChildPatients" class="form-check-input" disabled="@(!ViewBag.CanEditMainFields)" />
+                                            <input type="checkbox" asp-for="Job4ChildPatients" class="form-check-input" />
                                             <label class="form-check-label">Child</label>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td><input asp-for="Job5FromDate" class="form-control" readonly="@(!ViewBag.CanEditMainFields)" placeholder="MM/YYYY" /></td>
-                                        <td><input asp-for="Job5ToDate" class="form-control" readonly="@(!ViewBag.CanEditMainFields)" placeholder="MM/YYYY" /></td>
-                                        <td><input asp-for="Job5Title" class="form-control" readonly="@(!ViewBag.CanEditMainFields)" /></td>
-                                        <td><input asp-for="Job5Address" class="form-control" readonly="@(!ViewBag.CanEditMainFields)" /></td>
+                                        <td><input asp-for="Job5FromDate" class="form-control" placeholder="MM/YYYY" /></td>
+                                        <td><input asp-for="Job5ToDate" class="form-control" placeholder="MM/YYYY" /></td>
+                                        <td><input asp-for="Job5Title" class="form-control" /></td>
+                                        <td><input asp-for="Job5Address" class="form-control" /></td>
                                         <td>
-                                            <select asp-for="Job5Type" class="form-control" disabled="@(!ViewBag.CanEditMainFields)">
+                                            <select asp-for="Job5Type" class="form-control">
                                                 <option value="">Select...</option>
                                                 <option value="Private">Private</option>
                                                 <option value="NHS">NHS</option>
                                             </select>
                                         </td>
                                         <td>
-                                            <input type="checkbox" asp-for="Job5AdultPatients" class="form-check-input" disabled="@(!ViewBag.CanEditMainFields)" />
+                                            <input type="checkbox" asp-for="Job5AdultPatients" class="form-check-input" />
                                             <label class="form-check-label">Adult</label><br>
-                                            <input type="checkbox" asp-for="Job5ChildPatients" class="form-check-input" disabled="@(!ViewBag.CanEditMainFields)" />
+                                            <input type="checkbox" asp-for="Job5ChildPatients" class="form-check-input" />
                                             <label class="form-check-label">Child</label>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td><input asp-for="Job6FromDate" class="form-control" readonly="@(!ViewBag.CanEditMainFields)" placeholder="MM/YYYY" /></td>
-                                        <td><input asp-for="Job6ToDate" class="form-control" readonly="@(!ViewBag.CanEditMainFields)" placeholder="MM/YYYY" /></td>
-                                        <td><input asp-for="Job6Title" class="form-control" readonly="@(!ViewBag.CanEditMainFields)" /></td>
-                                        <td><input asp-for="Job6Address" class="form-control" readonly="@(!ViewBag.CanEditMainFields)" /></td>
+                                        <td><input asp-for="Job6FromDate" class="form-control" placeholder="MM/YYYY" /></td>
+                                        <td><input asp-for="Job6ToDate" class="form-control" placeholder="MM/YYYY" /></td>
+                                        <td><input asp-for="Job6Title" class="form-control" /></td>
+                                        <td><input asp-for="Job6Address" class="form-control" /></td>
                                         <td>
-                                            <select asp-for="Job6Type" class="form-control" disabled="@(!ViewBag.CanEditMainFields)">
+                                            <select asp-for="Job6Type" class="form-control">
                                                 <option value="">Select...</option>
                                                 <option value="Private">Private</option>
                                                 <option value="NHS">NHS</option>
                                             </select>
                                         </td>
                                         <td>
-                                            <input type="checkbox" asp-for="Job6AdultPatients" class="form-check-input" disabled="@(!ViewBag.CanEditMainFields)" />
+                                            <input type="checkbox" asp-for="Job6AdultPatients" class="form-check-input" />
                                             <label class="form-check-label">Adult</label><br>
-                                            <input type="checkbox" asp-for="Job6ChildPatients" class="form-check-input" disabled="@(!ViewBag.CanEditMainFields)" />
+                                            <input type="checkbox" asp-for="Job6ChildPatients" class="form-check-input" />
                                             <label class="form-check-label">Child</label>
                                         </td>
                                     </tr>
@@ -332,7 +332,7 @@
                                             <input asp-for="ClinicalExamNumber" type="number" class="form-control form-control-sm" min="0" placeholder="0">
                                         </td>
                                         <td>
-                                            <select asp-for="ClinicalExamConfidence" class="form-select form-select-sm" disabled="@(!ViewBag.CanEditMainFields)">
+                                            <select asp-for="ClinicalExamConfidence" class="form-select form-select-sm">
                                                 <option value="">Select</option>
                                                 <option value="1">1 - No confidence</option>
                                                 <option value="2">2 - Very low</option>
@@ -360,7 +360,7 @@
                                             <input asp-for="BPENumber" type="number" class="form-control form-control-sm" min="0" placeholder="0">
                                         </td>
                                         <td>
-                                            <select asp-for="BPEConfidence" class="form-select form-select-sm" disabled="@(!ViewBag.CanEditMainFields)">
+                                            <select asp-for="BPEConfidence" class="form-select form-select-sm">
                                                 <option value="">Select</option>
                                                 <option value="1">1 - No confidence</option>
                                                 <option value="2">2 - Very low</option>
@@ -388,7 +388,7 @@
                                             <input asp-for="SixPPCNumber" type="number" class="form-control form-control-sm" min="0" placeholder="0">
                                         </td>
                                         <td>
-                                            <select asp-for="SixPPCConfidence" class="form-select form-select-sm" disabled="@(!ViewBag.CanEditMainFields)">
+                                            <select asp-for="SixPPCConfidence" class="form-select form-select-sm">
                                                 <option value="">Select</option>
                                                 <option value="1">1 - No confidence</option>
                                                 <option value="2">2 - Very low</option>
@@ -416,7 +416,7 @@
                                             <input asp-for="RadiographsNumber" type="number" class="form-control form-control-sm" min="0" placeholder="0">
                                         </td>
                                         <td>
-                                            <select asp-for="RadiographsConfidence" class="form-select form-select-sm" disabled="@(!ViewBag.CanEditMainFields)">
+                                            <select asp-for="RadiographsConfidence" class="form-select form-select-sm">
                                                 <option value="">Select</option>
                                                 <option value="1">1 - No confidence</option>
                                                 <option value="2">2 - Very low</option>
@@ -444,7 +444,7 @@
                                             <input asp-for="ExtractionsNumber" type="number" class="form-control form-control-sm" min="0" placeholder="0">
                                         </td>
                                         <td>
-                                            <select asp-for="ExtractionsConfidence" class="form-select form-select-sm" disabled="@(!ViewBag.CanEditMainFields)">
+                                            <select asp-for="ExtractionsConfidence" class="form-select form-select-sm">
                                                 <option value="">Select</option>
                                                 <option value="1">1 - No confidence</option>
                                                 <option value="2">2 - Very low</option>
@@ -472,7 +472,7 @@
                                             <input asp-for="RootDivisionNumber" type="number" class="form-control form-control-sm" min="0" placeholder="0">
                                         </td>
                                         <td>
-                                            <select asp-for="RootDivisionConfidence" class="form-select form-select-sm" disabled="@(!ViewBag.CanEditMainFields)">
+                                            <select asp-for="RootDivisionConfidence" class="form-select form-select-sm">
                                                 <option value="">Select</option>
                                                 <option value="1">1 - No confidence</option>
                                                 <option value="2">2 - Very low</option>
@@ -500,7 +500,7 @@
                                             <input asp-for="ScalingNumber" type="number" class="form-control form-control-sm" min="0" placeholder="0">
                                         </td>
                                         <td>
-                                            <select asp-for="ScalingConfidence" class="form-select form-select-sm" disabled="@(!ViewBag.CanEditMainFields)">
+                                            <select asp-for="ScalingConfidence" class="form-select form-select-sm">
                                                 <option value="">Select</option>
                                                 <option value="1">1 - No confidence</option>
                                                 <option value="2">2 - Very low</option>
@@ -528,7 +528,7 @@
                                             <input asp-for="AmalgamNumber" type="number" class="form-control form-control-sm" min="0" placeholder="0">
                                         </td>
                                         <td>
-                                            <select asp-for="AmalgamConfidence" class="form-select form-select-sm" disabled="@(!ViewBag.CanEditMainFields)">
+                                            <select asp-for="AmalgamConfidence" class="form-select form-select-sm">
                                                 <option value="">Select</option>
                                                 <option value="1">1 - No confidence</option>
                                                 <option value="2">2 - Very low</option>
@@ -556,7 +556,7 @@
                                             <input asp-for="CompositeNumber" type="number" class="form-control form-control-sm" min="0" placeholder="0">
                                         </td>
                                         <td>
-                                            <select asp-for="CompositeConfidence" class="form-select form-select-sm" disabled="@(!ViewBag.CanEditMainFields)">
+                                            <select asp-for="CompositeConfidence" class="form-select form-select-sm">
                                                 <option value="">Select</option>
                                                 <option value="1">1 - No confidence</option>
                                                 <option value="2">2 - Very low</option>
@@ -584,7 +584,7 @@
                                             <input asp-for="CrownsNumber" type="number" class="form-control form-control-sm" min="0" placeholder="0">
                                         </td>
                                         <td>
-                                            <select asp-for="CrownsConfidence" class="form-select form-select-sm" disabled="@(!ViewBag.CanEditMainFields)">
+                                            <select asp-for="CrownsConfidence" class="form-select form-select-sm">
                                                 <option value="">Select</option>
                                                 <option value="1">1 - No confidence</option>
                                                 <option value="2">2 - Very low</option>
@@ -612,7 +612,7 @@
                                             <input asp-for="DenturesNumber" type="number" class="form-control form-control-sm" min="0" placeholder="0">
                                         </td>
                                         <td>
-                                            <select asp-for="DenturesConfidence" class="form-select form-select-sm" disabled="@(!ViewBag.CanEditMainFields)">
+                                            <select asp-for="DenturesConfidence" class="form-select form-select-sm">
                                                 <option value="">Select</option>
                                                 <option value="1">1 - No confidence</option>
                                                 <option value="2">2 - Very low</option>
@@ -640,7 +640,7 @@
                                             <input asp-for="SingleEndoNumber" type="number" class="form-control form-control-sm" min="0" placeholder="0">
                                         </td>
                                         <td>
-                                            <select asp-for="SingleEndoConfidence" class="form-select form-select-sm" disabled="@(!ViewBag.CanEditMainFields)">
+                                            <select asp-for="SingleEndoConfidence" class="form-select form-select-sm">
                                                 <option value="">Select</option>
                                                 <option value="1">1 - No confidence</option>
                                                 <option value="2">2 - Very low</option>
@@ -668,7 +668,7 @@
                                             <input asp-for="MultiEndoNumber" type="number" class="form-control form-control-sm" min="0" placeholder="0">
                                         </td>
                                         <td>
-                                            <select asp-for="MultiEndoConfidence" class="form-select form-select-sm" disabled="@(!ViewBag.CanEditMainFields)">
+                                            <select asp-for="MultiEndoConfidence" class="form-select form-select-sm">
                                                 <option value="">Select</option>
                                                 <option value="1">1 - No confidence</option>
                                                 <option value="2">2 - Very low</option>
@@ -696,7 +696,7 @@
                                             <input asp-for="PeadsNumber" type="number" class="form-control form-control-sm" min="0" placeholder="0">
                                         </td>
                                         <td>
-                                            <select asp-for="PeadsConfidence" class="form-select form-select-sm" disabled="@(!ViewBag.CanEditMainFields)">
+                                            <select asp-for="PeadsConfidence" class="form-select form-select-sm">
                                                 <option value="">Select</option>
                                                 <option value="1">1 - No confidence</option>
                                                 <option value="2">2 - Very low</option>
@@ -763,16 +763,7 @@
                 <input type="hidden" asp-for="Username" value="@ViewBag.PerformerUsername" />
                 
                 <div class="mt-4">
-                    @if (ViewBag.CanEditMainFields || ViewBag.CanEditAdvisorComment)
-                    {
-                        <button type="submit" class="btn btn-primary btn-lg">Save Assessment</button>
-                    }
-                    else
-                    {
-                        <div class="alert alert-info">
-                            <i class="bi bi-info-circle"></i> This assessment is view-only. Only supervisors, advisors, and admins can make changes.
-                        </div>
-                    }
+                    <button type="submit" class="btn btn-primary btn-lg">Save Assessment</button>
                     <a href="/Dashboard/Index" class="btn btn-secondary btn-lg ms-2">Cancel</a>
                 </div>
             </form>
@@ -783,4 +774,3 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
-
