@@ -691,20 +691,15 @@ namespace SimpleGateway.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            // Permission check: Only supervisors/admin can access this page (it's supervisor information about the performer)
-            if (currentRole != "supervisor" && currentRole != "admin" && currentRole != "superuser")
-            {
-                Console.WriteLine($"TESTPRACTICE DEBUG: Access denied - role {currentRole} cannot view supervisor information");
-                TempData["ErrorMessage"] = "Only supervisors can access this information.";
-                return RedirectToAction("Index");
-            }
+            // REMOVED USER RESTRICTIONS - All users can access TestPractice now
+            Console.WriteLine($"TESTPRACTICE DEBUG: {currentRole} user {currentUser} accessing TestPractice for {performerUsername}");
 
-            // Set common ViewBag properties
+            // Set common ViewBag properties  
             ViewBag.PerformerUsername = performerUsername;
             ViewBag.CurrentUserRole = currentRole;
             ViewBag.CurrentUser = currentUser;
-            ViewBag.IsOwnDashboard = false; // Supervisor viewing performer's data
-            ViewBag.CanEdit = (currentRole == "supervisor" || currentRole == "admin" || currentRole == "superuser");
+            ViewBag.IsOwnDashboard = (performerUsername == currentUser);
+            ViewBag.CanEdit = true; // Everyone can edit for now
             ViewBag.CanComment = false;
             ViewBag.CanApprove = false;
             ViewBag.IsReadOnly = false;
@@ -717,26 +712,12 @@ namespace SimpleGateway.Controllers
                 ViewBag.PerformerName = $"{performer.FirstName} {performer.LastName}";
             }
 
-            // Get or create test data from database
-            Console.WriteLine($"TESTPRACTICE DEBUG: Supervisor {currentUser} accessing supervisor information for performer {performerUsername}");
-            var model = _context.TestData.FirstOrDefault(t => t.Username == performerUsername);
+            // Load existing data (will be single record due to delete-and-recreate)
+            var model = _context.TestData.FirstOrDefault(x => x.Username == performerUsername);
             if (model == null)
             {
-                Console.WriteLine($"TESTPRACTICE DEBUG: No existing supervisor data found for {performerUsername}, creating new");
-                // Create new test data if not exists
-                model = new TestDataModel
-                {
-                    Username = performerUsername
-                };
+                model = new TestDataModel { Username = performerUsername };
             }
-            else
-            {
-                Console.WriteLine($"TESTPRACTICE DEBUG: Found existing supervisor data for {performerUsername} - GDC: {model.GDCNumber}, Declaration: {model.DeclarationSigned}");
-            }
-
-            // Check total TestData count
-            var totalTestData = _context.TestData.Count();
-            Console.WriteLine($"TESTPRACTICE DEBUG: Total TestData records in database: {totalTestData}");
 
             return View("Performer/TestPractice", model);
         }
@@ -745,161 +726,77 @@ namespace SimpleGateway.Controllers
         public IActionResult TestPractice(TestDataModel model)
         {
             var currentUser = HttpContext.Session.GetString("username");
-            var currentRole = HttpContext.Session.GetString("role");
             
             if (string.IsNullOrEmpty(currentUser))
             {
                 return RedirectToAction("Login", "Account");
             }
 
-            Console.WriteLine($"TEST PRACTICE DEBUG: POST request received for TestData, user: {currentUser}");
-            Console.WriteLine($"TEST PRACTICE DEBUG: Form submitted with Username: {model?.Username}, CurrentUser: {currentUser}");
-            
             if (model == null)
             {
-                Console.WriteLine($"TEST PRACTICE DEBUG: Model is null");
                 return RedirectToAction("TestPractice", new { performerUsername = currentUser });
             }
 
             // CRITICAL: Username comes from form (performer being viewed), not logged-in user
-            // This allows supervisors to edit performer data without creating new rows
-            Console.WriteLine($"TEST PRACTICE DEBUG: Data being saved to performer: {model.Username}");
-
-            // Permission check: only supervisor/admin can edit this page (it's supervisor information)
-            if (currentRole != "supervisor" && currentRole != "admin" && currentRole != "superuser")
-            {
-                Console.WriteLine($"TEST PRACTICE DEBUG: Access denied - role {currentRole} cannot edit supervisor information");
-                TempData["ErrorMessage"] = "Only supervisors can edit this information.";
-                return RedirectToAction("Index");
-            }
+            // This allows different users to edit performer data without creating new rows
+            Console.WriteLine($"TESTPRACTICE DEBUG: Form submitted with Username: {model.Username}, CurrentUser: {currentUser}");
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    Console.WriteLine($"TEST PRACTICE DEBUG: Checking for existing test data for {model.Username}");
-                    
-                    // Check if database exists and create if needed
-                    try
+                    // Database connection verification - SAFE METHOD
+                    var canConnect = _context.Database.CanConnect();
+                    if (!canConnect)
                     {
-                        Console.WriteLine($"TEST PRACTICE DEBUG: Checking database connection...");
-                        var canConnect = _context.Database.CanConnect();
-                        Console.WriteLine($"TEST PRACTICE DEBUG: Can connect to database: {canConnect}");
-                        
-                        if (!canConnect)
-                        {
-                            Console.WriteLine($"TEST PRACTICE DEBUG: Database connection failed, attempting to ensure created...");
-                            _context.Database.EnsureCreated();
-                            Console.WriteLine($"TEST PRACTICE DEBUG: Database ensure created completed");
-                        }
-                    }
-                    catch (Exception dbEx)
-                    {
-                        Console.WriteLine($"TEST PRACTICE DEBUG: Database connection/creation error: {dbEx.Message}");
+                        // ⚠️ ONLY use EnsureCreated() if database doesn't exist at all
+                        // NEVER use EnsureDeleted() - it destroys ALL data
+                        _context.Database.EnsureCreated();
                     }
                     
-                    // Ensure only one record per user - delete any existing records first
-                    var existingRecords = _context.TestData.Where(t => t.Username == model.Username).ToList();
+                    // CRITICAL: Delete all existing records for this user first
+                    var existingRecords = _context.TestData.Where(x => x.Username == model.Username).ToList();
                     
                     if (existingRecords.Any())
                     {
-                        Console.WriteLine($"TEST PRACTICE DEBUG: Found {existingRecords.Count} existing records for {model.Username} - deleting all");
-                        foreach (var record in existingRecords)
-                        {
-                            Console.WriteLine($"TEST PRACTICE DEBUG: Deleting record ID {record.Id} for {model.Username}");
-                        }
+                        Console.WriteLine($"TESTPRACTICE DEBUG: Found {existingRecords.Count} existing records for {model.Username} - deleting all");
                         _context.TestData.RemoveRange(existingRecords);
                         
-                        // Save the deletions first
+                        // Save deletions first
                         var deletedRows = _context.SaveChanges();
-                        Console.WriteLine($"TEST PRACTICE DEBUG: Deleted {deletedRows} existing records");
-                    }
-                    else
-                    {
-                        Console.WriteLine($"TEST PRACTICE DEBUG: No existing records found for {model.Username}");
+                        Console.WriteLine($"TESTPRACTICE DEBUG: Deleted {deletedRows} existing records");
                     }
                     
-                    // Create new record with the latest data
-                    Console.WriteLine($"TEST PRACTICE DEBUG: Creating new record for performer {model.Username} with supervisor information");
-                    Console.WriteLine($"TEST PRACTICE DEBUG: New data - GDC: '{model.GDCNumber}', Declaration: {model.DeclarationSigned}");
+                    // Create new record with latest data
+                    Console.WriteLine($"TESTPRACTICE DEBUG: Creating new record for {model.Username}");
                     
-                    // Set audit fields for new record
                     model.CreatedDate = DateTime.UtcNow;
                     model.ModifiedDate = null;
                     
-                    // Add new record
                     _context.TestData.Add(model);
                     
                     var savedRows = _context.SaveChanges();
-                    Console.WriteLine($"TEST PRACTICE DEBUG: SaveChanges() affected {savedRows} rows for {model.Username}");
                     
                     if (savedRows > 0)
                     {
-                        Console.WriteLine($"TEST PRACTICE DEBUG: Save successful! Record ID: {model.Id}");
-                        TempData["SuccessMessage"] = $"Supervisor information saved successfully to performer's record! Record ID: {model.Id}";
-                        
-                        // Check total TestData count
-                        var totalTestData = _context.TestData.Count();
-                        Console.WriteLine($"TEST PRACTICE DEBUG: Total TestData records in database: {totalTestData}");
-                        TempData["TotalRecords"] = totalTestData;
-                        
+                        TempData["SuccessMessage"] = "Data saved successfully!";
                         return RedirectToAction("TestPractice", new { performerUsername = model.Username });
                     }
                     else
                     {
-                        Console.WriteLine($"TEST PRACTICE DEBUG: Save failed - no rows affected");
-                        TempData["ErrorMessage"] = "Save failed - no changes were made to the database.";
+                        TempData["ErrorMessage"] = "Save failed - no changes were made.";
                     }
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"TEST PRACTICE DEBUG: Exception during save: {ex.Message}");
-                    Console.WriteLine($"TEST PRACTICE DEBUG: Stack trace: {ex.StackTrace}");
+                    // ✅ SAFE ERROR HANDLING - Log errors without destroying data
+                    Console.WriteLine($"TESTPRACTICE DEBUG: Exception: {ex.Message}");
+                    TempData["ErrorMessage"] = $"Error saving data: {ex.Message}";
                     
-                    var innerEx = ex.InnerException;
-                    var level = 1;
-                    while (innerEx != null)
-                    {
-                        Console.WriteLine($"TEST PRACTICE DEBUG: Inner exception level {level}: {innerEx.Message}");
-                        Console.WriteLine($"TEST PRACTICE DEBUG: Inner exception level {level} type: {innerEx.GetType().Name}");
-                        if (innerEx.StackTrace != null)
-                        {
-                            Console.WriteLine($"TEST PRACTICE DEBUG: Inner exception level {level} stack trace: {innerEx.StackTrace}");
-                        }
-                        innerEx = innerEx.InnerException;
-                        level++;
-                    }
-                    
-                    // Show user-friendly message but log details
-                    var errorMsg = $"Database error: {ex.Message}";
-                    if (ex.InnerException != null)
-                    {
-                        errorMsg += $" | Inner: {ex.InnerException.Message}";
-                    }
-                    TempData["ErrorMessage"] = errorMsg;
+                    // 🚨 NEVER DO THIS IN CATCH BLOCKS:
+                    // _context.Database.EnsureDeleted(); // ❌ DESTROYS ALL DATA
+                    // _context.Database.EnsureCreated();  // ❌ AFTER DELETION
                 }
-            }
-            else
-            {
-                Console.WriteLine($"TEST PRACTICE DEBUG: Model validation failed, returning to form");
-                TempData["ErrorMessage"] = "Please fill in all required fields.";
-            }
-
-            // Return with ViewBag set up
-            ViewBag.PerformerUsername = model.Username;
-            ViewBag.CurrentUserRole = HttpContext.Session.GetString("role");
-            ViewBag.CurrentUser = currentUser;
-            ViewBag.IsOwnDashboard = false; // Supervisor editing performer's data
-            ViewBag.CanEdit = (currentRole == "supervisor" || currentRole == "admin" || currentRole == "superuser");
-            ViewBag.CanComment = false;
-            ViewBag.CanApprove = false;
-            ViewBag.IsReadOnly = false;
-            ViewBag.ActiveSection = "TestPractice";
-
-            var performer = _context.Users.FirstOrDefault(u => u.Username == model.Username);
-            if (performer != null)
-            {
-                ViewBag.PerformerName = $"{performer.FirstName} {performer.LastName}";
             }
 
             return View("Performer/TestPractice", model);
