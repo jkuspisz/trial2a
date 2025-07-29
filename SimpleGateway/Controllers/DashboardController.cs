@@ -2019,46 +2019,101 @@ namespace SimpleGateway.Controllers
 
         // POST method for updating performer part of assessment
         [HttpPost]
+        [HttpPost]
         public IActionResult UpdatePerformerAssessment(WorkBasedAssessmentModel model)
         {
             Console.WriteLine($"\n=== UpdatePerformerAssessment DEBUG START ===");
             Console.WriteLine($"DEBUG: Received model - ID: {model.Id}, Username: '{model.Username}', AssessmentType: '{model.AssessmentType}'");
-            Console.WriteLine($"DEBUG: CRITICAL DATE DEBUG - AssessmentDate: {model.AssessmentDate}");
-            Console.WriteLine($"DEBUG: CRITICAL DATE DEBUG - AssessmentDate HasValue: {model.AssessmentDate.HasValue}");
-            if (model.AssessmentDate.HasValue)
-            {
-                Console.WriteLine($"DEBUG: CRITICAL DATE DEBUG - AssessmentDate Value: {model.AssessmentDate.Value}");
-                Console.WriteLine($"DEBUG: CRITICAL DATE DEBUG - AssessmentDate ToString: '{model.AssessmentDate.Value.ToString()}'");
-            }
-            Console.WriteLine($"DEBUG: Form fields - ProcedureDescription: '{model.ProcedureDescription}'");
-            Console.WriteLine($"DEBUG: Form fields - LearningReflection: '{model.LearningReflection}'");
-            Console.WriteLine($"DEBUG: Form fields - LearningNeeds: '{model.LearningNeeds}'");
             
             var currentUser = HttpContext.Session.GetString("username");
             var currentRole = HttpContext.Session.GetString("role");
             
-            Console.WriteLine($"DEBUG: Current session - User: '{currentUser}', Role: '{currentRole}'");
-
-            // CHECK MODEL STATE VALIDATION - This might be the issue!
-            Console.WriteLine($"DEBUG: CRITICAL VALIDATION CHECK - ModelState.IsValid: {ModelState.IsValid}");
-            
-            // CRITICAL CULTURE AND DATE FORMAT DEBUG
-            Console.WriteLine($"DEBUG: CRITICAL CULTURE DEBUG - Current Culture: {System.Globalization.CultureInfo.CurrentCulture.Name}");
-            Console.WriteLine($"DEBUG: CRITICAL CULTURE DEBUG - Current UI Culture: {System.Globalization.CultureInfo.CurrentUICulture.Name}");
-            
-            // Check raw form data for date
-            var rawDateValue = Request.Form["AssessmentDate"].ToString();
-            Console.WriteLine($"DEBUG: CRITICAL DATE FORMAT - Raw form AssessmentDate value: '{rawDateValue}'");
-            
-            // CRITICAL HIDDEN FIELDS DEBUG
-            Console.WriteLine($"DEBUG: CRITICAL HIDDEN FIELDS - Id: {model.Id}");
-            Console.WriteLine($"DEBUG: CRITICAL HIDDEN FIELDS - Username: '{model.Username}' (Length: {model.Username?.Length ?? 0})");
-            Console.WriteLine($"DEBUG: CRITICAL HIDDEN FIELDS - AssessmentType: '{model.AssessmentType}' (Length: {model.AssessmentType?.Length ?? 0})");
-            Console.WriteLine($"DEBUG: CRITICAL HIDDEN FIELDS - Title: '{model.Title}' (Length: {model.Title?.Length ?? 0})");
-            
-            if (!ModelState.IsValid)
+            if (string.IsNullOrEmpty(currentUser))
             {
-                Console.WriteLine($"DEBUG: CRITICAL VALIDATION ERRORS:");
+                Console.WriteLine($"ERROR: No current user in session");
+                return RedirectToAction("Login", "Account");
+            }
+
+            if (model == null)
+            {
+                return RedirectToAction("WorkBasedAssessments", new { performerUsername = currentUser });
+            }
+
+            // Database Integration Pattern - Use delete-and-recreate for reliability
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    // Database connection verification - SAFE METHOD
+                    var canConnect = _context.Database.CanConnect();
+                    if (!canConnect)
+                    {
+                        // ⚠️ ONLY use EnsureCreated() if database doesn't exist at all
+                        _context.Database.EnsureCreated();
+                    }
+                    
+                    // CRITICAL: Delete existing record for this ID first
+                    var existingRecords = _context.WorkBasedAssessments.Where(x => x.Id == model.Id).ToList();
+                    
+                    if (existingRecords.Any())
+                    {
+                        Console.WriteLine($"DEBUG: Found {existingRecords.Count} existing records for ID {model.Id} - deleting");
+                        _context.WorkBasedAssessments.RemoveRange(existingRecords);
+                        
+                        // Save deletions first
+                        var deletedRows = _context.SaveChanges();
+                        Console.WriteLine($"DEBUG: Deleted {deletedRows} existing records");
+                    }
+                    
+                    // Create new record with latest data
+                    Console.WriteLine($"DEBUG: Creating new record for ID {model.Id}");
+                    
+                    // Preserve important metadata from original record
+                    var originalRecord = existingRecords.FirstOrDefault();
+                    if (originalRecord != null)
+                    {
+                        model.CreatedAt = originalRecord.CreatedAt;
+                        model.IsPerformerSubmitted = originalRecord.IsPerformerSubmitted;
+                        model.PerformerSubmittedAt = originalRecord.PerformerSubmittedAt;
+                        model.OverallAcceptable = originalRecord.OverallAcceptable;
+                        model.SupervisorActionPlan = originalRecord.SupervisorActionPlan;
+                        model.IsSupervisorCompleted = originalRecord.IsSupervisorCompleted;
+                        model.CompletedBySupervisor = originalRecord.CompletedBySupervisor;
+                        model.SupervisorCompletedAt = originalRecord.SupervisorCompletedAt;
+                    }
+                    
+                    model.UpdatedAt = DateTime.UtcNow;
+                    
+                    _context.WorkBasedAssessments.Add(model);
+                    
+                    var savedRows = _context.SaveChanges();
+                    
+                    if (savedRows > 0)
+                    {
+                        Console.WriteLine($"DEBUG: Successfully saved assessment using Database Integration Pattern");
+                        TempData["SuccessMessage"] = "Assessment updated successfully!";
+                        Console.WriteLine($"=== UpdatePerformerAssessment DEBUG END ===\n");
+                        return RedirectToAction("EditWorkBasedAssessment", new { id = model.Id, performerUsername = model.Username });
+                    }
+                    else
+                    {
+                        TempData["ErrorMessage"] = "Save failed - no changes were made.";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // ✅ SAFE ERROR HANDLING - Log errors without destroying data
+                    Console.WriteLine($"DEBUG: Exception: {ex.Message}");
+                    TempData["ErrorMessage"] = $"Error saving data: {ex.Message}";
+                    
+                    // 🚨 NEVER DO THIS IN CATCH BLOCKS:
+                    // _context.Database.EnsureDeleted(); // ❌ DESTROYS ALL DATA
+                    // _context.Database.EnsureCreated();  // ❌ AFTER DELETION
+                }
+            }
+            else
+            {
+                Console.WriteLine($"DEBUG: ModelState validation failed");
                 foreach (var modelState in ModelState)
                 {
                     var key = modelState.Key;
@@ -2072,148 +2127,9 @@ namespace SimpleGateway.Controllers
                         }
                     }
                 }
-                
-                // IF MODEL STATE IS INVALID, THE SAVE WILL FAIL!
-                Console.WriteLine($"DEBUG: CRITICAL - Model validation failed, this might be why data doesn't save when date is provided!");
-            }
-            
-            if (string.IsNullOrEmpty(currentUser))
-            {
-                Console.WriteLine($"ERROR: No current user in session");
-                return RedirectToAction("Login", "Account");
             }
 
-            try
-            {
-                // TEMPORARY BYPASS: Force ModelState to be valid to test if validation is the issue
-                Console.WriteLine($"DEBUG: TEMPORARY BYPASS - Clearing ModelState to test if validation is blocking saves");
-                ModelState.Clear();
-                Console.WriteLine($"DEBUG: TEMPORARY BYPASS - ModelState.IsValid after clearing: {ModelState.IsValid}");
-
-                // Entry Form Creation Guide Level 4: Emergency table verification
-                try
-                {
-                    var tableTest = _context.WorkBasedAssessments.Take(1).ToList();
-                    Console.WriteLine($"DEBUG: WorkBasedAssessments table is accessible for reading");
-                }
-                catch (Exception tableEx)
-                {
-                    Console.WriteLine($"EMERGENCY: WorkBasedAssessments table access failed: {tableEx.Message}");
-                    try
-                    {
-                        _context.Database.ExecuteSqlRaw(@"
-                            CREATE TABLE IF NOT EXISTS ""WorkBasedAssessments"" (
-                                ""Id"" SERIAL PRIMARY KEY,
-                                ""Username"" TEXT NOT NULL,
-                                ""AssessmentType"" TEXT NOT NULL,
-                                ""Title"" TEXT NOT NULL,
-                                ""Status"" TEXT DEFAULT 'Draft',
-                                ""AssessmentDate"" TIMESTAMP WITH TIME ZONE,
-                                ""ProcedureDescription"" TEXT,
-                                ""LearningReflection"" TEXT,
-                                ""LearningNeeds"" TEXT,
-                                ""IsPerformerSubmitted"" BOOLEAN DEFAULT FALSE,
-                                ""PerformerSubmittedAt"" TIMESTAMP WITH TIME ZONE,
-                                ""OverallAcceptable"" BOOLEAN,
-                                ""SupervisorActionPlan"" TEXT,
-                                ""IsSupervisorCompleted"" BOOLEAN DEFAULT FALSE,
-                                ""CompletedBySupervisor"" TEXT,
-                                ""SupervisorCompletedAt"" TIMESTAMP WITH TIME ZONE,
-                                ""CreatedAt"" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                                ""UpdatedAt"" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-                            );
-                        ");
-                        Console.WriteLine($"EMERGENCY: WorkBasedAssessments table creation completed");
-                    }
-                    catch (Exception createEx)
-                    {
-                        Console.WriteLine($"EMERGENCY: Table creation failed: {createEx.Message}");
-                        _context.Database.EnsureCreated();
-                    }
-                }
-
-                Console.WriteLine($"DEBUG: Searching for assessment with ID: {model.Id}");
-                var existingAssessment = _context.WorkBasedAssessments.FirstOrDefault(a => a.Id == model.Id);
-                
-                if (existingAssessment == null)
-                {
-                    Console.WriteLine($"ERROR: Assessment with ID {model.Id} not found in database");
-                    Console.WriteLine($"DEBUG: Available assessments in database:");
-                    var allAssessments = _context.WorkBasedAssessments.ToList();
-                    foreach (var assessment in allAssessments)
-                    {
-                        Console.WriteLine($"DEBUG: - ID: {assessment.Id}, Username: '{assessment.Username}', Type: '{assessment.AssessmentType}'");
-                    }
-                    TempData["ErrorMessage"] = "Assessment not found.";
-                    return RedirectToAction("WorkBasedAssessments", new { performerUsername = model.Username });
-                }
-
-                Console.WriteLine($"DEBUG: Found existing assessment:");
-                Console.WriteLine($"DEBUG: - ID: {existingAssessment.Id}, Username: '{existingAssessment.Username}'");
-                
-                // SIMPLIFIED DATE CHECK - Remove complex date conflict logic
-                Console.WriteLine($"DEBUG: SIMPLIFIED DATE CHECK:");
-                Console.WriteLine($"DEBUG: - CreatedAt: {existingAssessment.CreatedAt}");
-                Console.WriteLine($"DEBUG: - AssessmentDate (existing): {existingAssessment.AssessmentDate}");
-                Console.WriteLine($"DEBUG: - AssessmentDate (new from form): {model.AssessmentDate}");
-                Console.WriteLine($"DEBUG: - UpdatedAt: {existingAssessment.UpdatedAt}");
-                
-                Console.WriteLine($"DEBUG: - BEFORE UPDATE - AssessmentDate: {existingAssessment.AssessmentDate}");
-                Console.WriteLine($"DEBUG: - BEFORE UPDATE - ProcedureDescription: '{existingAssessment.ProcedureDescription}'");
-                Console.WriteLine($"DEBUG: - BEFORE UPDATE - LearningReflection: '{existingAssessment.LearningReflection}'");
-
-                // Validate user permissions
-                if (existingAssessment.Username != currentUser && currentRole != "admin")
-                {
-                    Console.WriteLine($"ERROR: Permission denied - Assessment belongs to '{existingAssessment.Username}' but current user is '{currentUser}'");
-                    TempData["ErrorMessage"] = "You don't have permission to edit this assessment.";
-                    return RedirectToAction("WorkBasedAssessments", new { performerUsername = currentUser });
-                }
-
-                // Update performer fields - FIX DateTime.Kind for PostgreSQL compatibility
-                if (model.AssessmentDate.HasValue)
-                {
-                    // Convert to UTC if needed to match PostgreSQL timestamp expectations
-                    existingAssessment.AssessmentDate = model.AssessmentDate.Value.Kind == DateTimeKind.Unspecified 
-                        ? DateTime.SpecifyKind(model.AssessmentDate.Value, DateTimeKind.Utc)
-                        : model.AssessmentDate.Value.ToUniversalTime();
-                }
-                else
-                {
-                    existingAssessment.AssessmentDate = model.AssessmentDate;
-                }
-                Console.WriteLine($"DEBUG: DateTime.Kind FIX - Original: {model.AssessmentDate?.Kind}, Final: {existingAssessment.AssessmentDate?.Kind}");
-                
-                // SIMPLIFIED: Direct update instead of delete-and-recreate
-                existingAssessment.ProcedureDescription = model.ProcedureDescription;
-                existingAssessment.LearningReflection = model.LearningReflection;
-                existingAssessment.LearningNeeds = model.LearningNeeds;
-                existingAssessment.UpdatedAt = DateTime.UtcNow;
-
-                Console.WriteLine($"DEBUG: SIMPLIFIED UPDATE - AssessmentDate: {existingAssessment.AssessmentDate}");
-                Console.WriteLine($"DEBUG: SIMPLIFIED UPDATE - ProcedureDescription: '{existingAssessment.ProcedureDescription}'");
-                Console.WriteLine($"DEBUG: SIMPLIFIED UPDATE - LearningReflection: '{existingAssessment.LearningReflection}'");
-
-                // SIMPLE SAVE: Just update the existing entity
-                Console.WriteLine("DEBUG: SIMPLIFIED - About to call SaveChanges for direct update");
-                var saveResult = _context.SaveChanges();
-                Console.WriteLine($"DEBUG: Updated assessment, SaveChanges() returned: {saveResult} rows affected");
-                
-                Console.WriteLine($"DEBUG: Successfully updated assessment ID {model.Id} using simple update pattern");
-                TempData["SuccessMessage"] = "Assessment updated successfully.";
-                Console.WriteLine($"=== UpdatePerformerAssessment DEBUG END ===\n");
-                
-                // SIMPLE REDIRECT: Use the same ID since we're not recreating
-                return RedirectToAction("EditWorkBasedAssessment", new { id = model.Id, performerUsername = existingAssessment.Username });
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"ERROR: Failed to update assessment: {ex.Message}");
-                Console.WriteLine($"ERROR: Stack trace: {ex.StackTrace}");
-                TempData["ErrorMessage"] = "Failed to update assessment.";
-                // SIMPLE ERROR REDIRECT: Use existing ID since we're not recreating
-                return RedirectToAction("EditWorkBasedAssessment", new { id = model.Id, performerUsername = model.Username });
-            }
+            return RedirectToAction("EditWorkBasedAssessment", new { id = model.Id, performerUsername = model.Username });
         }
 
         // POST method for performer to submit assessment
@@ -2274,39 +2190,111 @@ namespace SimpleGateway.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            try
+            if (model == null)
             {
-                var existingAssessment = _context.WorkBasedAssessments.FirstOrDefault(a => a.Id == model.Id);
-                if (existingAssessment == null)
-                {
-                    TempData["ErrorMessage"] = "Assessment not found.";
-                    return RedirectToAction("Index");
-                }
-
-                // Update supervisor fields
-                existingAssessment.OverallAcceptable = model.OverallAcceptable;
-                existingAssessment.SupervisorActionPlan = model.SupervisorActionPlan;
-                
-                // Mark as completed
-                existingAssessment.IsSupervisorCompleted = true;
-                existingAssessment.CompletedBySupervisor = currentUser;
-                existingAssessment.SupervisorCompletedAt = DateTime.UtcNow;
-                existingAssessment.Status = "Complete";
-                existingAssessment.UpdatedAt = DateTime.UtcNow;
-
-                _context.SaveChanges();
-                
-                Console.WriteLine($"DEBUG: Assessment ID {model.Id} completed by supervisor {currentUser}");
-                TempData["SuccessMessage"] = "Assessment completed successfully.";
-                
-                return RedirectToAction("WorkBasedAssessments", new { performerUsername = existingAssessment.Username });
+                return RedirectToAction("WorkBasedAssessments", new { performerUsername = currentUser });
             }
-            catch (Exception ex)
+
+            // Permission check: only supervisors/admins can complete assessments
+            if (currentRole != "supervisor" && currentRole != "admin" && currentRole != "advisor")
             {
-                Console.WriteLine($"ERROR: Failed to complete assessment: {ex.Message}");
-                TempData["ErrorMessage"] = "Failed to complete assessment.";
+                TempData["ErrorMessage"] = "You don't have permission to complete assessments.";
                 return RedirectToAction("EditWorkBasedAssessment", new { id = model.Id });
             }
+
+            // Database Integration Pattern with Field-Level Permissions
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    // Database connection verification - SAFE METHOD
+                    var canConnect = _context.Database.CanConnect();
+                    if (!canConnect)
+                    {
+                        _context.Database.EnsureCreated();
+                    }
+                    
+                    // Get existing record for field-level permissions
+                    var existingRecords = _context.WorkBasedAssessments.Where(a => a.Id == model.Id).ToList();
+                    
+                    if (existingRecords.Any())
+                    {
+                        var existingRecord = existingRecords.First();
+                        
+                        // FIELD-LEVEL PERMISSIONS: Supervisors can ONLY edit supervisor fields
+                        Console.WriteLine($"Supervisor {currentUser} editing supervisor fields only for assessment {model.Id}");
+                        
+                        // Save new supervisor values
+                        var newOverallAcceptable = model.OverallAcceptable;
+                        var newSupervisorActionPlan = model.SupervisorActionPlan;
+                        
+                        // Use reflection to copy all properties except supervisor fields
+                        var properties = typeof(WorkBasedAssessmentModel).GetProperties();
+                        foreach (var prop in properties)
+                        {
+                            if (prop.Name != "OverallAcceptable" && 
+                                prop.Name != "SupervisorActionPlan" && 
+                                prop.Name != "IsSupervisorCompleted" &&
+                                prop.Name != "CompletedBySupervisor" &&
+                                prop.Name != "SupervisorCompletedAt" &&
+                                prop.Name != "Status" &&
+                                prop.Name != "UpdatedAt" &&
+                                prop.Name != "Id" && 
+                                prop.CanWrite)
+                            {
+                                var existingValue = prop.GetValue(existingRecord);
+                                prop.SetValue(model, existingValue);
+                            }
+                        }
+                        
+                        // Restore supervisor fields with new values
+                        model.OverallAcceptable = newOverallAcceptable;
+                        model.SupervisorActionPlan = newSupervisorActionPlan;
+                        
+                        // Set completion metadata
+                        model.IsSupervisorCompleted = true;
+                        model.CompletedBySupervisor = currentUser;
+                        model.SupervisorCompletedAt = DateTime.UtcNow;
+                        model.Status = "Complete";
+                        model.UpdatedAt = DateTime.UtcNow;
+                        
+                        // Delete-and-recreate pattern for reliability
+                        _context.WorkBasedAssessments.RemoveRange(existingRecords);
+                        var deletedRows = _context.SaveChanges();
+                        Console.WriteLine($"DEBUG: Deleted {deletedRows} existing records");
+                        
+                        _context.WorkBasedAssessments.Add(model);
+                        var savedRows = _context.SaveChanges();
+                        
+                        if (savedRows > 0)
+                        {
+                            Console.WriteLine($"DEBUG: Assessment ID {model.Id} completed by supervisor {currentUser}");
+                            TempData["SuccessMessage"] = "Assessment completed successfully!";
+                            return RedirectToAction("WorkBasedAssessments", new { performerUsername = model.Username });
+                        }
+                        else
+                        {
+                            TempData["ErrorMessage"] = "Save failed - no changes were made.";
+                        }
+                    }
+                    else
+                    {
+                        TempData["ErrorMessage"] = "Assessment not found.";
+                        return RedirectToAction("Index");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // ✅ SAFE ERROR HANDLING - Log errors without destroying data
+                    Console.WriteLine($"ERROR: Failed to complete assessment: {ex.Message}");
+                    TempData["ErrorMessage"] = $"Error completing assessment: {ex.Message}";
+                    
+                    // 🚨 NEVER DO THIS IN CATCH BLOCKS:
+                    // _context.Database.EnsureDeleted(); // ❌ DESTROYS ALL DATA
+                }
+            }
+
+            return RedirectToAction("EditWorkBasedAssessment", new { id = model.Id });
         }
 
         public IActionResult LearningModules(string performerUsername)
