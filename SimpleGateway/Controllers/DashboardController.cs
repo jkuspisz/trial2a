@@ -1975,6 +1975,13 @@ namespace SimpleGateway.Controllers
                     ViewBag.PerformerName = assessment.Username;
                 }
 
+                Console.WriteLine($"DEBUG: EditWorkBasedAssessment GET - Loading assessment:");
+                Console.WriteLine($"DEBUG: - ID: {assessment.Id}, Username: '{assessment.Username}'");
+                Console.WriteLine($"DEBUG: - AssessmentDate: {assessment.AssessmentDate}");
+                Console.WriteLine($"DEBUG: - ClinicalArea: '{assessment.ClinicalArea}'");
+                Console.WriteLine($"DEBUG: - ProcedureDetails: '{assessment.ProcedureDetails}'");
+                Console.WriteLine($"DEBUG: - LearningObjectives: '{assessment.LearningObjectives}'");
+
                 return View("Performer/EditWorkBasedAssessment", assessment);
             }
             catch (Exception ex)
@@ -1989,30 +1996,57 @@ namespace SimpleGateway.Controllers
         [HttpPost]
         public IActionResult UpdatePerformerAssessment(WorkBasedAssessmentModel model)
         {
-            Console.WriteLine($"DEBUG: UpdatePerformerAssessment for ID: {model.Id}");
+            Console.WriteLine($"\n=== UpdatePerformerAssessment DEBUG START ===");
+            Console.WriteLine($"DEBUG: Received model - ID: {model.Id}, Username: '{model.Username}', AssessmentType: '{model.AssessmentType}'");
+            Console.WriteLine($"DEBUG: Form fields - AssessmentDate: {model.AssessmentDate}");
+            Console.WriteLine($"DEBUG: Form fields - ClinicalArea: '{model.ClinicalArea}'");
+            Console.WriteLine($"DEBUG: Form fields - ProcedureDetails: '{model.ProcedureDetails}'");
+            Console.WriteLine($"DEBUG: Form fields - LearningObjectives: '{model.LearningObjectives}'");
+            Console.WriteLine($"DEBUG: Form fields - PerformerComments: '{model.PerformerComments}'");
+            Console.WriteLine($"DEBUG: Form fields - AreasForDevelopment: '{model.AreasForDevelopment}'");
             
             var currentUser = HttpContext.Session.GetString("username");
             var currentRole = HttpContext.Session.GetString("role");
             
+            Console.WriteLine($"DEBUG: Current session - User: '{currentUser}', Role: '{currentRole}'");
+            
             if (string.IsNullOrEmpty(currentUser))
             {
+                Console.WriteLine($"ERROR: No current user in session");
                 return RedirectToAction("Login", "Account");
             }
 
             try
             {
-                Console.WriteLine($"DEBUG: Updating assessment - received model with ID: {model.Id}");
-                Console.WriteLine($"DEBUG: Form data - AssessmentDate: {model.AssessmentDate}, ClinicalArea: '{model.ClinicalArea}', ProcedureDetails: '{model.ProcedureDetails}'");
-                
+                Console.WriteLine($"DEBUG: Searching for assessment with ID: {model.Id}");
                 var existingAssessment = _context.WorkBasedAssessments.FirstOrDefault(a => a.Id == model.Id);
+                
                 if (existingAssessment == null)
                 {
-                    Console.WriteLine($"ERROR: Assessment with ID {model.Id} not found");
+                    Console.WriteLine($"ERROR: Assessment with ID {model.Id} not found in database");
+                    Console.WriteLine($"DEBUG: Available assessments in database:");
+                    var allAssessments = _context.WorkBasedAssessments.ToList();
+                    foreach (var assessment in allAssessments)
+                    {
+                        Console.WriteLine($"DEBUG: - ID: {assessment.Id}, Username: '{assessment.Username}', Type: '{assessment.AssessmentType}'");
+                    }
                     TempData["ErrorMessage"] = "Assessment not found.";
                     return RedirectToAction("WorkBasedAssessments", new { performerUsername = model.Username });
                 }
 
-                Console.WriteLine($"DEBUG: Found existing assessment - current values: AssessmentDate: {existingAssessment.AssessmentDate}, ClinicalArea: '{existingAssessment.ClinicalArea}'");
+                Console.WriteLine($"DEBUG: Found existing assessment:");
+                Console.WriteLine($"DEBUG: - ID: {existingAssessment.Id}, Username: '{existingAssessment.Username}'");
+                Console.WriteLine($"DEBUG: - BEFORE UPDATE - AssessmentDate: {existingAssessment.AssessmentDate}");
+                Console.WriteLine($"DEBUG: - BEFORE UPDATE - ClinicalArea: '{existingAssessment.ClinicalArea}'");
+                Console.WriteLine($"DEBUG: - BEFORE UPDATE - ProcedureDetails: '{existingAssessment.ProcedureDetails}'");
+
+                // Validate user permissions
+                if (existingAssessment.Username != currentUser && currentRole != "admin")
+                {
+                    Console.WriteLine($"ERROR: Permission denied - Assessment belongs to '{existingAssessment.Username}' but current user is '{currentUser}'");
+                    TempData["ErrorMessage"] = "You don't have permission to edit this assessment.";
+                    return RedirectToAction("WorkBasedAssessments", new { performerUsername = currentUser });
+                }
 
                 // Update performer fields
                 existingAssessment.AssessmentDate = model.AssessmentDate;
@@ -2023,18 +2057,31 @@ namespace SimpleGateway.Controllers
                 existingAssessment.AreasForDevelopment = model.AreasForDevelopment;
                 existingAssessment.UpdatedAt = DateTime.UtcNow;
 
-                Console.WriteLine($"DEBUG: Updated values - AssessmentDate: {existingAssessment.AssessmentDate}, ClinicalArea: '{existingAssessment.ClinicalArea}'");
+                Console.WriteLine($"DEBUG: AFTER UPDATE - AssessmentDate: {existingAssessment.AssessmentDate}");
+                Console.WriteLine($"DEBUG: AFTER UPDATE - ClinicalArea: '{existingAssessment.ClinicalArea}'");
+                Console.WriteLine($"DEBUG: AFTER UPDATE - ProcedureDetails: '{existingAssessment.ProcedureDetails}'");
 
-                _context.SaveChanges();
+                var saveResult = _context.SaveChanges();
+                Console.WriteLine($"DEBUG: SaveChanges() returned: {saveResult} rows affected");
+                
+                // Verify the save by re-querying
+                var verifyAssessment = _context.WorkBasedAssessments.FirstOrDefault(a => a.Id == model.Id);
+                if (verifyAssessment != null)
+                {
+                    Console.WriteLine($"DEBUG: VERIFICATION - ClinicalArea after save: '{verifyAssessment.ClinicalArea}'");
+                    Console.WriteLine($"DEBUG: VERIFICATION - ProcedureDetails after save: '{verifyAssessment.ProcedureDetails}'");
+                }
                 
                 Console.WriteLine($"DEBUG: Successfully saved assessment ID {model.Id} to database");
                 TempData["SuccessMessage"] = "Assessment updated successfully.";
+                Console.WriteLine($"=== UpdatePerformerAssessment DEBUG END ===\n");
                 
                 return RedirectToAction("EditWorkBasedAssessment", new { id = model.Id });
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"ERROR: Failed to update assessment: {ex.Message}");
+                Console.WriteLine($"ERROR: Stack trace: {ex.StackTrace}");
                 TempData["ErrorMessage"] = "Failed to update assessment.";
                 return RedirectToAction("EditWorkBasedAssessment", new { id = model.Id });
             }
