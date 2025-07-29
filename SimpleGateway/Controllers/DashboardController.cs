@@ -2161,6 +2161,20 @@ namespace SimpleGateway.Controllers
 
                 Console.WriteLine($"DEBUG: Found existing assessment:");
                 Console.WriteLine($"DEBUG: - ID: {existingAssessment.Id}, Username: '{existingAssessment.Username}'");
+                
+                // CRITICAL DATE CONFLICT CHECK - This could be the root cause!
+                Console.WriteLine($"DEBUG: CRITICAL DATE CONFLICT CHECK:");
+                Console.WriteLine($"DEBUG: - CreatedAt (shown in list): {existingAssessment.CreatedAt}");
+                Console.WriteLine($"DEBUG: - AssessmentDate (existing in DB): {existingAssessment.AssessmentDate}");
+                Console.WriteLine($"DEBUG: - AssessmentDate (new from form): {model.AssessmentDate}");
+                Console.WriteLine($"DEBUG: - UpdatedAt: {existingAssessment.UpdatedAt}");
+                
+                if (model.AssessmentDate.HasValue && existingAssessment.CreatedAt.Date != model.AssessmentDate.Value.Date)
+                {
+                    Console.WriteLine($"DEBUG: DATE CONFLICT WARNING - CreatedAt date ({existingAssessment.CreatedAt.Date}) differs from AssessmentDate ({model.AssessmentDate.Value.Date})");
+                    Console.WriteLine($"DEBUG: This might cause database constraints or validation issues!");
+                }
+                
                 Console.WriteLine($"DEBUG: - BEFORE UPDATE - AssessmentDate: {existingAssessment.AssessmentDate}");
                 Console.WriteLine($"DEBUG: - BEFORE UPDATE - ClinicalArea: '{existingAssessment.ClinicalArea}'");
                 Console.WriteLine($"DEBUG: - BEFORE UPDATE - ProcedureDetails: '{existingAssessment.ProcedureDetails}'");
