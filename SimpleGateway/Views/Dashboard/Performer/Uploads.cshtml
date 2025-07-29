@@ -7,7 +7,7 @@
     <div class="col-3">
         <ul class="list-group">
             <li class="list-group-item @(ViewBag.ActiveSection == "Dashboard" ? "active" : "")">
-                <a href="/Dashboard/Index" style="@(ViewBag.ActiveSection == "Dashboard" ? "color: white;" : "")">
+                <a href="/Dashboard/ViewPerformerDashboard?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "Dashboard" ? "color: white;" : "")">
                     <i class="bi bi-speedometer2"></i> Dashboard Overview
                 </a>
             </li>
@@ -23,20 +23,23 @@
             <li class="list-group-item @(ViewBag.ActiveSection == "Uploads" ? "active" : "")">
                 <a href="/Dashboard/Uploads?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "Uploads" ? "color: white;" : "")">Uploads</a>
             </li>
-            <li class="list-group-item @(ViewBag.ActiveSection == "LearningModules" ? "active" : "")">
-                <a href="/Dashboard/LearningModules?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "LearningModules" ? "color: white;" : "")">Learning Modules</a>
+            <li class="list-group-item @(ViewBag.ActiveSection == "StructuredConversation" ? "active" : "")">
+                <a href="/Dashboard/StructuredConversation?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "StructuredConversation" ? "color: white;" : "")">Structured Conversation</a>
             </li>
-            <li class="list-group-item @(ViewBag.ActiveSection == "LearningProgress" ? "active" : "")">
-                <a href="/Dashboard/LearningProgress?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "LearningProgress" ? "color: white;" : "")">Learning Progress</a>
+            <li class="list-group-item @(ViewBag.ActiveSection == "AgreementTerms" ? "active" : "")">
+                <a href="/Dashboard/AgreementTerms?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "AgreementTerms" ? "color: white;" : "")">Agreement Terms</a>
             </li>
-            <li class="list-group-item @(ViewBag.ActiveSection == "SupplementaryUploads" ? "active" : "")">
-                <a href="/Dashboard/SupplementaryUploads?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "SupplementaryUploads" ? "color: white;" : "")">Supplementary Uploads</a>
+            <li class="list-group-item @(ViewBag.ActiveSection == "WorkBasedAssessments" ? "active" : "")">
+                <a href="/Dashboard/WorkBasedAssessments?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "WorkBasedAssessments" ? "color: white;" : "")">Work Based Assessments</a>
             </li>
-            <li class="list-group-item @(ViewBag.ActiveSection == "ManagementPlan" ? "active" : "")">
-                <a href="/Dashboard/ManagementPlan?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "ManagementPlan" ? "color: white;" : "")">Management Plan</a>
+            <li class="list-group-item @(ViewBag.ActiveSection == "CPD" ? "active" : "")">
+                <a href="/Dashboard/CPD?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "CPD" ? "color: white;" : "")">CPD</a>
             </li>
-            <li class="list-group-item @(ViewBag.ActiveSection == "SkillsAssessment" ? "active" : "")">
-                <a href="/Dashboard/SkillsAssessment?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "SkillsAssessment" ? "color: white;" : "")">Skills Assessment</a>
+            <li class="list-group-item @(ViewBag.ActiveSection == "MSF" ? "active" : "")">
+                <a href="/Dashboard/MSF?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "MSF" ? "color: white;" : "")">MSF</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "PSQ" ? "active" : "")">
+                <a href="/Dashboard/PSQ?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "PSQ" ? "color: white;" : "")">PSQ</a>
             </li>
             <li class="list-group-item @(ViewBag.ActiveSection == "ClinicalNoteAudit" ? "active" : "")">
                 <a href="/Dashboard/ClinicalNoteAudit?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "ClinicalNoteAudit" ? "color: white;" : "")">Clinical Note Audit</a>
@@ -48,6 +51,15 @@
                 <a href="/Dashboard/FinalSignOff?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "FinalSignOff" ? "color: white;" : "")">Final Sign off</a>
             </li>
             @if (ViewBag.IsOwnDashboard == true)
+            {
+                <li class="list-group-item"><a href="/Account/Logout">Logout</a></li>
+            }
+            else
+            {
+                <li class="list-group-item"><a href="/Dashboard/Index">Back to List</a></li>
+            }
+        </ul>
+    </div>
             {
                 <li class="list-group-item"><a href="/Account/Logout">Logout</a></li>
             }
