@@ -2001,13 +2001,18 @@ namespace SimpleGateway.Controllers
 
             try
             {
-                // Use delete-and-recreate pattern from DATABASE_INTEGRATION_PATTERN.md
+                Console.WriteLine($"DEBUG: Updating assessment - received model with ID: {model.Id}");
+                Console.WriteLine($"DEBUG: Form data - AssessmentDate: {model.AssessmentDate}, ClinicalArea: '{model.ClinicalArea}', ProcedureDetails: '{model.ProcedureDetails}'");
+                
                 var existingAssessment = _context.WorkBasedAssessments.FirstOrDefault(a => a.Id == model.Id);
                 if (existingAssessment == null)
                 {
+                    Console.WriteLine($"ERROR: Assessment with ID {model.Id} not found");
                     TempData["ErrorMessage"] = "Assessment not found.";
                     return RedirectToAction("WorkBasedAssessments", new { performerUsername = model.Username });
                 }
+
+                Console.WriteLine($"DEBUG: Found existing assessment - current values: AssessmentDate: {existingAssessment.AssessmentDate}, ClinicalArea: '{existingAssessment.ClinicalArea}'");
 
                 // Update performer fields
                 existingAssessment.AssessmentDate = model.AssessmentDate;
@@ -2018,9 +2023,11 @@ namespace SimpleGateway.Controllers
                 existingAssessment.AreasForDevelopment = model.AreasForDevelopment;
                 existingAssessment.UpdatedAt = DateTime.UtcNow;
 
+                Console.WriteLine($"DEBUG: Updated values - AssessmentDate: {existingAssessment.AssessmentDate}, ClinicalArea: '{existingAssessment.ClinicalArea}'");
+
                 _context.SaveChanges();
                 
-                Console.WriteLine($"DEBUG: Updated assessment ID {model.Id} for performer");
+                Console.WriteLine($"DEBUG: Successfully saved assessment ID {model.Id} to database");
                 TempData["SuccessMessage"] = "Assessment updated successfully.";
                 
                 return RedirectToAction("EditWorkBasedAssessment", new { id = model.Id });
