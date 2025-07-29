@@ -2018,6 +2018,55 @@ namespace SimpleGateway.Controllers
 
             try
             {
+                // Entry Form Creation Guide Level 4: Emergency table verification
+                try
+                {
+                    var tableTest = _context.WorkBasedAssessments.Take(1).ToList();
+                    Console.WriteLine($"DEBUG: WorkBasedAssessments table is accessible for reading");
+                }
+                catch (Exception tableEx)
+                {
+                    Console.WriteLine($"EMERGENCY: WorkBasedAssessments table access failed: {tableEx.Message}");
+                    try
+                    {
+                        _context.Database.ExecuteSqlRaw(@"
+                            CREATE TABLE IF NOT EXISTS ""WorkBasedAssessments"" (
+                                ""Id"" SERIAL PRIMARY KEY,
+                                ""Username"" TEXT NOT NULL,
+                                ""AssessmentType"" TEXT NOT NULL,
+                                ""Title"" TEXT NOT NULL,
+                                ""Status"" TEXT DEFAULT 'Draft',
+                                ""AssessmentDate"" TIMESTAMP WITH TIME ZONE,
+                                ""ClinicalArea"" TEXT,
+                                ""ProcedureDetails"" TEXT,
+                                ""LearningObjectives"" TEXT,
+                                ""PerformerComments"" TEXT,
+                                ""AreasForDevelopment"" TEXT,
+                                ""IsPerformerSubmitted"" BOOLEAN DEFAULT FALSE,
+                                ""PerformerSubmittedAt"" TIMESTAMP WITH TIME ZONE,
+                                ""SupervisorName"" TEXT,
+                                ""SupervisorRole"" TEXT,
+                                ""OverallRating"" TEXT,
+                                ""SkillsAssessment"" TEXT,
+                                ""SupervisorComments"" TEXT,
+                                ""Recommendations"" TEXT,
+                                ""ActionPlan"" TEXT,
+                                ""IsSupervisorCompleted"" BOOLEAN DEFAULT FALSE,
+                                ""CompletedBySupervisor"" TEXT,
+                                ""SupervisorCompletedAt"" TIMESTAMP WITH TIME ZONE,
+                                ""CreatedAt"" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                                ""UpdatedAt"" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                            );
+                        ");
+                        Console.WriteLine($"EMERGENCY: WorkBasedAssessments table creation completed");
+                    }
+                    catch (Exception createEx)
+                    {
+                        Console.WriteLine($"EMERGENCY: Table creation failed: {createEx.Message}");
+                        _context.Database.EnsureCreated();
+                    }
+                }
+
                 Console.WriteLine($"DEBUG: Searching for assessment with ID: {model.Id}");
                 var existingAssessment = _context.WorkBasedAssessments.FirstOrDefault(a => a.Id == model.Id);
                 
@@ -2061,22 +2110,65 @@ namespace SimpleGateway.Controllers
                 Console.WriteLine($"DEBUG: AFTER UPDATE - ClinicalArea: '{existingAssessment.ClinicalArea}'");
                 Console.WriteLine($"DEBUG: AFTER UPDATE - ProcedureDetails: '{existingAssessment.ProcedureDetails}'");
 
-                var saveResult = _context.SaveChanges();
-                Console.WriteLine($"DEBUG: SaveChanges() returned: {saveResult} rows affected");
+                // Entry Form Creation Guide Level 4: Use delete-and-recreate pattern for Railway PostgreSQL reliability
+                Console.WriteLine($"DEBUG: Implementing delete-and-recreate pattern for Railway PostgreSQL");
                 
+                // Store the updated data before deletion
+                var updatedAssessment = new WorkBasedAssessmentModel
+                {
+                    Username = existingAssessment.Username,
+                    AssessmentType = existingAssessment.AssessmentType,
+                    Title = existingAssessment.Title,
+                    Status = existingAssessment.Status,
+                    AssessmentDate = existingAssessment.AssessmentDate,
+                    ClinicalArea = existingAssessment.ClinicalArea,
+                    ProcedureDetails = existingAssessment.ProcedureDetails,
+                    LearningObjectives = existingAssessment.LearningObjectives,
+                    PerformerComments = existingAssessment.PerformerComments,
+                    AreasForDevelopment = existingAssessment.AreasForDevelopment,
+                    IsPerformerSubmitted = existingAssessment.IsPerformerSubmitted,
+                    PerformerSubmittedAt = existingAssessment.PerformerSubmittedAt,
+                    SupervisorName = existingAssessment.SupervisorName,
+                    SupervisorRole = existingAssessment.SupervisorRole,
+                    OverallRating = existingAssessment.OverallRating,
+                    SkillsAssessment = existingAssessment.SkillsAssessment,
+                    SupervisorComments = existingAssessment.SupervisorComments,
+                    Recommendations = existingAssessment.Recommendations,
+                    ActionPlan = existingAssessment.ActionPlan,
+                    IsSupervisorCompleted = existingAssessment.IsSupervisorCompleted,
+                    CompletedBySupervisor = existingAssessment.CompletedBySupervisor,
+                    SupervisorCompletedAt = existingAssessment.SupervisorCompletedAt,
+                    CreatedAt = existingAssessment.CreatedAt,
+                    UpdatedAt = DateTime.UtcNow
+                };
+
+                // DELETE the existing record
+                _context.WorkBasedAssessments.Remove(existingAssessment);
+                _context.SaveChanges();
+                Console.WriteLine($"DEBUG: Deleted existing assessment ID {model.Id}");
+
+                // CREATE new record with updated data
+                _context.WorkBasedAssessments.Add(updatedAssessment);
+                var saveResult = _context.SaveChanges();
+                Console.WriteLine($"DEBUG: Created new assessment, SaveChanges() returned: {saveResult} rows affected");
+                
+                // Get the new ID for redirection
+                var newId = updatedAssessment.Id;
+                Console.WriteLine($"DEBUG: New assessment ID: {newId}");
+
                 // Verify the save by re-querying
-                var verifyAssessment = _context.WorkBasedAssessments.FirstOrDefault(a => a.Id == model.Id);
+                var verifyAssessment = _context.WorkBasedAssessments.FirstOrDefault(a => a.Id == newId);
                 if (verifyAssessment != null)
                 {
                     Console.WriteLine($"DEBUG: VERIFICATION - ClinicalArea after save: '{verifyAssessment.ClinicalArea}'");
                     Console.WriteLine($"DEBUG: VERIFICATION - ProcedureDetails after save: '{verifyAssessment.ProcedureDetails}'");
                 }
                 
-                Console.WriteLine($"DEBUG: Successfully saved assessment ID {model.Id} to database");
+                Console.WriteLine($"DEBUG: Successfully saved assessment ID {newId} to database using delete-and-recreate pattern");
                 TempData["SuccessMessage"] = "Assessment updated successfully.";
                 Console.WriteLine($"=== UpdatePerformerAssessment DEBUG END ===\n");
                 
-                return RedirectToAction("EditWorkBasedAssessment", new { id = model.Id });
+                return RedirectToAction("EditWorkBasedAssessment", new { id = newId });
             }
             catch (Exception ex)
             {
