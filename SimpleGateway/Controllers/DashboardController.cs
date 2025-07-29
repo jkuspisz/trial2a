@@ -2185,6 +2185,7 @@ namespace SimpleGateway.Controllers
                 existingAssessment.AssessmentDate = model.AssessmentDate;
                 Console.WriteLine($"DEBUG: SIMPLIFIED - AssessmentDate assigned directly: {existingAssessment.AssessmentDate}");
                 
+                // SIMPLIFIED: Direct update instead of delete-and-recreate
                 existingAssessment.ClinicalArea = model.ClinicalArea;
                 existingAssessment.ProcedureDetails = model.ProcedureDetails;
                 existingAssessment.LearningObjectives = model.LearningObjectives;
@@ -2192,95 +2193,29 @@ namespace SimpleGateway.Controllers
                 existingAssessment.AreasForDevelopment = model.AreasForDevelopment;
                 existingAssessment.UpdatedAt = DateTime.UtcNow;
 
-                Console.WriteLine($"DEBUG: AFTER UPDATE - AssessmentDate: {existingAssessment.AssessmentDate}");
-                Console.WriteLine($"DEBUG: AFTER UPDATE - ClinicalArea: '{existingAssessment.ClinicalArea}'");
-                Console.WriteLine($"DEBUG: AFTER UPDATE - ProcedureDetails: '{existingAssessment.ProcedureDetails}'");
+                Console.WriteLine($"DEBUG: SIMPLIFIED UPDATE - AssessmentDate: {existingAssessment.AssessmentDate}");
+                Console.WriteLine($"DEBUG: SIMPLIFIED UPDATE - ClinicalArea: '{existingAssessment.ClinicalArea}'");
+                Console.WriteLine($"DEBUG: SIMPLIFIED UPDATE - ProcedureDetails: '{existingAssessment.ProcedureDetails}'");
 
-                // Entry Form Creation Guide Level 4: Use delete-and-recreate pattern for Railway PostgreSQL reliability
-                Console.WriteLine($"DEBUG: Implementing delete-and-recreate pattern for Railway PostgreSQL");
-                
-                // Store the updated data before deletion
-                var updatedAssessment = new WorkBasedAssessmentModel
-                {
-                    Username = existingAssessment.Username,
-                    AssessmentType = existingAssessment.AssessmentType,
-                    Title = existingAssessment.Title,
-                    Status = existingAssessment.Status,
-                    AssessmentDate = existingAssessment.AssessmentDate,
-                    ClinicalArea = existingAssessment.ClinicalArea,
-                    ProcedureDetails = existingAssessment.ProcedureDetails,
-                    LearningObjectives = existingAssessment.LearningObjectives,
-                    PerformerComments = existingAssessment.PerformerComments,
-                    AreasForDevelopment = existingAssessment.AreasForDevelopment,
-                    IsPerformerSubmitted = existingAssessment.IsPerformerSubmitted,
-                    PerformerSubmittedAt = existingAssessment.PerformerSubmittedAt,
-                    SupervisorName = existingAssessment.SupervisorName,
-                    SupervisorRole = existingAssessment.SupervisorRole,
-                    OverallRating = existingAssessment.OverallRating,
-                    SkillsAssessment = existingAssessment.SkillsAssessment,
-                    SupervisorComments = existingAssessment.SupervisorComments,
-                    Recommendations = existingAssessment.Recommendations,
-                    ActionPlan = existingAssessment.ActionPlan,
-                    IsSupervisorCompleted = existingAssessment.IsSupervisorCompleted,
-                    CompletedBySupervisor = existingAssessment.CompletedBySupervisor,
-                    SupervisorCompletedAt = existingAssessment.SupervisorCompletedAt,
-                    CreatedAt = DateTime.UtcNow,  // ✅ FIX: New timestamp for new entity in delete-and-recreate
-                    UpdatedAt = DateTime.UtcNow
-                };
-
-                // DELETE the existing record
-                _context.WorkBasedAssessments.Remove(existingAssessment);
-                _context.SaveChanges();
-                Console.WriteLine($"DEBUG: Deleted existing assessment ID {model.Id}");
-
-                Console.WriteLine("DEBUG: CRITICAL - About to create new record with updated data");
-                Console.WriteLine($"DEBUG: CRITICAL - updatedAssessment.AssessmentDate: {updatedAssessment.AssessmentDate}");
-                Console.WriteLine($"DEBUG: CRITICAL - updatedAssessment.ClinicalArea: '{updatedAssessment.ClinicalArea}'");
-                Console.WriteLine($"DEBUG: CRITICAL - updatedAssessment.ProcedureDetails: '{updatedAssessment.ProcedureDetails}'");
-                Console.WriteLine($"DEBUG: CRITICAL - updatedAssessment.Username: '{updatedAssessment.Username}'");
-
-                // CREATE new record with updated data
-                Console.WriteLine("DEBUG: CRITICAL - Adding updatedAssessment to context");
-                _context.WorkBasedAssessments.Add(updatedAssessment);
-                
-                // CRITICAL: Verify entity state before SaveChanges
-                var entityEntry = _context.Entry(updatedAssessment);
-                Console.WriteLine($"DEBUG: ENTITY STATE - State: {entityEntry.State}");
-                Console.WriteLine($"DEBUG: ENTITY STATE - CreatedAt: {updatedAssessment.CreatedAt}");
-                Console.WriteLine($"DEBUG: ENTITY STATE - UpdatedAt: {updatedAssessment.UpdatedAt}");
-                Console.WriteLine($"DEBUG: ENTITY STATE - AssessmentDate: {updatedAssessment.AssessmentDate}");
-                
-                Console.WriteLine("DEBUG: CRITICAL - About to call SaveChanges for new record");
+                // SIMPLE SAVE: Just update the existing entity
+                Console.WriteLine("DEBUG: SIMPLIFIED - About to call SaveChanges for direct update");
                 var saveResult = _context.SaveChanges();
-                Console.WriteLine($"DEBUG: Created new assessment, SaveChanges() returned: {saveResult} rows affected");
+                Console.WriteLine($"DEBUG: Updated assessment, SaveChanges() returned: {saveResult} rows affected");
                 
-                // Get the new ID for redirection
-                var newId = updatedAssessment.Id;
-                Console.WriteLine($"DEBUG: New assessment ID: {newId}");
-
-                // Verify the save by re-querying
-                var verifyAssessment = _context.WorkBasedAssessments.FirstOrDefault(a => a.Id == newId);
-                if (verifyAssessment != null)
-                {
-                    Console.WriteLine($"DEBUG: VERIFICATION - ClinicalArea after save: '{verifyAssessment.ClinicalArea}'");
-                    Console.WriteLine($"DEBUG: VERIFICATION - ProcedureDetails after save: '{verifyAssessment.ProcedureDetails}'");
-                }
-                
-                Console.WriteLine($"DEBUG: Successfully saved assessment ID {newId} to database using delete-and-recreate pattern");
+                Console.WriteLine($"DEBUG: Successfully updated assessment ID {model.Id} using simple update pattern");
                 TempData["SuccessMessage"] = "Assessment updated successfully.";
                 Console.WriteLine($"=== UpdatePerformerAssessment DEBUG END ===\n");
                 
-                // CRITICAL FIX: Pass performerUsername back to maintain user context
-                return RedirectToAction("EditWorkBasedAssessment", new { id = newId, performerUsername = updatedAssessment.Username });
+                // SIMPLE REDIRECT: Use the same ID since we're not recreating
+                return RedirectToAction("EditWorkBasedAssessment", new { id = model.Id, performerUsername = existingAssessment.Username });
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"ERROR: Failed to update assessment: {ex.Message}");
                 Console.WriteLine($"ERROR: Stack trace: {ex.StackTrace}");
                 TempData["ErrorMessage"] = "Failed to update assessment.";
-                // CRITICAL FIX: Include performerUsername in error redirect too
-                var targetUsername = !string.IsNullOrEmpty(model.Username) ? model.Username : currentUser;
-                return RedirectToAction("EditWorkBasedAssessment", new { id = model.Id, performerUsername = targetUsername });
+                // SIMPLE ERROR REDIRECT: Use existing ID since we're not recreating
+                return RedirectToAction("EditWorkBasedAssessment", new { id = model.Id, performerUsername = model.Username });
             }
         }
 
