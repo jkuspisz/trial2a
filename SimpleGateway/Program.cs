@@ -9,6 +9,7 @@ var port = Environment.GetEnvironmentVariable("PORT") ?? Environment.GetEnvironm
 Console.WriteLine($"Starting application on port {port}");
 Console.WriteLine($"PORT environment variable: {Environment.GetEnvironmentVariable("PORT")}");
 Console.WriteLine($"HTTP_PORT environment variable: {Environment.GetEnvironmentVariable("HTTP_PORT")}");
+Console.WriteLine("=== STRUCTURED CONVERSATION MIGRATION FORCE ===");
 Console.WriteLine($"HTTP_PORT environment variable: {Environment.GetEnvironmentVariable("HTTP_PORT")}");
 
 // Debug: Print ALL environment variables to see what Railway provides
@@ -169,8 +170,9 @@ try
             }
             
             // Apply migrations for MAIN context
+            Console.WriteLine("*** ABOUT TO APPLY MIGRATIONS ***");
             context.Database.Migrate();
-            Console.WriteLine("Main database migrations completed successfully");
+            Console.WriteLine("*** MIGRATIONS COMPLETED - NOW VERIFYING ***");
             
             // Verify StructuredConversations table was created
             try
