@@ -1877,7 +1877,7 @@ namespace SimpleGateway.Controllers
                 ViewBag.PerformerName = performerUsername;
             }
 
-            return View();
+            return View("Performer/WorkBasedAssessments");
         }
 
         // POST method for creating new assessment
@@ -1975,7 +1975,7 @@ namespace SimpleGateway.Controllers
                     ViewBag.PerformerName = assessment.Username;
                 }
 
-                return View(assessment);
+                return View("Performer/EditWorkBasedAssessment", assessment);
             }
             catch (Exception ex)
             {
