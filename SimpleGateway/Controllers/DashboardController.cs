@@ -2232,7 +2232,7 @@ namespace SimpleGateway.Controllers
                     IsSupervisorCompleted = existingAssessment.IsSupervisorCompleted,
                     CompletedBySupervisor = existingAssessment.CompletedBySupervisor,
                     SupervisorCompletedAt = existingAssessment.SupervisorCompletedAt,
-                    CreatedAt = existingAssessment.CreatedAt,
+                    CreatedAt = DateTime.UtcNow,  // ✅ FIX: New timestamp for new entity in delete-and-recreate
                     UpdatedAt = DateTime.UtcNow
                 };
 
@@ -2250,6 +2250,13 @@ namespace SimpleGateway.Controllers
                 // CREATE new record with updated data
                 Console.WriteLine("DEBUG: CRITICAL - Adding updatedAssessment to context");
                 _context.WorkBasedAssessments.Add(updatedAssessment);
+                
+                // CRITICAL: Verify entity state before SaveChanges
+                var entityEntry = _context.Entry(updatedAssessment);
+                Console.WriteLine($"DEBUG: ENTITY STATE - State: {entityEntry.State}");
+                Console.WriteLine($"DEBUG: ENTITY STATE - CreatedAt: {updatedAssessment.CreatedAt}");
+                Console.WriteLine($"DEBUG: ENTITY STATE - UpdatedAt: {updatedAssessment.UpdatedAt}");
+                Console.WriteLine($"DEBUG: ENTITY STATE - AssessmentDate: {updatedAssessment.AssessmentDate}");
                 
                 Console.WriteLine("DEBUG: CRITICAL - About to call SaveChanges for new record");
                 var saveResult = _context.SaveChanges();
