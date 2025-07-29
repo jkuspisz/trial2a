@@ -1932,9 +1932,10 @@ namespace SimpleGateway.Controllers
         }
 
         // GET method for editing/completing assessment
-        public IActionResult EditWorkBasedAssessment(int id)
+        public IActionResult EditWorkBasedAssessment(int id, string? performerUsername = null)
         {
-            Console.WriteLine($"DEBUG: EditWorkBasedAssessment accessed for ID: {id}");
+            Console.WriteLine($"\n=== EditWorkBasedAssessment GET DEBUG START ===");
+            Console.WriteLine($"DEBUG: EditWorkBasedAssessment accessed for ID: {id}, performerUsername: '{performerUsername}'");
             
             var currentUser = HttpContext.Session.GetString("username");
             var currentRole = HttpContext.Session.GetString("role");
@@ -1946,15 +1947,45 @@ namespace SimpleGateway.Controllers
 
             try
             {
+                // First, let's see what's actually in the database
+                Console.WriteLine($"DEBUG: Checking all WorkBasedAssessments in database:");
+                var allAssessments = _context.WorkBasedAssessments.ToList();
+                foreach (var dbAssessment in allAssessments)
+                {
+                    Console.WriteLine($"DEBUG: DB Record - ID: {dbAssessment.Id}, Username: '{dbAssessment.Username}', Type: '{dbAssessment.AssessmentType}'");
+                    Console.WriteLine($"DEBUG: DB Record - ClinicalArea: '{dbAssessment.ClinicalArea}', ProcedureDetails: '{dbAssessment.ProcedureDetails}'");
+                }
+
                 var assessment = _context.WorkBasedAssessments.FirstOrDefault(a => a.Id == id);
                 if (assessment == null)
                 {
+                    Console.WriteLine($"ERROR: Assessment with ID {id} not found in database");
                     TempData["ErrorMessage"] = "Assessment not found.";
                     return RedirectToAction("Index");
                 }
 
+                Console.WriteLine($"DEBUG: Found assessment for editing:");
+                Console.WriteLine($"DEBUG: - ID: {assessment.Id}, Username: '{assessment.Username}', Type: '{assessment.AssessmentType}'");
+                Console.WriteLine($"DEBUG: - Current ClinicalArea: '{assessment.ClinicalArea}'");
+                Console.WriteLine($"DEBUG: - Current ProcedureDetails: '{assessment.ProcedureDetails}'");
+                Console.WriteLine($"DEBUG: - Current LearningObjectives: '{assessment.LearningObjectives}'");
+
+                // CRITICAL FIX: Ensure we use the correct performer username
+                var targetPerformerUsername = !string.IsNullOrEmpty(performerUsername) ? performerUsername : assessment.Username;
+                
+                Console.WriteLine($"DEBUG: Target performer username: '{targetPerformerUsername}'");
+                Console.WriteLine($"DEBUG: Assessment belongs to: '{assessment.Username}'");
+                
+                // Validate that the assessment belongs to the specified performer
+                if (assessment.Username != targetPerformerUsername)
+                {
+                    Console.WriteLine($"ERROR: Assessment belongs to '{assessment.Username}' but trying to access for '{targetPerformerUsername}'");
+                    TempData["ErrorMessage"] = "Assessment not found for this performer.";
+                    return RedirectToAction("WorkBasedAssessments", new { performerUsername = targetPerformerUsername });
+                }
+
                 // Set up ViewBag for navigation and permissions
-                ViewBag.PerformerUsername = assessment.Username;
+                ViewBag.PerformerUsername = targetPerformerUsername;
                 ViewBag.CurrentUser = currentUser;
                 ViewBag.CurrentRole = currentRole;
                 ViewBag.ActiveSection = "WorkBasedAssessments";
@@ -1975,12 +2006,8 @@ namespace SimpleGateway.Controllers
                     ViewBag.PerformerName = assessment.Username;
                 }
 
-                Console.WriteLine($"DEBUG: EditWorkBasedAssessment GET - Loading assessment:");
-                Console.WriteLine($"DEBUG: - ID: {assessment.Id}, Username: '{assessment.Username}'");
-                Console.WriteLine($"DEBUG: - AssessmentDate: {assessment.AssessmentDate}");
-                Console.WriteLine($"DEBUG: - ClinicalArea: '{assessment.ClinicalArea}'");
-                Console.WriteLine($"DEBUG: - ProcedureDetails: '{assessment.ProcedureDetails}'");
-                Console.WriteLine($"DEBUG: - LearningObjectives: '{assessment.LearningObjectives}'");
+                Console.WriteLine($"DEBUG: Sending assessment to view - ID: {assessment.Id}, for performer: '{targetPerformerUsername}'");
+                Console.WriteLine($"=== EditWorkBasedAssessment GET DEBUG END ===\n");
 
                 return View("Performer/EditWorkBasedAssessment", assessment);
             }
@@ -2168,14 +2195,17 @@ namespace SimpleGateway.Controllers
                 TempData["SuccessMessage"] = "Assessment updated successfully.";
                 Console.WriteLine($"=== UpdatePerformerAssessment DEBUG END ===\n");
                 
-                return RedirectToAction("EditWorkBasedAssessment", new { id = newId });
+                // CRITICAL FIX: Pass performerUsername back to maintain user context
+                return RedirectToAction("EditWorkBasedAssessment", new { id = newId, performerUsername = updatedAssessment.Username });
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"ERROR: Failed to update assessment: {ex.Message}");
                 Console.WriteLine($"ERROR: Stack trace: {ex.StackTrace}");
                 TempData["ErrorMessage"] = "Failed to update assessment.";
-                return RedirectToAction("EditWorkBasedAssessment", new { id = model.Id });
+                // CRITICAL FIX: Include performerUsername in error redirect too
+                var targetUsername = !string.IsNullOrEmpty(model.Username) ? model.Username : currentUser;
+                return RedirectToAction("EditWorkBasedAssessment", new { id = model.Id, performerUsername = targetUsername });
             }
         }
 

@@ -171,14 +171,14 @@
                                                     </td>
                                                     <td>
                                                         <div class="btn-group" role="group">
-                                                            <a href="/Dashboard/EditWorkBasedAssessment/@assessment.Id" 
+                                                            <a href="/Dashboard/EditWorkBasedAssessment/@assessment.Id?performerUsername=@ViewBag.PerformerUsername" 
                                                                class="btn btn-sm btn-outline-primary">
                                                                 <i class="bi bi-pencil"></i> 
                                                                 @(assessment.GetDisplayStatus() == "Complete" ? "View" : "Edit")
                                                             </a>
                                                             @if (ViewBag.CanEditSupervisor && assessment.IsPerformerSubmitted && !assessment.IsSupervisorCompleted)
                                                             {
-                                                                <a href="/Dashboard/EditWorkBasedAssessment/@assessment.Id" 
+                                                                <a href="/Dashboard/EditWorkBasedAssessment/@assessment.Id?performerUsername=@ViewBag.PerformerUsername" 
                                                                    class="btn btn-sm btn-warning">
                                                                     <i class="bi bi-check-circle"></i> Complete
                                                                 </a>
