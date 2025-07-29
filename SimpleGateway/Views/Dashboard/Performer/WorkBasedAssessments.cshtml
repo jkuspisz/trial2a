@@ -1,0 +1,208 @@
+@{
+    ViewData["Title"] = "Work Based Assessments";
+    ViewBag.ActiveSection = "WorkBasedAssessments";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar Navigation -->
+        <div class="col-md-3">
+            <ul class="list-group">
+                <li class="list-group-item @(ViewBag.ActiveSection == "Dashboard" ? "active" : "")">
+                    <a href="/Dashboard/ViewPerformerDashboard?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "Dashboard" ? "color: white;" : "")">
+                        <i class="bi bi-speedometer2"></i> Dashboard Overview
+                    </a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "PerformerDetails" ? "active" : "")">
+                    <a href="/Dashboard/PerformerDetails?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "PerformerDetails" ? "color: white;" : "")">Performer Details</a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "TestPractice" ? "active" : "")">
+                    <a href="/Dashboard/TestPractice?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "TestPractice" ? "color: white;" : "")">Test Practice</a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "TestPractice2" ? "active" : "")">
+                    <a href="/Dashboard/TestPractice2?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "TestPractice2" ? "color: white;" : "")">Test Practice 2</a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "Uploads" ? "active" : "")">
+                    <a href="/Dashboard/Uploads?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "Uploads" ? "color: white;" : "")">Uploads</a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "StructuredConversation" ? "active" : "")">
+                    <a href="/Dashboard/StructuredConversation?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "StructuredConversation" ? "color: white;" : "")">Structured Conversation</a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "AgreementTerms" ? "active" : "")">
+                    <a href="/Dashboard/AgreementTerms?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "AgreementTerms" ? "color: white;" : "")">Agreement Terms</a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "WorkBasedAssessments" ? "active" : "")">
+                    <a href="/Dashboard/WorkBasedAssessments?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "WorkBasedAssessments" ? "color: white;" : "")">Work Based Assessments</a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "CPD" ? "active" : "")">
+                    <a href="/Dashboard/CPD?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "CPD" ? "color: white;" : "")">CPD</a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "MSF" ? "active" : "")">
+                    <a href="/Dashboard/MSF?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "MSF" ? "color: white;" : "")">MSF</a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "PSQ" ? "active" : "")">
+                    <a href="/Dashboard/PSQ?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "PSQ" ? "color: white;" : "")">PSQ</a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "ClinicalNoteAudit" ? "active" : "")">
+                    <a href="/Dashboard/ClinicalNoteAudit?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "ClinicalNoteAudit" ? "color: white;" : "")">Clinical Note Audit</a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "HelpGuidance" ? "active" : "")">
+                    <a href="/Dashboard/HelpGuidance?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "HelpGuidance" ? "color: white;" : "")">Help & Guidance</a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "FinalSignOff" ? "active" : "")">
+                    <a href="/Dashboard/FinalSignOff?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "FinalSignOff" ? "color: white;" : "")">Final Sign off</a>
+                </li>
+                @if (ViewBag.IsOwnDashboard == true)
+                {
+                    <li class="list-group-item"><a href="/Account/Logout">Logout</a></li>
+                }
+                else
+                {
+                    <li class="list-group-item"><a href="/Dashboard/Index">Back to List</a></li>
+                }
+            </ul>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Work Based Assessments - @ViewBag.PerformerName</h3>
+                </div>
+                <div class="card-body">
+                    <!-- Success/Error Messages -->
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            @TempData["SuccessMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            @TempData["ErrorMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    <!-- Introduction -->
+                    <div class="alert alert-info">
+                        <h5><i class="bi bi-info-circle"></i> Work Based Assessments</h5>
+                        <p>Create and complete work-based assessments to document clinical skills and professional development. Choose between DOPS (Direct Observation of Procedural Skills) and CBDs (Case-Based Discussions).</p>
+                        <ul class="mb-0">
+                            <li><strong>DOPS:</strong> Direct observation and assessment of procedural skills in clinical practice</li>
+                            <li><strong>CBDs:</strong> Discussion-based assessment of clinical decision making and case management</li>
+                        </ul>
+                    </div>
+
+                    <!-- Create New Assessment Section -->
+                    @if (ViewBag.CanCreate)
+                    {
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5><i class="bi bi-plus-circle"></i> Create New Assessment</h5>
+                            </div>
+                            <div class="card-body">
+                                <form method="post" action="/Dashboard/CreateWorkBasedAssessment">
+                                    <input type="hidden" name="performerUsername" value="@ViewBag.PerformerUsername" />
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Select Assessment Type:</label>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="assessmentType" id="dops" value="DOPS" required>
+                                                <label class="form-check-label" for="dops">
+                                                    <strong>DOPS</strong> - Direct Observation of Procedural Skills
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="assessmentType" id="cbds" value="CBDs" required>
+                                                <label class="form-check-label" for="cbds">
+                                                    <strong>CBDs</strong> - Case-Based Discussions
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 d-flex align-items-end">
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="bi bi-plus"></i> Create Assessment
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Existing Assessments -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="bi bi-list-ul"></i> Assessment History</h5>
+                        </div>
+                        <div class="card-body">
+                            @if (ViewBag.Assessments != null && ((List<SimpleGateway.Models.WorkBasedAssessmentModel>)ViewBag.Assessments).Any())
+                            {
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th>Type</th>
+                                                <th>Title</th>
+                                                <th>Created</th>
+                                                <th>Status</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var assessment in (List<SimpleGateway.Models.WorkBasedAssessmentModel>)ViewBag.Assessments)
+                                            {
+                                                <tr>
+                                                    <td>
+                                                        <span class="badge bg-@(assessment.AssessmentType == "DOPS" ? "primary" : "info")">
+                                                            @assessment.AssessmentType
+                                                        </span>
+                                                    </td>
+                                                    <td>@assessment.Title</td>
+                                                    <td>@assessment.CreatedAt.ToString("MMM dd, yyyy")</td>
+                                                    <td>
+                                                        <span class="badge bg-@assessment.GetStatusColor()">
+                                                            @assessment.GetDisplayStatus()
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <div class="btn-group" role="group">
+                                                            <a href="/Dashboard/EditWorkBasedAssessment/@assessment.Id" 
+                                                               class="btn btn-sm btn-outline-primary">
+                                                                <i class="bi bi-pencil"></i> 
+                                                                @(assessment.GetDisplayStatus() == "Complete" ? "View" : "Edit")
+                                                            </a>
+                                                            @if (ViewBag.CanEditSupervisor && assessment.IsPerformerSubmitted && !assessment.IsSupervisorCompleted)
+                                                            {
+                                                                <a href="/Dashboard/EditWorkBasedAssessment/@assessment.Id" 
+                                                                   class="btn btn-sm btn-warning">
+                                                                    <i class="bi bi-check-circle"></i> Complete
+                                                                </a>
+                                                            }
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="text-center py-4">
+                                    <i class="bi bi-clipboard-x display-1 text-muted"></i>
+                                    <h4 class="text-muted">No Assessments Yet</h4>
+                                    <p class="text-muted">Create your first work-based assessment using the form above.</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

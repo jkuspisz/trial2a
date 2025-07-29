@@ -1790,7 +1790,345 @@ namespace SimpleGateway.Controllers
 
         public IActionResult WorkBasedAssessments(string performerUsername)
         {
-            return HandlePerformerSection(performerUsername, "WorkBasedAssessments");
+            Console.WriteLine($"DEBUG: WorkBasedAssessments accessed for performer: {performerUsername}");
+                        
+            var currentUser = HttpContext.Session.GetString("username");
+            var currentRole = HttpContext.Session.GetString("role");
+            
+            if (string.IsNullOrEmpty(currentUser))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            // Emergency table creation - following ENTRY_FORM_CREATION_GUIDE.md Level 4 strategy
+            try
+            {
+                var testQuery = _context.WorkBasedAssessments.Take(1).ToList();
+                Console.WriteLine("WorkBasedAssessments table exists and is accessible");
+            }
+            catch (Exception tableEx)
+            {
+                Console.WriteLine($"WorkBasedAssessments table access failed: {tableEx.Message}");
+                try
+                {
+                    _context.Database.ExecuteSqlRaw(@"
+                        CREATE TABLE IF NOT EXISTS ""WorkBasedAssessments"" (
+                            ""Id"" SERIAL PRIMARY KEY,
+                            ""Username"" TEXT NOT NULL,
+                            ""AssessmentType"" TEXT NOT NULL,
+                            ""Title"" TEXT NOT NULL,
+                            ""Status"" TEXT NOT NULL DEFAULT 'Draft',
+                            ""AssessmentDate"" TIMESTAMP,
+                            ""ClinicalArea"" TEXT,
+                            ""ProcedureDetails"" TEXT,
+                            ""LearningObjectives"" TEXT,
+                            ""PerformerComments"" TEXT,
+                            ""AreasForDevelopment"" TEXT,
+                            ""IsPerformerSubmitted"" BOOLEAN NOT NULL DEFAULT FALSE,
+                            ""PerformerSubmittedAt"" TIMESTAMP,
+                            ""SupervisorName"" TEXT,
+                            ""SupervisorRole"" TEXT,
+                            ""OverallRating"" TEXT,
+                            ""SkillsAssessment"" TEXT,
+                            ""SupervisorComments"" TEXT,
+                            ""Recommendations"" TEXT,
+                            ""ActionPlan"" TEXT,
+                            ""IsSupervisorCompleted"" BOOLEAN NOT NULL DEFAULT FALSE,
+                            ""CompletedBySupervisor"" TEXT,
+                            ""SupervisorCompletedAt"" TIMESTAMP,
+                            ""CreatedAt"" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                            ""UpdatedAt"" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                        );
+                    ");
+                    Console.WriteLine("Emergency WorkBasedAssessments table creation completed");
+                }
+                catch (Exception createEx)
+                {
+                    Console.WriteLine($"Emergency table creation failed: {createEx.Message}");
+                    _context.Database.EnsureCreated();
+                }
+            }
+
+            // Get all assessments for this performer
+            var assessments = _context.WorkBasedAssessments
+                .Where(a => a.Username == performerUsername)
+                .OrderByDescending(a => a.CreatedAt)
+                .ToList();
+
+            Console.WriteLine($"DEBUG: Found {assessments.Count} assessments for {performerUsername}");
+
+            // Set up ViewBag for navigation and permissions
+            ViewBag.PerformerUsername = performerUsername;
+            ViewBag.CurrentUser = currentUser;
+            ViewBag.CurrentRole = currentRole;
+            ViewBag.ActiveSection = "WorkBasedAssessments";
+            ViewBag.Assessments = assessments;
+            ViewBag.CanCreate = (currentRole == "performer" && performerUsername == currentUser) || currentRole == "admin";
+            ViewBag.CanEditSupervisor = currentRole == "admin" || currentRole == "advisor";
+
+            // Get performer display name
+            var performer = _context.Users.FirstOrDefault(u => u.Username == performerUsername);
+            if (performer != null)
+            {
+                ViewBag.PerformerName = $"{performer.FirstName} {performer.LastName}";
+            }
+            else
+            {
+                ViewBag.PerformerName = performerUsername;
+            }
+
+            return View();
+        }
+
+        // POST method for creating new assessment
+        [HttpPost]
+        public IActionResult CreateWorkBasedAssessment(string performerUsername, string assessmentType)
+        {
+            Console.WriteLine($"DEBUG: Creating new {assessmentType} assessment for {performerUsername}");
+            
+            var currentUser = HttpContext.Session.GetString("username");
+            var currentRole = HttpContext.Session.GetString("role");
+            
+            if (string.IsNullOrEmpty(currentUser))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            // Validation
+            if (string.IsNullOrEmpty(assessmentType) || (assessmentType != "DOPS" && assessmentType != "CBDs"))
+            {
+                TempData["ErrorMessage"] = "Please select a valid assessment type (DOPS or CBDs).";
+                return RedirectToAction("WorkBasedAssessments", new { performerUsername });
+            }
+
+            try
+            {
+                // Create new assessment
+                var newAssessment = new WorkBasedAssessmentModel
+                {
+                    Username = performerUsername,
+                    AssessmentType = assessmentType,
+                    Title = $"{assessmentType} Assessment - {DateTime.Now:yyyy-MM-dd}",
+                    Status = "Draft",
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                };
+
+                _context.WorkBasedAssessments.Add(newAssessment);
+                _context.SaveChanges();
+
+                Console.WriteLine($"DEBUG: Created new assessment with ID: {newAssessment.Id}");
+                TempData["SuccessMessage"] = $"New {assessmentType} assessment created successfully.";
+                
+                // Redirect to edit the new assessment
+                return RedirectToAction("EditWorkBasedAssessment", new { id = newAssessment.Id });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"ERROR: Failed to create assessment: {ex.Message}");
+                TempData["ErrorMessage"] = "Failed to create assessment. Please try again.";
+                return RedirectToAction("WorkBasedAssessments", new { performerUsername });
+            }
+        }
+
+        // GET method for editing/completing assessment
+        public IActionResult EditWorkBasedAssessment(int id)
+        {
+            Console.WriteLine($"DEBUG: EditWorkBasedAssessment accessed for ID: {id}");
+            
+            var currentUser = HttpContext.Session.GetString("username");
+            var currentRole = HttpContext.Session.GetString("role");
+            
+            if (string.IsNullOrEmpty(currentUser))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            try
+            {
+                var assessment = _context.WorkBasedAssessments.FirstOrDefault(a => a.Id == id);
+                if (assessment == null)
+                {
+                    TempData["ErrorMessage"] = "Assessment not found.";
+                    return RedirectToAction("Index");
+                }
+
+                // Set up ViewBag for navigation and permissions
+                ViewBag.PerformerUsername = assessment.Username;
+                ViewBag.CurrentUser = currentUser;
+                ViewBag.CurrentRole = currentRole;
+                ViewBag.ActiveSection = "WorkBasedAssessments";
+                
+                // Determine what user can edit
+                ViewBag.CanEditPerformer = (currentRole == "performer" && assessment.Username == currentUser) || currentRole == "admin";
+                ViewBag.CanEditSupervisor = currentRole == "admin" || currentRole == "advisor";
+                ViewBag.IsReadOnly = (!ViewBag.CanEditPerformer && !ViewBag.CanEditSupervisor);
+
+                // Get performer display name
+                var performer = _context.Users.FirstOrDefault(u => u.Username == assessment.Username);
+                if (performer != null)
+                {
+                    ViewBag.PerformerName = $"{performer.FirstName} {performer.LastName}";
+                }
+                else
+                {
+                    ViewBag.PerformerName = assessment.Username;
+                }
+
+                return View(assessment);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"ERROR: Failed to load assessment: {ex.Message}");
+                TempData["ErrorMessage"] = "Failed to load assessment.";
+                return RedirectToAction("Index");
+            }
+        }
+
+        // POST method for updating performer part of assessment
+        [HttpPost]
+        public IActionResult UpdatePerformerAssessment(WorkBasedAssessmentModel model)
+        {
+            Console.WriteLine($"DEBUG: UpdatePerformerAssessment for ID: {model.Id}");
+            
+            var currentUser = HttpContext.Session.GetString("username");
+            var currentRole = HttpContext.Session.GetString("role");
+            
+            if (string.IsNullOrEmpty(currentUser))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            try
+            {
+                // Use delete-and-recreate pattern from DATABASE_INTEGRATION_PATTERN.md
+                var existingAssessment = _context.WorkBasedAssessments.FirstOrDefault(a => a.Id == model.Id);
+                if (existingAssessment == null)
+                {
+                    TempData["ErrorMessage"] = "Assessment not found.";
+                    return RedirectToAction("WorkBasedAssessments", new { performerUsername = model.Username });
+                }
+
+                // Update performer fields
+                existingAssessment.AssessmentDate = model.AssessmentDate;
+                existingAssessment.ClinicalArea = model.ClinicalArea;
+                existingAssessment.ProcedureDetails = model.ProcedureDetails;
+                existingAssessment.LearningObjectives = model.LearningObjectives;
+                existingAssessment.PerformerComments = model.PerformerComments;
+                existingAssessment.AreasForDevelopment = model.AreasForDevelopment;
+                existingAssessment.UpdatedAt = DateTime.UtcNow;
+
+                _context.SaveChanges();
+                
+                Console.WriteLine($"DEBUG: Updated assessment ID {model.Id} for performer");
+                TempData["SuccessMessage"] = "Assessment updated successfully.";
+                
+                return RedirectToAction("EditWorkBasedAssessment", new { id = model.Id });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"ERROR: Failed to update assessment: {ex.Message}");
+                TempData["ErrorMessage"] = "Failed to update assessment.";
+                return RedirectToAction("EditWorkBasedAssessment", new { id = model.Id });
+            }
+        }
+
+        // POST method for performer to submit assessment
+        [HttpPost]
+        public IActionResult SubmitPerformerAssessment(int id)
+        {
+            Console.WriteLine($"DEBUG: SubmitPerformerAssessment for ID: {id}");
+            
+            var currentUser = HttpContext.Session.GetString("username");
+            var currentRole = HttpContext.Session.GetString("role");
+            
+            if (string.IsNullOrEmpty(currentUser))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            try
+            {
+                var assessment = _context.WorkBasedAssessments.FirstOrDefault(a => a.Id == id);
+                if (assessment == null)
+                {
+                    TempData["ErrorMessage"] = "Assessment not found.";
+                    return RedirectToAction("Index");
+                }
+
+                // Mark as submitted by performer
+                assessment.IsPerformerSubmitted = true;
+                assessment.PerformerSubmittedAt = DateTime.UtcNow;
+                assessment.Status = "PerformerComplete";
+                assessment.UpdatedAt = DateTime.UtcNow;
+
+                _context.SaveChanges();
+                
+                Console.WriteLine($"DEBUG: Assessment ID {id} submitted by performer");
+                TempData["SuccessMessage"] = "Assessment submitted successfully. Waiting for supervisor completion.";
+                
+                return RedirectToAction("WorkBasedAssessments", new { performerUsername = assessment.Username });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"ERROR: Failed to submit assessment: {ex.Message}");
+                TempData["ErrorMessage"] = "Failed to submit assessment.";
+                return RedirectToAction("EditWorkBasedAssessment", new { id });
+            }
+        }
+
+        // POST method for supervisor to complete assessment
+        [HttpPost]
+        public IActionResult CompleteSupervisorAssessment(WorkBasedAssessmentModel model)
+        {
+            Console.WriteLine($"DEBUG: CompleteSupervisorAssessment for ID: {model.Id}");
+            
+            var currentUser = HttpContext.Session.GetString("username");
+            var currentRole = HttpContext.Session.GetString("role");
+            
+            if (string.IsNullOrEmpty(currentUser))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            try
+            {
+                var existingAssessment = _context.WorkBasedAssessments.FirstOrDefault(a => a.Id == model.Id);
+                if (existingAssessment == null)
+                {
+                    TempData["ErrorMessage"] = "Assessment not found.";
+                    return RedirectToAction("Index");
+                }
+
+                // Update supervisor fields
+                existingAssessment.SupervisorName = model.SupervisorName;
+                existingAssessment.SupervisorRole = model.SupervisorRole;
+                existingAssessment.OverallRating = model.OverallRating;
+                existingAssessment.SkillsAssessment = model.SkillsAssessment;
+                existingAssessment.SupervisorComments = model.SupervisorComments;
+                existingAssessment.Recommendations = model.Recommendations;
+                existingAssessment.ActionPlan = model.ActionPlan;
+                
+                // Mark as completed
+                existingAssessment.IsSupervisorCompleted = true;
+                existingAssessment.CompletedBySupervisor = currentUser;
+                existingAssessment.SupervisorCompletedAt = DateTime.UtcNow;
+                existingAssessment.Status = "Complete";
+                existingAssessment.UpdatedAt = DateTime.UtcNow;
+
+                _context.SaveChanges();
+                
+                Console.WriteLine($"DEBUG: Assessment ID {model.Id} completed by supervisor {currentUser}");
+                TempData["SuccessMessage"] = "Assessment completed successfully.";
+                
+                return RedirectToAction("WorkBasedAssessments", new { performerUsername = existingAssessment.Username });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"ERROR: Failed to complete assessment: {ex.Message}");
+                TempData["ErrorMessage"] = "Failed to complete assessment.";
+                return RedirectToAction("EditWorkBasedAssessment", new { id = model.Id });
+            }
         }
 
         public IActionResult LearningModules(string performerUsername)
