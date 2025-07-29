@@ -113,7 +113,10 @@
                                     <div class="row mb-3">
                                         <div class="col-md-6">
                                             <label asp-for="AssessmentDate" class="form-label"></label>
-                                            <input asp-for="AssessmentDate" class="form-control" type="date" />
+                                            <input asp-for="AssessmentDate" class="form-control" type="text" 
+                                                   placeholder="e.g., 2025-07-29 or July 29, 2025" 
+                                                   value="@(Model.AssessmentDate?.ToString("yyyy-MM-dd"))" />
+                                            <small class="form-text text-muted">Enter date in YYYY-MM-DD format</small>
                                         </div>
                                         <div class="col-md-6">
                                             <label asp-for="ClinicalArea" class="form-label"></label>
@@ -172,6 +175,27 @@
                                             form.submit();
                                         }
                                     }
+
+                                    // DEBUG: Add event listeners to detect form field changes
+                                    document.addEventListener('DOMContentLoaded', function() {
+                                        const assessmentDateInput = document.querySelector('input[name="AssessmentDate"]');
+                                        const allInputs = document.querySelectorAll('input[type="text"], textarea');
+                                        
+                                        if (assessmentDateInput) {
+                                            assessmentDateInput.addEventListener('change', function() {
+                                                console.log('DEBUG: AssessmentDate changed to:', this.value);
+                                                
+                                                // Check if any other fields got cleared
+                                                setTimeout(() => {
+                                                    allInputs.forEach(input => {
+                                                        if (input !== assessmentDateInput && input.value === '') {
+                                                            console.log('WARNING: Field was cleared:', input.name || input.id);
+                                                        }
+                                                    });
+                                                }, 100);
+                                            });
+                                        }
+                                    });
                                 </script>
                             }
                             else
