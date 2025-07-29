@@ -73,36 +73,35 @@
                             <p class="text-muted">Whilst this Agreement is in force, the services you provide will be restricted to:</p>
 
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-md-12">
                                     <div class="form-check mb-3">
                                         @Html.CheckBoxFor(m => m.Restriction1, new { @class = "form-check-input" })
-                                        @Html.LabelFor(m => m.Restriction1, "Practice Requirements & Supporting Dentist", new { @class = "form-check-label" })
-                                        <small class="form-text text-muted">Minimum 2 surgeries, supporting dentist present for first 2 months, etc.</small>
+                                        @Html.LabelFor(m => m.Restriction1, "Practice Requirements & Supporting Dentist", new { @class = "form-check-label fw-bold" })
+                                        <div class="form-text">You are to provide treatment only in a practice that has a minimum of 2 surgeries and where a supporting dentist will be present during your first 2 months. The supporting dentist must be a dentist with at least 3 years' experience in UK general dental practice, who will be available to provide immediate advice and support if required. You are to provide the name of the supporting dentist to NHS England at least 2 weeks before you commence providing NHS treatment.</div>
                                     </div>
                                     
                                     <div class="form-check mb-3">
                                         @Html.CheckBoxFor(m => m.Restriction2, new { @class = "form-check-input" })
-                                        @Html.LabelFor(m => m.Restriction2, "No Out of Hours or Locum Work", new { @class = "form-check-label" })
-                                        <small class="form-text text-muted">No emergency care sessions or locum work during agreement period.</small>
+                                        @Html.LabelFor(m => m.Restriction2, "No Out of Hours or Locum Work", new { @class = "form-check-label fw-bold" })
+                                        <div class="form-text">You are not to provide any out of hours emergency care sessions or undertake any locum work during the period of this agreement without the prior written agreement of NHS England.</div>
                                     </div>
                                     
                                     <div class="form-check mb-3">
                                         @Html.CheckBoxFor(m => m.Restriction3, new { @class = "form-check-input" })
-                                        @Html.LabelFor(m => m.Restriction3, "Report Complaints", new { @class = "form-check-label" })
-                                        <small class="form-text text-muted">Must report any complaints during agreement period.</small>
+                                        @Html.LabelFor(m => m.Restriction3, "Report Complaints", new { @class = "form-check-label fw-bold" })
+                                        <div class="form-text">You are to report any complaint that you receive during the period of this agreement to NHS England within 7 days of receipt.</div>
                                     </div>
-                                </div>
-                                <div class="col-md-6">
+                                    
                                     <div class="form-check mb-3">
                                         @Html.CheckBoxFor(m => m.Restriction4, new { @class = "form-check-input" })
-                                        @Html.LabelFor(m => m.Restriction4, "12 Month Completion Timeframe", new { @class = "form-check-label" })
-                                        <small class="form-text text-muted">Expected completion within 12 months (24 months pro-rata).</small>
+                                        @Html.LabelFor(m => m.Restriction4, "12 Month Completion Timeframe", new { @class = "form-check-label fw-bold" })
+                                        <div class="form-text">It is expected that you will complete the agreement within 12 months. If you are working part-time (less than 30 hours per week) then the expected timescale would be extended on a pro-rata basis up to a maximum of 24 months.</div>
                                     </div>
                                     
                                     <div class="form-check mb-3">
                                         @Html.CheckBoxFor(m => m.Restriction5, new { @class = "form-check-input" })
-                                        @Html.LabelFor(m => m.Restriction5, "Probationary Flag Link", new { @class = "form-check-label" })
-                                        <small class="form-text text-muted">Agreement linked to probationary flag, remains if you change practice.</small>
+                                        @Html.LabelFor(m => m.Restriction5, "Probationary Flag Link", new { @class = "form-check-label fw-bold" })
+                                        <div class="form-text">This agreement is linked to your probationary flag. If you move practice, the probationary flag and this agreement will remain in place. The probationary flag will only be removed when this agreement has been successfully completed.</div>
                                     </div>
                                 </div>
                             </div>
@@ -111,108 +110,107 @@
                             <p class="text-muted">Required actions to be completed by the specified dates:</p>
 
                             <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-check mb-2">
+                                <div class="col-md-12">
+                                    <div class="form-check mb-3">
                                         @Html.CheckBoxFor(m => m.Action1, new { @class = "form-check-input" })
-                                        @Html.LabelFor(m => m.Action1, "NHS Courses", new { @class = "form-check-label" })
-                                        <small class="form-text text-muted">NHS Rules & Regulations, Record Keeping, Prescribing, Communication Skills</small>
+                                        @Html.LabelFor(m => m.Action1, "NHS Courses", new { @class = "form-check-label fw-bold" })
+                                        <div class="form-text">You are required to complete the following courses within <strong>3 months</strong>: NHS Rules & Regulations, Record Keeping, Prescribing, Communication Skills. Evidence of completion to be provided to NHS England.</div>
                                     </div>
                                     
-                                    <div class="form-check mb-2">
+                                    <div class="form-check mb-3">
                                         @Html.CheckBoxFor(m => m.Action2, new { @class = "form-check-input" })
-                                        @Html.LabelFor(m => m.Action2, "NHS Competency References (6 months)", new { @class = "form-check-label" })
-                                        <small class="form-text text-muted">Two references from appropriate clinicians, one from supporting dentist</small>
+                                        @Html.LabelFor(m => m.Action2, "NHS Competency References (After 6 months)", new { @class = "form-check-label fw-bold" })
+                                        <div class="form-text">You are to provide two competency-based references from appropriate clinicians after <strong>6 months</strong> of NHS practice. One reference must be from your supporting dentist (if applicable) and one from another dentist or specialist with whom you have worked during your NHS practice.</div>
                                     </div>
                                     
-                                    <div class="form-check mb-2">
+                                    <div class="form-check mb-3">
                                         @Html.CheckBoxFor(m => m.Action3, new { @class = "form-check-input" })
-                                        @Html.LabelFor(m => m.Action3, "GDC Core CPD Topics", new { @class = "form-check-label" })
-                                        <small class="form-text text-muted">Medical Emergencies, Disinfection, Radiography, Safeguarding</small>
+                                        @Html.LabelFor(m => m.Action3, "GDC Core CPD Topics", new { @class = "form-check-label fw-bold" })
+                                        <div class="form-text">You are to complete GDC core verifiable CPD in the following topics within <strong>6 months</strong>: Medical Emergencies, Disinfection and Decontamination, Radiography and Radiation Protection, Safeguarding Children and Vulnerable Adults. Evidence of completion to be provided to NHS England.</div>
                                     </div>
                                     
-                                    <div class="form-check mb-2">
+                                    <div class="form-check mb-3">
                                         @Html.CheckBoxFor(m => m.Action4, new { @class = "form-check-input" })
-                                        @Html.LabelFor(m => m.Action4, "Up-to-date PDP", new { @class = "form-check-label" })
-                                        <small class="form-text text-muted">Personal Development Plan with training needs identified</small>
+                                        @Html.LabelFor(m => m.Action4, "Up-to-date PDP", new { @class = "form-check-label fw-bold" })
+                                        <div class="form-text">You are to submit an up-to-date Personal Development Plan (PDP) within <strong>1 month</strong> identifying your training and development needs and how these will be addressed. This should be reviewed and updated every 3 months during the agreement period.</div>
                                     </div>
                                     
-                                    <div class="form-check mb-2">
+                                    <div class="form-check mb-3">
                                         @Html.CheckBoxFor(m => m.Action5, new { @class = "form-check-input" })
-                                        @Html.LabelFor(m => m.Action5, "Record Keeping Audit (3 months)", new { @class = "form-check-label" })
-                                        <small class="form-text text-muted">Record keeping audit carried out by NHS England</small>
+                                        @Html.LabelFor(m => m.Action5, "Record Keeping Audit (After 3 months)", new { @class = "form-check-label fw-bold" })
+                                        <div class="form-text">A record keeping audit will be carried out by NHS England after <strong>3 months</strong>. You must demonstrate compliance with NHS record keeping standards and any deficiencies identified must be addressed within the timescales specified by NHS England.</div>
                                     </div>
                                     
-                                    <div class="form-check mb-2">
+                                    <div class="form-check mb-3">
                                         @Html.CheckBoxFor(m => m.Action6, new { @class = "form-check-input" })
-                                        @Html.LabelFor(m => m.Action6, "Clinical Audit with Reflection", new { @class = "form-check-label" })
-                                        <small class="form-text text-muted">Complete clinical audit in practice with reflection on outcome</small>
+                                        @Html.LabelFor(m => m.Action6, "Clinical Audit with Reflection", new { @class = "form-check-label fw-bold" })
+                                        <div class="form-text">You are to complete a clinical audit in your practice within <strong>6 months</strong>. This should be on a topic agreed with NHS England and should include a written reflection on the outcome and any changes made to your practice as a result.</div>
                                     </div>
                                     
-                                    <div class="form-check mb-2">
+                                    <div class="form-check mb-3">
                                         @Html.CheckBoxFor(m => m.Action7, new { @class = "form-check-input" })
-                                        @Html.LabelFor(m => m.Action7, "Patient Satisfaction Survey (6 months)", new { @class = "form-check-label" })
-                                        <small class="form-text text-muted">Min 20 responses + multi-source feedback with reflection</small>
+                                        @Html.LabelFor(m => m.Action7, "Patient Satisfaction Survey (After 6 months)", new { @class = "form-check-label fw-bold" })
+                                        <div class="form-text">After <strong>6 months</strong>, you are to undertake a patient satisfaction survey with a minimum of 20 responses and multi-source feedback from colleagues. You must provide a written reflection on the feedback received and any actions taken as a result.</div>
                                     </div>
                                     
-                                    <div class="form-check mb-2">
+                                    <div class="form-check mb-3">
                                         @Html.CheckBoxFor(m => m.Action8, new { @class = "form-check-input" })
-                                        @Html.LabelFor(m => m.Action8, "IQD Programme Reflection", new { @class = "form-check-label" })
-                                        <small class="form-text text-muted">Reflection on the IQD programme completion</small>
+                                        @Html.LabelFor(m => m.Action8, "IQD Programme Reflection", new { @class = "form-check-label fw-bold" })
+                                        <div class="form-text">You are to provide a written reflection on your completion of the Induction and Development Programme (IQD), including how the learning has been applied to your NHS practice within <strong>3 months</strong> of programme completion.</div>
                                     </div>
 
-                                    <div class="form-check mb-2">
+                                    <div class="form-check mb-3">
                                         @Html.CheckBoxFor(m => m.Action9, new { @class = "form-check-input" })
-                                        @Html.LabelFor(m => m.Action9, "3 DOPS on ID Block", new { @class = "form-check-label" })
-                                        <small class="form-text text-muted">Direct Observation of Procedure skills with Supporting Dentist</small>
+                                        @Html.LabelFor(m => m.Action9, "3 DOPS on ID Block", new { @class = "form-check-label fw-bold" })
+                                        <div class="form-text">You are to complete 3 Direct Observation of Procedural Skills (DOPS) assessments specifically for inferior dental (ID) block local anaesthetic administration with your supporting dentist within <strong>3 months</strong>. All assessments must demonstrate competency.</div>
                                     </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-check mb-2">
+                                    
+                                    <div class="form-check mb-3">
                                         @Html.CheckBoxFor(m => m.Action10, new { @class = "form-check-input" })
-                                        @Html.LabelFor(m => m.Action10, "DOPS/CBDs - Radiography", new { @class = "form-check-label" })
-                                        <small class="form-text text-muted">Show competence in Radiography with supporting dentist</small>
+                                        @Html.LabelFor(m => m.Action10, "DOPS/CBDs - Radiography", new { @class = "form-check-label fw-bold" })
+                                        <div class="form-text">You are to demonstrate competence in Radiography through Direct Observation of Procedural Skills (DOPS) or Case-Based Discussions (CBDs) with your supporting dentist within <strong>6 months</strong>. This must include both intraoral and extraoral radiographic techniques where applicable.</div>
                                     </div>
                                     
-                                    <div class="form-check mb-2">
+                                    <div class="form-check mb-3">
                                         @Html.CheckBoxFor(m => m.Action11, new { @class = "form-check-input" })
-                                        @Html.LabelFor(m => m.Action11, "DOPS/CBDs - Periodontics", new { @class = "form-check-label" })
-                                        <small class="form-text text-muted">Show competence in Periodontics with supporting dentist</small>
+                                        @Html.LabelFor(m => m.Action11, "DOPS/CBDs - Periodontics", new { @class = "form-check-label fw-bold" })
+                                        <div class="form-text">You are to demonstrate competence in Periodontics through Direct Observation of Procedural Skills (DOPS) or Case-Based Discussions (CBDs) with your supporting dentist within <strong>6 months</strong>. This must include periodontal assessment, non-surgical periodontal therapy, and patient periodontal health education.</div>
                                     </div>
                                     
-                                    <div class="form-check mb-2">
+                                    <div class="form-check mb-3">
                                         @Html.CheckBoxFor(m => m.Action12, new { @class = "form-check-input" })
-                                        @Html.LabelFor(m => m.Action12, "DOPS/CBDs - Prosthetics", new { @class = "form-check-label" })
-                                        <small class="form-text text-muted">Show competence in Prosthetics with supporting dentist</small>
+                                        @Html.LabelFor(m => m.Action12, "DOPS/CBDs - Prosthetics", new { @class = "form-check-label fw-bold" })
+                                        <div class="form-text">You are to demonstrate competence in Prosthetics through Direct Observation of Procedural Skills (DOPS) or Case-Based Discussions (CBDs) with your supporting dentist within <strong>6 months</strong>. This must include complete and partial denture provision, including assessment, treatment planning, and delivery.</div>
                                     </div>
                                     
-                                    <div class="form-check mb-2">
+                                    <div class="form-check mb-3">
                                         @Html.CheckBoxFor(m => m.Action13, new { @class = "form-check-input" })
-                                        @Html.LabelFor(m => m.Action13, "DOPS/CBDs - Direct Restorations", new { @class = "form-check-label" })
-                                        <small class="form-text text-muted">Show competence in Direct Restorations with supporting dentist</small>
+                                        @Html.LabelFor(m => m.Action13, "DOPS/CBDs - Direct Restorations", new { @class = "form-check-label fw-bold" })
+                                        <div class="form-text">You are to demonstrate competence in Direct Restorations through Direct Observation of Procedural Skills (DOPS) or Case-Based Discussions (CBDs) with your supporting dentist within <strong>6 months</strong>. This must include amalgam and composite restorations, including cavity preparation and restoration placement techniques.</div>
                                     </div>
                                     
-                                    <div class="form-check mb-2">
+                                    <div class="form-check mb-3">
                                         @Html.CheckBoxFor(m => m.Action14, new { @class = "form-check-input" })
-                                        @Html.LabelFor(m => m.Action14, "DOPS/CBDs - Paedodontics", new { @class = "form-check-label" })
-                                        <small class="form-text text-muted">Show competence in Paedodontics with supporting dentist</small>
+                                        @Html.LabelFor(m => m.Action14, "DOPS/CBDs - Paedodontics", new { @class = "form-check-label fw-bold" })
+                                        <div class="form-text">You are to demonstrate competence in Paedodontics through Direct Observation of Procedural Skills (DOPS) or Case-Based Discussions (CBDs) with your supporting dentist within <strong>6 months</strong>. This must include child behaviour management, preventive care, and treatment of dental caries in children.</div>
                                     </div>
                                     
-                                    <div class="form-check mb-2">
+                                    <div class="form-check mb-3">
                                         @Html.CheckBoxFor(m => m.Action15, new { @class = "form-check-input" })
-                                        @Html.LabelFor(m => m.Action15, "DOPS/CBDs - Oral Surgery", new { @class = "form-check-label" })
-                                        <small class="form-text text-muted">Show competence in Oral Surgery with supporting dentist</small>
+                                        @Html.LabelFor(m => m.Action15, "DOPS/CBDs - Oral Surgery", new { @class = "form-check-label fw-bold" })
+                                        <div class="form-text">You are to demonstrate competence in Oral Surgery through Direct Observation of Procedural Skills (DOPS) or Case-Based Discussions (CBDs) with your supporting dentist within <strong>6 months</strong>. This must include simple extractions, surgical extractions, and management of post-extraction complications.</div>
                                     </div>
                                     
-                                    <div class="form-check mb-2">
+                                    <div class="form-check mb-3">
                                         @Html.CheckBoxFor(m => m.Action16, new { @class = "form-check-input" })
-                                        @Html.LabelFor(m => m.Action16, "DOPS/CBDs - Indirect Restorations", new { @class = "form-check-label" })
-                                        <small class="form-text text-muted">Show competence in Indirect Restorations with supporting dentist</small>
+                                        @Html.LabelFor(m => m.Action16, "DOPS/CBDs - Indirect Restorations", new { @class = "form-check-label fw-bold" })
+                                        <div class="form-text">You are to demonstrate competence in Indirect Restorations through Direct Observation of Procedural Skills (DOPS) or Case-Based Discussions (CBDs) with your supporting dentist within <strong>6 months</strong>. This must include crown and bridge work, including tooth preparation, impression taking, and crown/bridge cementation.</div>
                                     </div>
                                     
-                                    <div class="form-check mb-2">
+                                    <div class="form-check mb-3">
                                         @Html.CheckBoxFor(m => m.Action17, new { @class = "form-check-input" })
-                                        @Html.LabelFor(m => m.Action17, "DOPS/CBDs - Endodontics", new { @class = "form-check-label" })
-                                        <small class="form-text text-muted">Show competence in Endodontics with supporting dentist</small>
+                                        @Html.LabelFor(m => m.Action17, "DOPS/CBDs - Endodontics", new { @class = "form-check-label fw-bold" })
+                                        <div class="form-text">You are to demonstrate competence in Endodontics through Direct Observation of Procedural Skills (DOPS) or Case-Based Discussions (CBDs) with your supporting dentist within <strong>6 months</strong>. This must include root canal treatment, including diagnosis, access cavity preparation, cleaning and shaping, and obturation techniques.</div>
                                     </div>
                                 </div>
                             </div>
@@ -258,11 +256,36 @@
                             {
                                 <h5 class="mt-3 mb-2">RESTRICTIONS</h5>
                                 <div class="list-group mb-3">
-                                    @if (Model.Restriction1) { <div class="list-group-item">✓ Practice Requirements & Supporting Dentist - Minimum 2 surgeries, supporting dentist present for first 2 months</div> }
-                                    @if (Model.Restriction2) { <div class="list-group-item">✓ No Out of Hours or Locum Work - No emergency care sessions or locum work during agreement period</div> }
-                                    @if (Model.Restriction3) { <div class="list-group-item">✓ Report Complaints - Must report any complaints during agreement period</div> }
-                                    @if (Model.Restriction4) { <div class="list-group-item">✓ 12 Month Completion Timeframe - Expected completion within 12 months (24 months pro-rata)</div> }
-                                    @if (Model.Restriction5) { <div class="list-group-item">✓ Probationary Flag Link - Agreement linked to probationary flag, remains if you change practice</div> }
+                                    @if (Model.Restriction1) { 
+                                        <div class="list-group-item">
+                                            <strong>✓ Practice Requirements & Supporting Dentist</strong><br />
+                                            You are to provide treatment only in a practice that has a minimum of 2 surgeries and where a supporting dentist will be present during your first 2 months. The supporting dentist must be a dentist with at least 3 years' experience in UK general dental practice, who will be available to provide immediate advice and support if required. You are to provide the name of the supporting dentist to NHS England at least 2 weeks before you commence providing NHS treatment.
+                                        </div> 
+                                    }
+                                    @if (Model.Restriction2) { 
+                                        <div class="list-group-item">
+                                            <strong>✓ No Out of Hours or Locum Work</strong><br />
+                                            You are not to provide any out of hours emergency care sessions or undertake any locum work during the period of this agreement without the prior written agreement of NHS England.
+                                        </div> 
+                                    }
+                                    @if (Model.Restriction3) { 
+                                        <div class="list-group-item">
+                                            <strong>✓ Report Complaints</strong><br />
+                                            You are to report any complaint that you receive during the period of this agreement to NHS England within 7 days of receipt.
+                                        </div> 
+                                    }
+                                    @if (Model.Restriction4) { 
+                                        <div class="list-group-item">
+                                            <strong>✓ 12 Month Completion Timeframe</strong><br />
+                                            It is expected that you will complete the agreement within 12 months. If you are working part-time (less than 30 hours per week) then the expected timescale would be extended on a pro-rata basis up to a maximum of 24 months.
+                                        </div> 
+                                    }
+                                    @if (Model.Restriction5) { 
+                                        <div class="list-group-item">
+                                            <strong>✓ Probationary Flag Link</strong><br />
+                                            This agreement is linked to your probationary flag. If you move practice, the probationary flag and this agreement will remain in place. The probationary flag will only be removed when this agreement has been successfully completed.
+                                        </div> 
+                                    }
                                 </div>
                             }
 
@@ -274,23 +297,108 @@
                             {
                                 <h5 class="mt-3 mb-2">SPECIFIC ACTIONS</h5>
                                 <div class="list-group mb-3">
-                                    @if (Model.Action1) { <div class="list-group-item">✓ NHS Courses - NHS Rules & Regulations, Record Keeping, Prescribing, Communication Skills</div> }
-                                    @if (Model.Action2) { <div class="list-group-item">✓ NHS Competency References (After 6 months) - Two references from appropriate clinicians</div> }
-                                    @if (Model.Action3) { <div class="list-group-item">✓ GDC Core CPD Topics - Medical Emergencies, Disinfection, Radiography, Safeguarding</div> }
-                                    @if (Model.Action4) { <div class="list-group-item">✓ Up-to-date PDP - Personal Development Plan with training needs identified</div> }
-                                    @if (Model.Action5) { <div class="list-group-item">✓ Record Keeping Audit (After 3 months) - Record keeping audit carried out by NHS England</div> }
-                                    @if (Model.Action6) { <div class="list-group-item">✓ Clinical Audit with Reflection - Complete clinical audit in practice</div> }
-                                    @if (Model.Action7) { <div class="list-group-item">✓ Patient Satisfaction Survey (After 6 months) - Min 20 responses + multi-source feedback</div> }
-                                    @if (Model.Action8) { <div class="list-group-item">✓ IQD Programme Reflection - Reflection on the IQD programme completion</div> }
-                                    @if (Model.Action9) { <div class="list-group-item">✓ 3 DOPS on ID Block - Direct Observation of Procedure skills</div> }
-                                    @if (Model.Action10) { <div class="list-group-item">✓ DOPS/CBDs - Radiography - Show competence with supporting dentist</div> }
-                                    @if (Model.Action11) { <div class="list-group-item">✓ DOPS/CBDs - Periodontics - Show competence with supporting dentist</div> }
-                                    @if (Model.Action12) { <div class="list-group-item">✓ DOPS/CBDs - Prosthetics - Show competence with supporting dentist</div> }
-                                    @if (Model.Action13) { <div class="list-group-item">✓ DOPS/CBDs - Direct Restorations - Show competence with supporting dentist</div> }
-                                    @if (Model.Action14) { <div class="list-group-item">✓ DOPS/CBDs - Paedodontics - Show competence with supporting dentist</div> }
-                                    @if (Model.Action15) { <div class="list-group-item">✓ DOPS/CBDs - Oral Surgery - Show competence with supporting dentist</div> }
-                                    @if (Model.Action16) { <div class="list-group-item">✓ DOPS/CBDs - Indirect Restorations - Show competence with supporting dentist</div> }
-                                    @if (Model.Action17) { <div class="list-group-item">✓ DOPS/CBDs - Endodontics - Show competence with supporting dentist</div> }
+                                    @if (Model.Action1) { 
+                                        <div class="list-group-item">
+                                            <strong>✓ NHS Courses (Within 3 months)</strong><br />
+                                            You are required to complete the following courses within 3 months: NHS Rules & Regulations, Record Keeping, Prescribing, Communication Skills. Evidence of completion to be provided to NHS England.
+                                        </div> 
+                                    }
+                                    @if (Model.Action2) { 
+                                        <div class="list-group-item">
+                                            <strong>✓ NHS Competency References (After 6 months)</strong><br />
+                                            You are to provide two competency-based references from appropriate clinicians after 6 months of NHS practice. One reference must be from your supporting dentist (if applicable) and one from another dentist or specialist with whom you have worked during your NHS practice.
+                                        </div> 
+                                    }
+                                    @if (Model.Action3) { 
+                                        <div class="list-group-item">
+                                            <strong>✓ GDC Core CPD Topics (Within 6 months)</strong><br />
+                                            You are to complete GDC core verifiable CPD in the following topics within 6 months: Medical Emergencies, Disinfection and Decontamination, Radiography and Radiation Protection, Safeguarding Children and Vulnerable Adults. Evidence of completion to be provided to NHS England.
+                                        </div> 
+                                    }
+                                    @if (Model.Action4) { 
+                                        <div class="list-group-item">
+                                            <strong>✓ Up-to-date PDP (Within 1 month)</strong><br />
+                                            You are to submit an up-to-date Personal Development Plan (PDP) within 1 month identifying your training and development needs and how these will be addressed. This should be reviewed and updated every 3 months during the agreement period.
+                                        </div> 
+                                    }
+                                    @if (Model.Action5) { 
+                                        <div class="list-group-item">
+                                            <strong>✓ Record Keeping Audit (After 3 months)</strong><br />
+                                            A record keeping audit will be carried out by NHS England after 3 months. You must demonstrate compliance with NHS record keeping standards and any deficiencies identified must be addressed within the timescales specified by NHS England.
+                                        </div> 
+                                    }
+                                    @if (Model.Action6) { 
+                                        <div class="list-group-item">
+                                            <strong>✓ Clinical Audit with Reflection (Within 6 months)</strong><br />
+                                            You are to complete a clinical audit in your practice within 6 months. This should be on a topic agreed with NHS England and should include a written reflection on the outcome and any changes made to your practice as a result.
+                                        </div> 
+                                    }
+                                    @if (Model.Action7) { 
+                                        <div class="list-group-item">
+                                            <strong>✓ Patient Satisfaction Survey (After 6 months)</strong><br />
+                                            After 6 months, you are to undertake a patient satisfaction survey with a minimum of 20 responses and multi-source feedback from colleagues. You must provide a written reflection on the feedback received and any actions taken as a result.
+                                        </div> 
+                                    }
+                                    @if (Model.Action8) { 
+                                        <div class="list-group-item">
+                                            <strong>✓ IQD Programme Reflection (Within 3 months of completion)</strong><br />
+                                            You are to provide a written reflection on your completion of the Induction and Development Programme (IQD), including how the learning has been applied to your NHS practice within 3 months of programme completion.
+                                        </div> 
+                                    }
+                                    @if (Model.Action9) { 
+                                        <div class="list-group-item">
+                                            <strong>✓ 3 DOPS on ID Block (Within 3 months)</strong><br />
+                                            You are to complete 3 Direct Observation of Procedural Skills (DOPS) assessments specifically for inferior dental (ID) block local anaesthetic administration with your supporting dentist within 3 months. All assessments must demonstrate competency.
+                                        </div> 
+                                    }
+                                    @if (Model.Action10) { 
+                                        <div class="list-group-item">
+                                            <strong>✓ DOPS/CBDs - Radiography (Within 6 months)</strong><br />
+                                            You are to demonstrate competence in Radiography through Direct Observation of Procedural Skills (DOPS) or Case-Based Discussions (CBDs) with your supporting dentist within 6 months. This must include both intraoral and extraoral radiographic techniques where applicable.
+                                        </div> 
+                                    }
+                                    @if (Model.Action11) { 
+                                        <div class="list-group-item">
+                                            <strong>✓ DOPS/CBDs - Periodontics (Within 6 months)</strong><br />
+                                            You are to demonstrate competence in Periodontics through Direct Observation of Procedural Skills (DOPS) or Case-Based Discussions (CBDs) with your supporting dentist within 6 months. This must include periodontal assessment, non-surgical periodontal therapy, and patient periodontal health education.
+                                        </div> 
+                                    }
+                                    @if (Model.Action12) { 
+                                        <div class="list-group-item">
+                                            <strong>✓ DOPS/CBDs - Prosthetics (Within 6 months)</strong><br />
+                                            You are to demonstrate competence in Prosthetics through Direct Observation of Procedural Skills (DOPS) or Case-Based Discussions (CBDs) with your supporting dentist within 6 months. This must include complete and partial denture provision, including assessment, treatment planning, and delivery.
+                                        </div> 
+                                    }
+                                    @if (Model.Action13) { 
+                                        <div class="list-group-item">
+                                            <strong>✓ DOPS/CBDs - Direct Restorations (Within 6 months)</strong><br />
+                                            You are to demonstrate competence in Direct Restorations through Direct Observation of Procedural Skills (DOPS) or Case-Based Discussions (CBDs) with your supporting dentist within 6 months. This must include amalgam and composite restorations, including cavity preparation and restoration placement techniques.
+                                        </div> 
+                                    }
+                                    @if (Model.Action14) { 
+                                        <div class="list-group-item">
+                                            <strong>✓ DOPS/CBDs - Paedodontics (Within 6 months)</strong><br />
+                                            You are to demonstrate competence in Paedodontics through Direct Observation of Procedural Skills (DOPS) or Case-Based Discussions (CBDs) with your supporting dentist within 6 months. This must include child behaviour management, preventive care, and treatment of dental caries in children.
+                                        </div> 
+                                    }
+                                    @if (Model.Action15) { 
+                                        <div class="list-group-item">
+                                            <strong>✓ DOPS/CBDs - Oral Surgery (Within 6 months)</strong><br />
+                                            You are to demonstrate competence in Oral Surgery through Direct Observation of Procedural Skills (DOPS) or Case-Based Discussions (CBDs) with your supporting dentist within 6 months. This must include simple extractions, surgical extractions, and management of post-extraction complications.
+                                        </div> 
+                                    }
+                                    @if (Model.Action16) { 
+                                        <div class="list-group-item">
+                                            <strong>✓ DOPS/CBDs - Indirect Restorations (Within 6 months)</strong><br />
+                                            You are to demonstrate competence in Indirect Restorations through Direct Observation of Procedural Skills (DOPS) or Case-Based Discussions (CBDs) with your supporting dentist within 6 months. This must include crown and bridge work, including tooth preparation, impression taking, and crown/bridge cementation.
+                                        </div> 
+                                    }
+                                    @if (Model.Action17) { 
+                                        <div class="list-group-item">
+                                            <strong>✓ DOPS/CBDs - Endodontics (Within 6 months)</strong><br />
+                                            You are to demonstrate competence in Endodontics through Direct Observation of Procedural Skills (DOPS) or Case-Based Discussions (CBDs) with your supporting dentist within 6 months. This must include root canal treatment, including diagnosis, access cavity preparation, cleaning and shaping, and obturation techniques.
+                                        </div> 
+                                    }
                                 </div>
                             }
 
