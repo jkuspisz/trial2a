@@ -9,6 +9,7 @@ var port = Environment.GetEnvironmentVariable("PORT") ?? Environment.GetEnvironm
 Console.WriteLine($"Starting application on port {port}");
 Console.WriteLine($"PORT environment variable: {Environment.GetEnvironmentVariable("PORT")}");
 Console.WriteLine($"HTTP_PORT environment variable: {Environment.GetEnvironmentVariable("HTTP_PORT")}");
+Console.WriteLine($"HTTP_PORT environment variable: {Environment.GetEnvironmentVariable("HTTP_PORT")}");
 
 // Debug: Print ALL environment variables to see what Railway provides
 Console.WriteLine("=== ALL ENVIRONMENT VARIABLES ===");
@@ -156,6 +157,10 @@ try
                 foreach (var migration in pendingMigrations)
                 {
                     Console.WriteLine($"  - {migration}");
+                    if (migration.Contains("StructuredConversation"))
+                    {
+                        Console.WriteLine($"    *** STRUCTURED CONVERSATION MIGRATION DETECTED ***");
+                    }
                 }
             }
             else
@@ -166,6 +171,17 @@ try
             // Apply migrations for MAIN context
             context.Database.Migrate();
             Console.WriteLine("Main database migrations completed successfully");
+            
+            // Verify StructuredConversations table was created
+            try
+            {
+                var structuredConvCount = context.StructuredConversations.Count();
+                Console.WriteLine($"StructuredConversations table verification: {structuredConvCount} records found");
+            }
+            catch (Exception tableEx)
+            {
+                Console.WriteLine($"StructuredConversations table verification FAILED: {tableEx.Message}");
+            }
             
             // Apply migrations for ISOLATED TestData2 context
             Console.WriteLine("=== TESTDATA2 CONTEXT MIGRATION START ===");
