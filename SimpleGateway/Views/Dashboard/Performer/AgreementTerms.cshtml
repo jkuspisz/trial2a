@@ -1,0 +1,62 @@
+@{
+    ViewData["Title"] = "Agreement Terms";
+    ViewBag.ActiveSection = "AgreementTerms";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar Navigation -->
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header">
+                    <h5>@ViewBag.PerformerUsername - Navigation</h5>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item @(ViewBag.ActiveSection == "PerformerDetails" ? "active" : "")">
+                        <a href="/Dashboard/PerformerDetails?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "PerformerDetails" ? "color: white;" : "")">Performer Details</a>
+                    </li>
+                    <li class="list-group-item @(ViewBag.ActiveSection == "PreviousExperience" ? "active" : "")">
+                        <a href="/Dashboard/PreviousExperience?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "PreviousExperience" ? "color: white;" : "")">Previous Experience</a>
+                    </li>
+                    <li class="list-group-item @(ViewBag.ActiveSection == "AgreementTerms" ? "active" : "")">
+                        <a href="/Dashboard/AgreementTerms?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "AgreementTerms" ? "color: white;" : "")">Agreement Terms</a>
+                    </li>
+                    <li class="list-group-item @(ViewBag.ActiveSection == "WorkBasedAssessments" ? "active" : "")">
+                        <a href="/Dashboard/WorkBasedAssessments?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "WorkBasedAssessments" ? "color: white;" : "")">Work Based Assessments</a>
+                    </li>
+                    <li class="list-group-item @(ViewBag.ActiveSection == "LearningModules" ? "active" : "")">
+                        <a href="/Dashboard/LearningModules?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "LearningModules" ? "color: white;" : "")">Learning Modules</a>
+                    </li>
+                    <li class="list-group-item @(ViewBag.ActiveSection == "StructuredConversation" ? "active" : "")">
+                        <a href="/Dashboard/StructuredConversation?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "StructuredConversation" ? "color: white;" : "")">Structured Conversation</a>
+                    </li>
+                    <li class="list-group-item @(ViewBag.ActiveSection == "TestPractice" ? "active" : "")">
+                        <a href="/Dashboard/TestPractice?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "TestPractice" ? "color: white;" : "")">Test Practice</a>
+                    </li>
+                </ul>  
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Agreement Terms - @ViewBag.PerformerUsername</h3>
+                </div>
+                <div class="card-body">
+                    <!-- Introductory Text -->
+                    <div class="alert alert-info">
+                        <p>This Agreement Terms has been drafted following an assessment by NHSE of the educational and clinical support needs of the above-named dental performer (the Performer). Its purpose is to set out the agreement between NHSE and the Performer that is intended to facilitate the Performer's safe induction to NHS primary care services, such that when all aspects of the agreement have been successfully completed, the Performer should feel confident and competent to deliver safe and effective care. During the Agreement Term period, a probationary flag will be shown against the Performer's name on the Performers List.</p>
+                        
+                        <p>NHSE will review the Performer's progression through the Agreement at the agreed intervals and it will invite the Performer to submit evidence to prior to confirming whether agreed actions have been satisfactorily completed or whether further work is required.</p>
+                    </div>
+
+                    <!-- Content area for future functionality -->
+                    <div class="mt-4">
+                        <p class="text-muted"><em>Agreement Terms content will be added here...</em></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

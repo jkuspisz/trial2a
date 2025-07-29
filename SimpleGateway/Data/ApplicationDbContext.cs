@@ -18,6 +18,7 @@ namespace SimpleGateway.Data
         public DbSet<TestDataModel> TestData { get; set; }
         public DbSet<TestDataModel2> TestData2 { get; set; }
         public DbSet<StructuredConversationModel> StructuredConversations { get; set; }
+        public DbSet<AgreementTermsModel> AgreementTerms { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
