@@ -12,8 +12,8 @@ using SimpleGateway.Data;
 namespace SimpleGateway.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250728221950_AddStructuredConversationTable")]
-    partial class AddStructuredConversationTable
+    [Migration("20250729091516_AddStructuredConversationTableFinal")]
+    partial class AddStructuredConversationTableFinal
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

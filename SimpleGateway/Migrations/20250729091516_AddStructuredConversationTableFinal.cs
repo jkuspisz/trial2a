@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace SimpleGateway.Migrations
 {
     /// <inheritdoc />
-    public partial class AddStructuredConversationTable : Migration
+    public partial class AddStructuredConversationTableFinal : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
