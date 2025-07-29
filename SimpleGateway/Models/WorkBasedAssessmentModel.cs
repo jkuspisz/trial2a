@@ -22,10 +22,45 @@ namespace SimpleGateway.Models
         public string Status { get; set; } = "Draft"; // "Draft", "PerformerComplete", "Complete"
         
         // PERFORMER SECTION - Customized Questions
+        // Date fields - always ensure UTC for PostgreSQL compatibility
+        private DateTime? _assessmentDate;
         [Display(Name = "Date of Assessment")]
         [DataType(DataType.Date)]
-        public DateTime? AssessmentDate { get; set; }
+        public DateTime? AssessmentDate 
+        { 
+            get => _assessmentDate;
+            set => _assessmentDate = value?.Kind == DateTimeKind.Utc ? value : DateTime.SpecifyKind(value ?? DateTime.UtcNow, DateTimeKind.Utc);
+        }
         
+        private DateTime? _performerSubmittedAt;
+        public DateTime? PerformerSubmittedAt 
+        { 
+            get => _performerSubmittedAt;
+            set => _performerSubmittedAt = value?.Kind == DateTimeKind.Utc ? value : value.HasValue ? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc) : null;
+        }
+        
+        private DateTime? _supervisorCompletedAt;
+        public DateTime? SupervisorCompletedAt 
+        { 
+            get => _supervisorCompletedAt;
+            set => _supervisorCompletedAt = value?.Kind == DateTimeKind.Utc ? value : value.HasValue ? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc) : null;
+        }
+        
+        private DateTime _createdAt = DateTime.UtcNow;
+        public DateTime CreatedAt 
+        { 
+            get => _createdAt;
+            set => _createdAt = value.Kind == DateTimeKind.Utc ? value : DateTime.SpecifyKind(value, DateTimeKind.Utc);
+        }
+        
+        private DateTime _updatedAt = DateTime.UtcNow;
+        public DateTime UpdatedAt 
+        { 
+            get => _updatedAt;
+            set => _updatedAt = value.Kind == DateTimeKind.Utc ? value : DateTime.SpecifyKind(value, DateTimeKind.Utc);
+        }
+        
+        // Additional properties that were accidentally removed
         [Display(Name = "Description of Procedure/Case")]
         [DataType(DataType.MultilineText)]
         public string? ProcedureDescription { get; set; }
@@ -40,7 +75,6 @@ namespace SimpleGateway.Models
         
         // Performer submission tracking
         public bool IsPerformerSubmitted { get; set; } = false;
-        public DateTime? PerformerSubmittedAt { get; set; }
         
         // SUPERVISOR SECTION - Simplified to match new requirements
         [Display(Name = "Overall was this encounter acceptable or not acceptable?")]
@@ -53,11 +87,6 @@ namespace SimpleGateway.Models
         // Supervisor submission tracking
         public bool IsSupervisorCompleted { get; set; } = false;
         public string? CompletedBySupervisor { get; set; }
-        public DateTime? SupervisorCompletedAt { get; set; }
-        
-        // Audit fields
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
         
         // Helper method to determine display status
         public string GetDisplayStatus()
