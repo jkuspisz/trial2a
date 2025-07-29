@@ -1422,7 +1422,46 @@ namespace SimpleGateway.Controllers
 
         public IActionResult AgreementTerms(string performerUsername)
         {
-            return HandlePerformerSection(performerUsername, "AgreementTerms");
+            var currentUser = HttpContext.Session.GetString("username");
+            var currentRole = HttpContext.Session.GetString("role");
+            
+            if (string.IsNullOrEmpty(currentUser))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            // Check permissions
+            if (currentRole == "performer" && currentUser != performerUsername)
+            {
+                return RedirectToAction("Index");
+            }
+
+            // Set common ViewBag properties
+            ViewBag.PerformerUsername = performerUsername;
+            ViewBag.CurrentUserRole = currentRole;
+            ViewBag.CurrentUser = currentUser;
+            ViewBag.IsOwnDashboard = (currentUser == performerUsername);
+            ViewBag.CanEdit = (currentRole == "performer" && currentUser == performerUsername);
+            ViewBag.CanComment = (currentRole == "supervisor" || currentRole == "advisor" || currentRole == "superuser");
+            ViewBag.CanApprove = (currentRole == "supervisor" || currentRole == "advisor" || currentRole == "superuser");
+            ViewBag.IsReadOnly = (currentRole == "admin");
+            ViewBag.ActiveSection = "AgreementTerms";
+
+            // Get performer's name for display
+            var performer = _context.Users.FirstOrDefault(u => u.Username == performerUsername);
+            if (performer != null)
+            {
+                ViewBag.PerformerName = $"{performer.FirstName} {performer.LastName}";
+            }
+
+            // Load or create AgreementTermsModel
+            var model = _context.AgreementTerms.FirstOrDefault(a => a.Username == performerUsername);
+            if (model == null)
+            {
+                model = new AgreementTermsModel { Username = performerUsername };
+            }
+
+            return View("Performer/AgreementTerms", model);
         }
 
         public IActionResult WorkBasedAssessments(string performerUsername)

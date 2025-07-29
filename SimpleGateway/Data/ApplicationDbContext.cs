@@ -19,6 +19,7 @@ namespace SimpleGateway.Data
         public DbSet<TestDataModel2> TestData2 { get; set; }
         public DbSet<StructuredConversationModel> StructuredConversations { get; set; }
         public DbSet<WorkBasedAssessmentModel> WorkBasedAssessments { get; set; }
+        public DbSet<AgreementTermsModel> AgreementTerms { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -177,6 +178,13 @@ namespace SimpleGateway.Data
                 entity.Property(e => e.LearningNeeds).HasColumnType("text");
                 entity.Property(e => e.SupervisorActionPlan).HasColumnType("text");
                 entity.Property(e => e.CompletedBySupervisor).HasMaxLength(256);
+            });
+
+            // Configure AgreementTermsModel
+            modelBuilder.Entity<AgreementTermsModel>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Username).HasMaxLength(256);
             });
         }
     }
