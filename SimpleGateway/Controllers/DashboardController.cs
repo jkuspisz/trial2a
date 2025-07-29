@@ -1864,7 +1864,7 @@ namespace SimpleGateway.Controllers
             ViewBag.ActiveSection = "WorkBasedAssessments";
             ViewBag.Assessments = assessments;
             ViewBag.CanCreate = (currentRole == "performer" && performerUsername == currentUser) || currentRole == "admin";
-            ViewBag.CanEditSupervisor = currentRole == "admin" || currentRole == "advisor";
+            ViewBag.CanEditSupervisor = currentRole == "admin" || currentRole == "advisor" || currentRole == "supervisor";
 
             // Get performer display name
             var performer = _context.Users.FirstOrDefault(u => u.Username == performerUsername);
@@ -1992,8 +1992,13 @@ namespace SimpleGateway.Controllers
                 
                 // Determine what user can edit
                 ViewBag.CanEditPerformer = (currentRole == "performer" && assessment.Username == currentUser) || currentRole == "admin";
-                ViewBag.CanEditSupervisor = currentRole == "admin" || currentRole == "advisor";
+                ViewBag.CanEditSupervisor = currentRole == "admin" || currentRole == "advisor" || currentRole == "supervisor";
                 ViewBag.IsReadOnly = (!ViewBag.CanEditPerformer && !ViewBag.CanEditSupervisor);
+
+                Console.WriteLine($"DEBUG: ROLE PERMISSIONS - CurrentUser: '{currentUser}', CurrentRole: '{currentRole}'");
+                Console.WriteLine($"DEBUG: ROLE PERMISSIONS - CanEditPerformer: {ViewBag.CanEditPerformer}");
+                Console.WriteLine($"DEBUG: ROLE PERMISSIONS - CanEditSupervisor: {ViewBag.CanEditSupervisor}");
+                Console.WriteLine($"DEBUG: ROLE PERMISSIONS - IsReadOnly: {ViewBag.IsReadOnly}");
 
                 // Get performer display name
                 var performer = _context.Users.FirstOrDefault(u => u.Username == assessment.Username);

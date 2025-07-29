@@ -243,125 +243,108 @@
                         </div>
                     </div>
 
-                    <!-- SUPERVISOR SECTION -->
+                    <!-- SUPERVISOR SECTION - Following Field-Level Permissions Pattern -->
                     <div class="card">
                         <div class="card-header">
                             <h5><i class="bi bi-person-badge"></i> Supervisor Section</h5>
-                        </div>
-                        <div class="card-body">
-                            @if (!Model.IsPerformerSubmitted)
+                            @if (ViewBag.CurrentRole == "supervisor" || ViewBag.CurrentRole == "advisor" || ViewBag.CurrentRole == "admin")
                             {
-                                <div class="alert alert-warning">
-                                    <i class="bi bi-clock"></i> This section will be available after the performer submits their assessment.
-                                </div>
-                            }
-                            else if (ViewBag.CanEditSupervisor && !Model.IsSupervisorCompleted)
-                            {
-                                <!-- Editable Supervisor Form -->
-                                <form method="post" action="/Dashboard/CompleteSupervisorAssessment">
-                                    <input type="hidden" asp-for="Id" />
-
-                                    <div class="row mb-3">
-                                        <div class="col-md-6">
-                                            <label asp-for="SupervisorName" class="form-label"></label>
-                                            <input asp-for="SupervisorName" class="form-control" placeholder="Full name of supervisor" />
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label asp-for="SupervisorRole" class="form-label"></label>
-                                            <input asp-for="SupervisorRole" class="form-control" placeholder="e.g., Consultant, Senior Registrar" />
-                                        </div>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label asp-for="OverallRating" class="form-label"></label>
-                                        <select asp-for="OverallRating" class="form-select">
-                                            <option value="">Select overall performance rating</option>
-                                            <option value="Excellent">Excellent</option>
-                                            <option value="Good">Good</option>
-                                            <option value="Satisfactory">Satisfactory</option>
-                                            <option value="Needs Improvement">Needs Improvement</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label asp-for="SkillsAssessment" class="form-label"></label>
-                                        <textarea asp-for="SkillsAssessment" class="form-control" rows="4"
-                                                  placeholder="Detailed assessment of specific skills demonstrated..."></textarea>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label asp-for="SupervisorComments" class="form-label"></label>
-                                        <textarea asp-for="SupervisorComments" class="form-control" rows="4"
-                                                  placeholder="Overall comments on performance and areas observed..."></textarea>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label asp-for="Recommendations" class="form-label"></label>
-                                        <textarea asp-for="Recommendations" class="form-control" rows="3"
-                                                  placeholder="Recommendations for continued development..."></textarea>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label asp-for="ActionPlan" class="form-label"></label>
-                                        <textarea asp-for="ActionPlan" class="form-control" rows="3"
-                                                  placeholder="Specific action plan for improvement or next steps..."></textarea>
-                                    </div>
-
-                                    <button type="submit" class="btn btn-success">
-                                        <i class="bi bi-check-circle"></i> Complete Assessment
-                                    </button>
-                                </form>
-                            }
-                            else if (Model.IsSupervisorCompleted)
-                            {
-                                <!-- Read-only Supervisor Section -->
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <strong>Supervisor Name:</strong>
-                                        <p>@(Model.SupervisorName ?? "Not specified")</p>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <strong>Supervisor Role:</strong>
-                                        <p>@(Model.SupervisorRole ?? "Not specified")</p>
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <strong>Overall Performance Rating:</strong>
-                                    <p><span class="badge bg-@(Model.OverallRating == "Excellent" ? "success" : Model.OverallRating == "Good" ? "primary" : Model.OverallRating == "Satisfactory" ? "warning" : "danger")">@(Model.OverallRating ?? "Not rated")</span></p>
-                                </div>
-
-                                <div class="mb-3">
-                                    <strong>Specific Skills Assessment:</strong>
-                                    <p class="border p-3 bg-light">@(Model.SkillsAssessment ?? "Not provided")</p>
-                                </div>
-
-                                <div class="mb-3">
-                                    <strong>Supervisor Comments:</strong>
-                                    <p class="border p-3 bg-light">@(Model.SupervisorComments ?? "Not provided")</p>
-                                </div>
-
-                                <div class="mb-3">
-                                    <strong>Recommendations:</strong>
-                                    <p class="border p-3 bg-light">@(Model.Recommendations ?? "Not provided")</p>
-                                </div>
-
-                                <div class="mb-3">
-                                    <strong>Action Plan:</strong>
-                                    <p class="border p-3 bg-light">@(Model.ActionPlan ?? "Not provided")</p>
-                                </div>
-
-                                <div class="alert alert-success">
-                                    <i class="bi bi-check-circle"></i> 
-                                    Completed by @Model.CompletedBySupervisor on @Model.SupervisorCompletedAt?.ToString("MMMM dd, yyyy 'at' h:mm tt")
-                                </div>
+                                <small class="text-muted">You can edit this section</small>
                             }
                             else
                             {
-                                <div class="alert alert-info">
-                                    <i class="bi bi-info-circle"></i> Only supervisors/advisors can complete this section.
-                                </div>
+                                <small class="text-muted">View-only for your role</small>
                             }
+                        </div>
+                        <div class="card-body">
+                            <!-- Supervisor section is ALWAYS visible but conditionally editable -->
+                            <form method="post" action="/Dashboard/CompleteSupervisorAssessment">
+                                <input type="hidden" asp-for="Id" />
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label asp-for="SupervisorName" class="form-label"></label>
+                                        <input asp-for="SupervisorName" class="form-control" 
+                                               placeholder="Full name of supervisor"
+                                               readonly="@(!ViewBag.CanEditSupervisor)" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label asp-for="SupervisorRole" class="form-label"></label>
+                                        <input asp-for="SupervisorRole" class="form-control" 
+                                               placeholder="e.g., Consultant, Senior Registrar"
+                                               readonly="@(!ViewBag.CanEditSupervisor)" />
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="OverallRating" class="form-label"></label>
+                                    <select asp-for="OverallRating" class="form-select" 
+                                            disabled="@(!ViewBag.CanEditSupervisor)">
+                                        <option value="">Select overall performance rating</option>
+                                        <option value="Excellent">Excellent</option>
+                                        <option value="Good">Good</option>
+                                        <option value="Satisfactory">Satisfactory</option>
+                                        <option value="Needs Improvement">Needs Improvement</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="SkillsAssessment" class="form-label"></label>
+                                    <textarea asp-for="SkillsAssessment" class="form-control" rows="4"
+                                              placeholder="Detailed assessment of specific skills demonstrated..."
+                                              readonly="@(!ViewBag.CanEditSupervisor)"></textarea>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="SupervisorComments" class="form-label"></label>
+                                    <textarea asp-for="SupervisorComments" class="form-control" rows="4"
+                                              placeholder="Overall comments on performance and areas observed..."
+                                              readonly="@(!ViewBag.CanEditSupervisor)"></textarea>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="Recommendations" class="form-label"></label>
+                                    <textarea asp-for="Recommendations" class="form-control" rows="3"
+                                              placeholder="Recommendations for continued development..."
+                                              readonly="@(!ViewBag.CanEditSupervisor)"></textarea>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="ActionPlan" class="form-label"></label>
+                                    <textarea asp-for="ActionPlan" class="form-control" rows="3"
+                                              placeholder="Specific action plan for improvement or next steps..."
+                                              readonly="@(!ViewBag.CanEditSupervisor)"></textarea>
+                                </div>
+
+                                <!-- Conditional Submit Button following your pattern -->
+                                <div class="mt-4">
+                                    @if (ViewBag.CanEditSupervisor && Model.IsPerformerSubmitted && !Model.IsSupervisorCompleted)
+                                    {
+                                        <button type="submit" class="btn btn-success">
+                                            <i class="bi bi-check-circle"></i> Complete Assessment
+                                        </button>
+                                    }
+                                    else if (!Model.IsPerformerSubmitted)
+                                    {
+                                        <div class="alert alert-warning">
+                                            <i class="bi bi-clock"></i> This section will be enabled after the performer submits their assessment.
+                                        </div>
+                                    }
+                                    else if (Model.IsSupervisorCompleted)
+                                    {
+                                        <div class="alert alert-success">
+                                            <i class="bi bi-check-circle"></i> 
+                                            Assessment completed by @Model.CompletedBySupervisor on @Model.SupervisorCompletedAt?.ToString("MMMM dd, yyyy 'at' h:mm tt")
+                                        </div>
+                                    }
+                                    else if (!ViewBag.CanEditSupervisor)
+                                    {
+                                        <div class="alert alert-info">
+                                            <i class="bi bi-info-circle"></i> Only supervisors/advisors can complete this section.
+                                        </div>
+                                    }
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
