@@ -18,7 +18,6 @@ namespace SimpleGateway.Data
         public DbSet<TestDataModel> TestData { get; set; }
         public DbSet<TestDataModel2> TestData2 { get; set; }
         public DbSet<StructuredConversationModel> StructuredConversations { get; set; }
-        public DbSet<AgreementTermsModel> AgreementTerms { get; set; }
         public DbSet<WorkBasedAssessmentModel> WorkBasedAssessments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -164,6 +163,21 @@ namespace SimpleGateway.Data
                     CreatedDate = seedDate
                 }
             );
+
+            // Configure WorkBasedAssessmentModel
+            modelBuilder.Entity<WorkBasedAssessmentModel>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Username).HasMaxLength(256);
+                entity.Property(e => e.AssessmentType).HasMaxLength(50);
+                entity.Property(e => e.Title).HasMaxLength(500);
+                entity.Property(e => e.Status).HasMaxLength(50);
+                entity.Property(e => e.ProcedureDescription).HasColumnType("text");
+                entity.Property(e => e.LearningReflection).HasColumnType("text");
+                entity.Property(e => e.LearningNeeds).HasColumnType("text");
+                entity.Property(e => e.SupervisorActionPlan).HasColumnType("text");
+                entity.Property(e => e.CompletedBySupervisor).HasMaxLength(256);
+            });
         }
     }
 }
