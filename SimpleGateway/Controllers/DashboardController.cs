@@ -1754,7 +1754,7 @@ namespace SimpleGateway.Controllers
 
         // POST method for performer to update assessment - Database Integration Pattern
         [HttpPost]
-        public IActionResult UpdatePerformerAssessment(WorkBasedAssessmentModel model)
+        public IActionResult UpdatePerformerAssessment(WorkBasedAssessmentModel model, bool isSubmission = false)
         {
             Console.WriteLine($"\n=== UpdatePerformerAssessment DEBUG START ===");
             Console.WriteLine($"DEBUG: Received model - ID: {model.Id}, Username: '{model.Username}', AssessmentType: '{model.AssessmentType}'");
@@ -1771,6 +1771,27 @@ namespace SimpleGateway.Controllers
             if (model == null)
             {
                 return RedirectToAction("WorkBasedAssessments", new { performerUsername = currentUser });
+            }
+
+            // Field-Level Permissions Pattern - Validate permissions before processing
+            var isPerformerEditingOwn = (currentRole == "performer" && model.Username == currentUser);
+            var canEditPerformerFields = isPerformerEditingOwn || currentRole == "admin";
+            var canEditSupervisorFields = (currentRole == "supervisor" || currentRole == "advisor" || currentRole == "admin");
+            
+            // Permission validation
+            if (!canEditPerformerFields && !canEditSupervisorFields)
+            {
+                Console.WriteLine($"ERROR: User {currentUser} ({currentRole}) has no permission to edit assessment for {model.Username}");
+                TempData["ErrorMessage"] = "You don't have permission to edit this assessment.";
+                return RedirectToAction("WorkBasedAssessments", new { performerUsername = model.Username });
+            }
+            
+            // Performers cannot submit assessments they can't edit
+            if (isSubmission && !canEditPerformerFields)
+            {
+                Console.WriteLine($"ERROR: User {currentUser} ({currentRole}) cannot submit assessment for {model.Username}");
+                TempData["ErrorMessage"] = "You don't have permission to submit this assessment.";
+                return RedirectToAction("EditWorkBasedAssessment", new { id = model.Id });
             }
 
             // Database Integration Pattern - Use delete-and-recreate for reliability
@@ -1816,6 +1837,14 @@ namespace SimpleGateway.Controllers
                         model.SupervisorCompletedAt = originalRecord.SupervisorCompletedAt;
                     }
                     
+                    // Handle submission if requested
+                    if (isSubmission)
+                    {
+                        model.IsPerformerSubmitted = true;
+                        model.PerformerSubmittedAt = DateTime.UtcNow;
+                        Console.WriteLine($"DEBUG: Marking assessment ID {model.Id} as submitted by performer");
+                    }
+                    
                     model.UpdatedAt = DateTime.UtcNow;
                     
                     _context.WorkBasedAssessments.Add(model);
@@ -1825,7 +1854,14 @@ namespace SimpleGateway.Controllers
                     if (savedRows > 0)
                     {
                         Console.WriteLine($"DEBUG: Successfully saved assessment using Database Integration Pattern");
-                        TempData["SuccessMessage"] = "Assessment updated successfully!";
+                        if (isSubmission)
+                        {
+                            TempData["SuccessMessage"] = "Assessment submitted successfully! It's now available for supervisor review.";
+                        }
+                        else
+                        {
+                            TempData["SuccessMessage"] = "Assessment updated successfully!";
+                        }
                         Console.WriteLine($"=== UpdatePerformerAssessment DEBUG END ===\n");
                         return RedirectToAction("EditWorkBasedAssessment", new { id = model.Id, performerUsername = model.Username });
                     }
