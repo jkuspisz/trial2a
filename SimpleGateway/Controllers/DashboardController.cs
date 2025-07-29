@@ -2025,7 +2025,13 @@ namespace SimpleGateway.Controllers
         {
             Console.WriteLine($"\n=== UpdatePerformerAssessment DEBUG START ===");
             Console.WriteLine($"DEBUG: Received model - ID: {model.Id}, Username: '{model.Username}', AssessmentType: '{model.AssessmentType}'");
-            Console.WriteLine($"DEBUG: Form fields - AssessmentDate: {model.AssessmentDate}");
+            Console.WriteLine($"DEBUG: CRITICAL DATE DEBUG - AssessmentDate: {model.AssessmentDate}");
+            Console.WriteLine($"DEBUG: CRITICAL DATE DEBUG - AssessmentDate HasValue: {model.AssessmentDate.HasValue}");
+            if (model.AssessmentDate.HasValue)
+            {
+                Console.WriteLine($"DEBUG: CRITICAL DATE DEBUG - AssessmentDate Value: {model.AssessmentDate.Value}");
+                Console.WriteLine($"DEBUG: CRITICAL DATE DEBUG - AssessmentDate ToString: '{model.AssessmentDate.Value.ToString()}'");
+            }
             Console.WriteLine($"DEBUG: Form fields - ClinicalArea: '{model.ClinicalArea}'");
             Console.WriteLine($"DEBUG: Form fields - ProcedureDetails: '{model.ProcedureDetails}'");
             Console.WriteLine($"DEBUG: Form fields - LearningObjectives: '{model.LearningObjectives}'");
@@ -2036,6 +2042,29 @@ namespace SimpleGateway.Controllers
             var currentRole = HttpContext.Session.GetString("role");
             
             Console.WriteLine($"DEBUG: Current session - User: '{currentUser}', Role: '{currentRole}'");
+
+            // CHECK MODEL STATE VALIDATION - This might be the issue!
+            Console.WriteLine($"DEBUG: CRITICAL VALIDATION CHECK - ModelState.IsValid: {ModelState.IsValid}");
+            if (!ModelState.IsValid)
+            {
+                Console.WriteLine($"DEBUG: CRITICAL VALIDATION ERRORS:");
+                foreach (var modelState in ModelState)
+                {
+                    var key = modelState.Key;
+                    var state = modelState.Value;
+                    if (state.Errors.Count > 0)
+                    {
+                        Console.WriteLine($"DEBUG: VALIDATION ERROR - Key: '{key}'");
+                        foreach (var error in state.Errors)
+                        {
+                            Console.WriteLine($"DEBUG: VALIDATION ERROR - Message: '{error.ErrorMessage}'");
+                        }
+                    }
+                }
+                
+                // IF MODEL STATE IS INVALID, THE SAVE WILL FAIL!
+                Console.WriteLine($"DEBUG: CRITICAL - Model validation failed, this might be why data doesn't save when date is provided!");
+            }
             
             if (string.IsNullOrEmpty(currentUser))
             {
@@ -2045,6 +2074,11 @@ namespace SimpleGateway.Controllers
 
             try
             {
+                // TEMPORARY BYPASS: Force ModelState to be valid to test if validation is the issue
+                Console.WriteLine($"DEBUG: TEMPORARY BYPASS - Clearing ModelState to test if validation is blocking saves");
+                ModelState.Clear();
+                Console.WriteLine($"DEBUG: TEMPORARY BYPASS - ModelState.IsValid after clearing: {ModelState.IsValid}");
+
                 // Entry Form Creation Guide Level 4: Emergency table verification
                 try
                 {
