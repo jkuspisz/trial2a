@@ -2159,7 +2159,11 @@ namespace SimpleGateway.Controllers
                 }
 
                 // Update performer fields
-                existingAssessment.AssessmentDate = model.AssessmentDate;
+                // CRITICAL FIX: Strip time component from date to ensure only date is stored
+                existingAssessment.AssessmentDate = model.AssessmentDate?.Date;
+                Console.WriteLine($"DEBUG: DATE FIX - Original model.AssessmentDate: {model.AssessmentDate}");
+                Console.WriteLine($"DEBUG: DATE FIX - Stripped to date only: {existingAssessment.AssessmentDate}");
+                
                 existingAssessment.ClinicalArea = model.ClinicalArea;
                 existingAssessment.ProcedureDetails = model.ProcedureDetails;
                 existingAssessment.LearningObjectives = model.LearningObjectives;
@@ -2208,8 +2212,17 @@ namespace SimpleGateway.Controllers
                 _context.SaveChanges();
                 Console.WriteLine($"DEBUG: Deleted existing assessment ID {model.Id}");
 
+                Console.WriteLine("DEBUG: CRITICAL - About to create new record with updated data");
+                Console.WriteLine($"DEBUG: CRITICAL - updatedAssessment.AssessmentDate: {updatedAssessment.AssessmentDate}");
+                Console.WriteLine($"DEBUG: CRITICAL - updatedAssessment.ClinicalArea: '{updatedAssessment.ClinicalArea}'");
+                Console.WriteLine($"DEBUG: CRITICAL - updatedAssessment.ProcedureDetails: '{updatedAssessment.ProcedureDetails}'");
+                Console.WriteLine($"DEBUG: CRITICAL - updatedAssessment.Username: '{updatedAssessment.Username}'");
+
                 // CREATE new record with updated data
+                Console.WriteLine("DEBUG: CRITICAL - Adding updatedAssessment to context");
                 _context.WorkBasedAssessments.Add(updatedAssessment);
+                
+                Console.WriteLine("DEBUG: CRITICAL - About to call SaveChanges for new record");
                 var saveResult = _context.SaveChanges();
                 Console.WriteLine($"DEBUG: Created new assessment, SaveChanges() returned: {saveResult} rows affected");
                 
