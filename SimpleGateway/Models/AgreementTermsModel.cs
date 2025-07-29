@@ -42,7 +42,6 @@ namespace SimpleGateway.Models
         public bool IsReleased { get; set; } = false;
         public string? ReleasedBy { get; set; }
         public DateTime? ReleasedDate { get; set; }
-
         public bool IsAgreedByPerformer { get; set; } = false;
         public string? AgreedBy { get; set; }
         public DateTime? AgreedDate { get; set; }
