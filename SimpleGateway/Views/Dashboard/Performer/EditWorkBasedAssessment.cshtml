@@ -223,64 +223,60 @@
                             }
                         </div>
                         <div class="card-body">
-                            <!-- Supervisor section is ALWAYS visible but conditionally editable -->
-                            <form method="post" action="/Dashboard/CompleteSupervisorAssessment">
-                                <input type="hidden" asp-for="Id" />
+                            <!-- Supervisor section follows Field-Level Permissions Pattern -->
+                            <div class="mb-3">
+                                <label asp-for="OverallAcceptable" class="form-label">Overall was this encounter acceptable or not acceptable?</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" asp-for="OverallAcceptable" value="true" id="acceptable"
+                                           disabled="@(!ViewBag.CanEditSupervisor)" />
+                                    <label class="form-check-label" for="acceptable">
+                                        Acceptable
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" asp-for="OverallAcceptable" value="false" id="notAcceptable"
+                                           disabled="@(!ViewBag.CanEditSupervisor)" />
+                                    <label class="form-check-label" for="notAcceptable">
+                                        Not Acceptable
+                                    </label>
+                                </div>
+                            </div>
 
-                                <div class="mb-3">
-                                    <label asp-for="OverallAcceptable" class="form-label">Overall was this encounter acceptable or not acceptable?</label>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" asp-for="OverallAcceptable" value="true" id="acceptable"
-                                               disabled="@(!ViewBag.CanEditSupervisor)" />
-                                        <label class="form-check-label" for="acceptable">
-                                            Acceptable
-                                        </label>
+                            <div class="mb-3">
+                                <label asp-for="SupervisorActionPlan" class="form-label">Overall comment on the encounter and provide an agreed action plan (if needed). It is useful to include any resources the performer could reference.</label>
+                                <textarea asp-for="SupervisorActionPlan" class="form-control" rows="6"
+                                          placeholder="Provide your overall comments on the encounter and include an agreed action plan if needed. Consider including any useful resources or references for the performer..."
+                                          readonly="@(!ViewBag.CanEditSupervisor)"></textarea>
+                            </div>
+
+                            <!-- Field-Level Permissions Pattern: Conditional Submit Buttons -->
+                            <div class="mt-4">
+                                @if (ViewBag.CanEditSupervisor && Model.IsPerformerSubmitted && !Model.IsSupervisorCompleted)
+                                {
+                                    <button type="submit" name="isSupervisorCompletion" value="true" class="btn btn-success">
+                                        <i class="bi bi-check-circle"></i> Complete Assessment
+                                    </button>
+                                }
+                                else if (!Model.IsPerformerSubmitted)
+                                {
+                                    <div class="alert alert-warning">
+                                        <i class="bi bi-clock"></i> This section will be enabled after the performer submits their assessment.
                                     </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" asp-for="OverallAcceptable" value="false" id="notAcceptable"
-                                               disabled="@(!ViewBag.CanEditSupervisor)" />
-                                        <label class="form-check-label" for="notAcceptable">
-                                            Not Acceptable
-                                        </label>
+                                }
+                                else if (Model.IsSupervisorCompleted)
+                                {
+                                    <div class="alert alert-success">
+                                        <i class="bi bi-check-circle"></i> 
+                                        Assessment completed by @Model.CompletedBySupervisor on @Model.SupervisorCompletedAt?.ToString("MMMM dd, yyyy 'at' h:mm tt")
                                     </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label asp-for="SupervisorActionPlan" class="form-label">Overall comment on the encounter and provide an agreed action plan (if needed). It is useful to include any resources the performer could reference.</label>
-                                    <textarea asp-for="SupervisorActionPlan" class="form-control" rows="6"
-                                              placeholder="Provide your overall comments on the encounter and include an agreed action plan if needed. Consider including any useful resources or references for the performer..."
-                                              readonly="@(!ViewBag.CanEditSupervisor)"></textarea>
-                                </div>
-
-                                <!-- Conditional Submit Button following your pattern -->
-                                <div class="mt-4">
-                                    @if (ViewBag.CanEditSupervisor && Model.IsPerformerSubmitted && !Model.IsSupervisorCompleted)
-                                    {
-                                        <button type="submit" class="btn btn-success">
-                                            <i class="bi bi-check-circle"></i> Complete
-                                        </button>
-                                    }
-                                    else if (!Model.IsPerformerSubmitted)
-                                    {
-                                        <div class="alert alert-warning">
-                                            <i class="bi bi-clock"></i> This section will be enabled after the performer submits their assessment.
-                                        </div>
-                                    }
-                                    else if (Model.IsSupervisorCompleted)
-                                    {
-                                        <div class="alert alert-success">
-                                            <i class="bi bi-check-circle"></i> 
-                                            Assessment completed by @Model.CompletedBySupervisor on @Model.SupervisorCompletedAt?.ToString("MMMM dd, yyyy 'at' h:mm tt")
-                                        </div>
-                                    }
-                                    else if (!ViewBag.CanEditSupervisor)
-                                    {
-                                        <div class="alert alert-info">
-                                            <i class="bi bi-info-circle"></i> Only supervisors/advisors can complete this section.
-                                        </div>
-                                    }
-                                </div>
-                            </form>
+                                }
+                                else if (!ViewBag.CanEditSupervisor)
+                                {
+                                    <div class="alert alert-info">
+                                        <i class="bi bi-info-circle"></i> Only supervisors/advisors can complete this section.
+                                    </div>
+                                }
+                            </div>
                         </div>
                     </div>
                 </div>

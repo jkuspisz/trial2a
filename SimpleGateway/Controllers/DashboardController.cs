@@ -1752,12 +1752,13 @@ namespace SimpleGateway.Controllers
             }
         }
 
-        // POST method for performer to update assessment - Database Integration Pattern
+        // POST method for performer to update assessment - Database Integration Pattern with Field-Level Permissions
         [HttpPost]
-        public IActionResult UpdatePerformerAssessment(WorkBasedAssessmentModel model, bool isSubmission = false)
+        public IActionResult UpdatePerformerAssessment(WorkBasedAssessmentModel model, bool isSubmission = false, bool isSupervisorCompletion = false)
         {
             Console.WriteLine($"\n=== UpdatePerformerAssessment DEBUG START ===");
             Console.WriteLine($"DEBUG: Received model - ID: {model.Id}, Username: '{model.Username}', AssessmentType: '{model.AssessmentType}'");
+            Console.WriteLine($"DEBUG: isSubmission: {isSubmission}, isSupervisorCompletion: {isSupervisorCompletion}");
             
             var currentUser = HttpContext.Session.GetString("username");
             var currentRole = HttpContext.Session.GetString("role");
@@ -1791,7 +1792,15 @@ namespace SimpleGateway.Controllers
             {
                 Console.WriteLine($"ERROR: User {currentUser} ({currentRole}) cannot submit assessment for {model.Username}");
                 TempData["ErrorMessage"] = "You don't have permission to submit this assessment.";
-                return RedirectToAction("EditWorkBasedAssessment", new { id = model.Id });
+                return RedirectToAction("EditWorkBasedAssessment", new { id = model.Id, performerUsername = model.Username });
+            }
+            
+            // Supervisors cannot complete assessments they can't edit
+            if (isSupervisorCompletion && !canEditSupervisorFields)
+            {
+                Console.WriteLine($"ERROR: User {currentUser} ({currentRole}) cannot complete assessment for {model.Username}");
+                TempData["ErrorMessage"] = "You don't have permission to complete this assessment.";
+                return RedirectToAction("EditWorkBasedAssessment", new { id = model.Id, performerUsername = model.Username });
             }
 
             // Database Integration Pattern - Use delete-and-recreate for reliability
@@ -1812,37 +1821,85 @@ namespace SimpleGateway.Controllers
                     
                     if (existingRecords.Any())
                     {
-                        Console.WriteLine($"DEBUG: Found {existingRecords.Count} existing records for ID {model.Id} - deleting");
-                        _context.WorkBasedAssessments.RemoveRange(existingRecords);
+                        var existingRecord = existingRecords.First();
+                        Console.WriteLine($"DEBUG: Found existing record for ID {model.Id} - applying Field-Level Permissions");
                         
-                        // Save deletions first
+                        // Field-Level Permissions Pattern: Preserve fields based on user permissions
+                        if (isSupervisorCompletion && canEditSupervisorFields && !canEditPerformerFields)
+                        {
+                            // Supervisors completing: Preserve all fields EXCEPT supervisor fields
+                            Console.WriteLine($"Supervisor {currentUser} completing assessment - preserving performer fields");
+                            
+                            var newOverallAcceptable = model.OverallAcceptable;
+                            var newSupervisorActionPlan = model.SupervisorActionPlan;
+                            
+                            // Use reflection to copy all properties except supervisor fields
+                            var properties = typeof(WorkBasedAssessmentModel).GetProperties();
+                            foreach (var prop in properties)
+                            {
+                                if (prop.Name != "OverallAcceptable" && 
+                                    prop.Name != "SupervisorActionPlan" && 
+                                    prop.Name != "IsSupervisorCompleted" &&
+                                    prop.Name != "CompletedBySupervisor" &&
+                                    prop.Name != "SupervisorCompletedAt" &&
+                                    prop.Name != "Status" &&
+                                    prop.Name != "UpdatedAt" &&
+                                    prop.Name != "Id" && 
+                                    prop.CanWrite)
+                                {
+                                    var existingValue = prop.GetValue(existingRecord);
+                                    prop.SetValue(model, existingValue);
+                                }
+                            }
+                            
+                            // Restore supervisor fields with new values
+                            model.OverallAcceptable = newOverallAcceptable;
+                            model.SupervisorActionPlan = newSupervisorActionPlan;
+                            
+                            // Set completion metadata
+                            model.IsSupervisorCompleted = true;
+                            model.CompletedBySupervisor = currentUser;
+                            model.SupervisorCompletedAt = DateTime.UtcNow;
+                            model.Status = "Complete";
+                        }
+                        else if (canEditPerformerFields && !isSupervisorCompletion)
+                        {
+                            // Performers editing: Preserve supervisor fields, edit everything else
+                            Console.WriteLine($"Performer {currentUser} editing - preserving supervisor fields");
+                            
+                            model.OverallAcceptable = existingRecord.OverallAcceptable;
+                            model.SupervisorActionPlan = existingRecord.SupervisorActionPlan;
+                            model.IsSupervisorCompleted = existingRecord.IsSupervisorCompleted;
+                            model.CompletedBySupervisor = existingRecord.CompletedBySupervisor;
+                            model.SupervisorCompletedAt = existingRecord.SupervisorCompletedAt;
+                            
+                            // Preserve creation timestamp
+                            model.CreatedAt = existingRecord.CreatedAt;
+                        }
+                        else
+                        {
+                            // Default: preserve metadata
+                            model.CreatedAt = existingRecord.CreatedAt;
+                            model.IsPerformerSubmitted = existingRecord.IsPerformerSubmitted;
+                            model.PerformerSubmittedAt = existingRecord.PerformerSubmittedAt;
+                            model.OverallAcceptable = existingRecord.OverallAcceptable;
+                            model.SupervisorActionPlan = existingRecord.SupervisorActionPlan;
+                            model.IsSupervisorCompleted = existingRecord.IsSupervisorCompleted;
+                            model.CompletedBySupervisor = existingRecord.CompletedBySupervisor;
+                            model.SupervisorCompletedAt = existingRecord.SupervisorCompletedAt;
+                        }
+                        
+                        // Handle performer submission
+                        if (isSubmission && canEditPerformerFields)
+                        {
+                            model.IsPerformerSubmitted = true;
+                            model.PerformerSubmittedAt = DateTime.UtcNow;
+                            Console.WriteLine($"DEBUG: Marking assessment ID {model.Id} as submitted by performer");
+                        }
+                        
+                        _context.WorkBasedAssessments.RemoveRange(existingRecords);
                         var deletedRows = _context.SaveChanges();
                         Console.WriteLine($"DEBUG: Deleted {deletedRows} existing records");
-                    }
-                    
-                    // Create new record with latest data
-                    Console.WriteLine($"DEBUG: Creating new record for ID {model.Id}");
-                    
-                    // Preserve important metadata from original record
-                    var originalRecord = existingRecords.FirstOrDefault();
-                    if (originalRecord != null)
-                    {
-                        model.CreatedAt = originalRecord.CreatedAt;
-                        model.IsPerformerSubmitted = originalRecord.IsPerformerSubmitted;
-                        model.PerformerSubmittedAt = originalRecord.PerformerSubmittedAt;
-                        model.OverallAcceptable = originalRecord.OverallAcceptable;
-                        model.SupervisorActionPlan = originalRecord.SupervisorActionPlan;
-                        model.IsSupervisorCompleted = originalRecord.IsSupervisorCompleted;
-                        model.CompletedBySupervisor = originalRecord.CompletedBySupervisor;
-                        model.SupervisorCompletedAt = originalRecord.SupervisorCompletedAt;
-                    }
-                    
-                    // Handle submission if requested
-                    if (isSubmission)
-                    {
-                        model.IsPerformerSubmitted = true;
-                        model.PerformerSubmittedAt = DateTime.UtcNow;
-                        Console.WriteLine($"DEBUG: Marking assessment ID {model.Id} as submitted by performer");
                     }
                     
                     model.UpdatedAt = DateTime.UtcNow;
@@ -1854,7 +1911,11 @@ namespace SimpleGateway.Controllers
                     if (savedRows > 0)
                     {
                         Console.WriteLine($"DEBUG: Successfully saved assessment using Database Integration Pattern");
-                        if (isSubmission)
+                        if (isSupervisorCompletion)
+                        {
+                            TempData["SuccessMessage"] = "Assessment completed successfully! The performer has been notified.";
+                        }
+                        else if (isSubmission)
                         {
                             TempData["SuccessMessage"] = "Assessment submitted successfully! It's now available for supervisor review.";
                         }
@@ -1900,127 +1961,6 @@ namespace SimpleGateway.Controllers
             }
 
             return RedirectToAction("EditWorkBasedAssessment", new { id = model.Id, performerUsername = model.Username });
-        }
-
-        // POST method for supervisor to complete assessment - Database Integration Pattern with Field-Level Permissions
-        [HttpPost]
-        public IActionResult CompleteSupervisorAssessment(WorkBasedAssessmentModel model)
-        {
-            Console.WriteLine($"DEBUG: CompleteSupervisorAssessment for ID: {model.Id}");
-            
-            var currentUser = HttpContext.Session.GetString("username");
-            var currentRole = HttpContext.Session.GetString("role");
-            
-            if (string.IsNullOrEmpty(currentUser))
-            {
-                return RedirectToAction("Login", "Account");
-            }
-
-            if (model == null)
-            {
-                return RedirectToAction("WorkBasedAssessments", new { performerUsername = currentUser });
-            }
-
-            // Permission check: only supervisors/admins can complete assessments
-            if (currentRole != "supervisor" && currentRole != "admin" && currentRole != "advisor")
-            {
-                TempData["ErrorMessage"] = "You don't have permission to complete assessments.";
-                return RedirectToAction("EditWorkBasedAssessment", new { id = model.Id });
-            }
-
-            // Database Integration Pattern with Field-Level Permissions
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    // Database connection verification - SAFE METHOD
-                    var canConnect = _context.Database.CanConnect();
-                    if (!canConnect)
-                    {
-                        _context.Database.EnsureCreated();
-                    }
-                    
-                    // Get existing record for field-level permissions
-                    var existingRecords = _context.WorkBasedAssessments.Where(a => a.Id == model.Id).ToList();
-                    
-                    if (existingRecords.Any())
-                    {
-                        var existingRecord = existingRecords.First();
-                        
-                        // FIELD-LEVEL PERMISSIONS: Supervisors can ONLY edit supervisor fields
-                        Console.WriteLine($"Supervisor {currentUser} editing supervisor fields only for assessment {model.Id}");
-                        
-                        // Save new supervisor values
-                        var newOverallAcceptable = model.OverallAcceptable;
-                        var newSupervisorActionPlan = model.SupervisorActionPlan;
-                        
-                        // Use reflection to copy all properties except supervisor fields
-                        var properties = typeof(WorkBasedAssessmentModel).GetProperties();
-                        foreach (var prop in properties)
-                        {
-                            if (prop.Name != "OverallAcceptable" && 
-                                prop.Name != "SupervisorActionPlan" && 
-                                prop.Name != "IsSupervisorCompleted" &&
-                                prop.Name != "CompletedBySupervisor" &&
-                                prop.Name != "SupervisorCompletedAt" &&
-                                prop.Name != "Status" &&
-                                prop.Name != "UpdatedAt" &&
-                                prop.Name != "Id" && 
-                                prop.CanWrite)
-                            {
-                                var existingValue = prop.GetValue(existingRecord);
-                                prop.SetValue(model, existingValue);
-                            }
-                        }
-                        
-                        // Restore supervisor fields with new values
-                        model.OverallAcceptable = newOverallAcceptable;
-                        model.SupervisorActionPlan = newSupervisorActionPlan;
-                        
-                        // Set completion metadata
-                        model.IsSupervisorCompleted = true;
-                        model.CompletedBySupervisor = currentUser;
-                        model.SupervisorCompletedAt = DateTime.UtcNow;
-                        model.Status = "Complete";
-                        model.UpdatedAt = DateTime.UtcNow;
-                        
-                        // Delete-and-recreate pattern for reliability
-                        _context.WorkBasedAssessments.RemoveRange(existingRecords);
-                        var deletedRows = _context.SaveChanges();
-                        Console.WriteLine($"DEBUG: Deleted {deletedRows} existing records");
-                        
-                        _context.WorkBasedAssessments.Add(model);
-                        var savedRows = _context.SaveChanges();
-                        
-                        if (savedRows > 0)
-                        {
-                            Console.WriteLine($"DEBUG: Assessment ID {model.Id} completed by supervisor {currentUser}");
-                            TempData["SuccessMessage"] = "Assessment completed successfully!";
-                            return RedirectToAction("WorkBasedAssessments", new { performerUsername = model.Username });
-                        }
-                        else
-                        {
-                            TempData["ErrorMessage"] = "Save failed - no changes were made.";
-                        }
-                    }
-                    else
-                    {
-                        TempData["ErrorMessage"] = "Assessment not found.";
-                        return RedirectToAction("Index");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    // ✅ SAFE ERROR HANDLING - Log errors without destroying data
-                    Console.WriteLine($"ERROR: Failed to complete assessment: {ex.Message}");
-                    TempData["ErrorMessage"] = $"Error completing assessment: {ex.Message}";
-                    
-                    // 🚨 NEVER DO THIS IN CATCH BLOCKS:
-                    // _context.Database.EnsureDeleted(); // ❌ DESTROYS ALL DATA
-                }
-            }
-
-            return RedirectToAction("EditWorkBasedAssessment", new { id = model.Id });
         }
     }
 }
