@@ -1495,9 +1495,297 @@ namespace SimpleGateway.Controllers
             return View("Performer/StructuredConversation", model);
         }
 
-        public IActionResult AgreementTerms(string performerUsername)
+        [HttpGet]
+        public async Task<IActionResult> AgreementTerms(string performerUsername)
         {
-            return HandlePerformerSection(performerUsername, "AgreementTerms");
+            var currentUser = HttpContext.Session.GetString("username");
+            var currentRole = HttpContext.Session.GetString("role");
+            
+            if (string.IsNullOrEmpty(currentUser))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            if (string.IsNullOrEmpty(performerUsername))
+            {
+                performerUsername = currentUser;
+            }
+
+            Console.WriteLine($"AGREEMENT TERMS DEBUG: GET method called by {currentRole} user {currentUser} for performer {performerUsername}");
+
+            // Set up ViewBag for navigation and permissions
+            ViewBag.PerformerUsername = performerUsername;
+            ViewBag.CurrentUser = currentUser;
+            ViewBag.CurrentRole = currentRole;
+            ViewBag.ActiveSection = "AgreementTerms";
+            ViewBag.CanEditAdvisorFields = (currentRole == "advisor" || currentRole == "admin" || currentRole == "superuser");
+
+            // EMERGENCY TABLE CREATION - Direct SQL as final fallback
+            try
+            {
+                var testQuery = _context.AgreementTerms.Take(1).ToList();
+                Console.WriteLine("AGREEMENT TERMS DEBUG: AgreementTerms table exists and is accessible");
+            }
+            catch (Exception tableEx)
+            {
+                Console.WriteLine($"AGREEMENT TERMS DEBUG: Table access failed - {tableEx.Message}");
+                Console.WriteLine("AGREEMENT TERMS DEBUG: Attempting emergency table creation with direct SQL");
+                
+                try
+                {
+                    await _context.Database.ExecuteSqlRawAsync(@"
+                        CREATE TABLE IF NOT EXISTS ""AgreementTerms"" (
+                            ""Id"" SERIAL PRIMARY KEY,
+                            ""Username"" TEXT NOT NULL,
+                            ""Restriction1"" BOOLEAN DEFAULT FALSE,
+                            ""Restriction2"" BOOLEAN DEFAULT FALSE,
+                            ""Restriction3"" BOOLEAN DEFAULT FALSE,
+                            ""Restriction4"" BOOLEAN DEFAULT FALSE,
+                            ""Restriction5"" BOOLEAN DEFAULT FALSE,
+                            ""Action1"" BOOLEAN DEFAULT FALSE,
+                            ""Action2"" BOOLEAN DEFAULT FALSE,
+                            ""Action3"" BOOLEAN DEFAULT FALSE,
+                            ""Action4"" BOOLEAN DEFAULT FALSE,
+                            ""Action5"" BOOLEAN DEFAULT FALSE,
+                            ""Action6"" BOOLEAN DEFAULT FALSE,
+                            ""Action7"" BOOLEAN DEFAULT FALSE,
+                            ""Action8"" BOOLEAN DEFAULT FALSE,
+                            ""Action9"" BOOLEAN DEFAULT FALSE,
+                            ""Action10"" BOOLEAN DEFAULT FALSE,
+                            ""Action11"" BOOLEAN DEFAULT FALSE,
+                            ""Action12"" BOOLEAN DEFAULT FALSE,
+                            ""Action13"" BOOLEAN DEFAULT FALSE,
+                            ""Action14"" BOOLEAN DEFAULT FALSE,
+                            ""Action15"" BOOLEAN DEFAULT FALSE,
+                            ""Action16"" BOOLEAN DEFAULT FALSE,
+                            ""Action17"" BOOLEAN DEFAULT FALSE,
+                            ""CustomTerms"" TEXT,
+                            ""IsReleased"" BOOLEAN DEFAULT FALSE,
+                            ""ReleasedBy"" TEXT,
+                            ""ReleasedDate"" TIMESTAMP WITH TIME ZONE,
+                            ""IsAgreedByPerformer"" BOOLEAN DEFAULT FALSE,
+                            ""AgreedBy"" TEXT,
+                            ""AgreedDate"" TIMESTAMP WITH TIME ZONE,
+                            ""CreatedAt"" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                            ""UpdatedAt"" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                        );
+                    ");
+                    Console.WriteLine("AGREEMENT TERMS DEBUG: Emergency table creation completed successfully");
+                }
+                catch (Exception createEx)
+                {
+                    Console.WriteLine($"AGREEMENT TERMS DEBUG: Emergency table creation also failed - {createEx.Message}");
+                    
+                    // Check if the database connection exists at all
+                    if (_context.Database.CanConnect())
+                    {
+                        try
+                        {
+                            Console.WriteLine("AGREEMENT TERMS DEBUG: Database connection exists - attempting EnsureCreated fallback");
+                            _context.Database.EnsureCreated();
+                            Console.WriteLine("AGREEMENT TERMS DEBUG: EnsureCreated completed");
+                        }
+                        catch (Exception ensureEx)
+                        {
+                            Console.WriteLine($"AGREEMENT TERMS DEBUG: EnsureCreated also failed - {ensureEx.Message}");
+                            throw;
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("AGREEMENT TERMS DEBUG: No database connection available");
+                        throw;
+                    }
+                }
+            }
+
+            // Load existing data or create new model
+            var model = _context.AgreementTerms.FirstOrDefault(x => x.Username == performerUsername) 
+                        ?? new AgreementTermsModel { Username = performerUsername };
+
+            Console.WriteLine($"AGREEMENT TERMS DEBUG: Loaded model for {performerUsername}, IsReleased: {model.IsReleased}, IsAgreedByPerformer: {model.IsAgreedByPerformer}");
+
+            return View("Performer/AgreementTerms", model);
+        }
+
+        [HttpPost]
+        public IActionResult ReleaseAgreementTerms(AgreementTermsModel model)
+        {
+            var currentUser = HttpContext.Session.GetString("username");
+            var currentRole = HttpContext.Session.GetString("role");
+            
+            if (string.IsNullOrEmpty(currentUser))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            // Permission check - only advisors/admins can release
+            var canEditAdvisorFields = (currentRole == "advisor" || currentRole == "admin" || currentRole == "superuser");
+            
+            if (!canEditAdvisorFields)
+            {
+                Console.WriteLine($"AGREEMENT TERMS DEBUG: Access denied - role {currentRole} cannot release agreement terms");
+                TempData["ErrorMessage"] = "Only advisors and administrators can release agreement terms.";
+                return RedirectToAction("AgreementTerms", new { performerUsername = model.Username });
+            }
+
+            Console.WriteLine($"AGREEMENT TERMS DEBUG: {currentRole} user {currentUser} releasing agreement terms for {model.Username}");
+
+            try
+            {
+                // Emergency table creation (same as GET method)
+                try
+                {
+                    var testQuery = _context.AgreementTerms.Take(1).ToList();
+                    Console.WriteLine("AGREEMENT TERMS DEBUG: AgreementTerms table accessible in POST method");
+                }
+                catch (Exception tableEx)
+                {
+                    Console.WriteLine($"AGREEMENT TERMS DEBUG: POST - Table access failed - {tableEx.Message}");
+                    _context.Database.EnsureCreated();
+                }
+
+                // CRITICAL: Delete all existing records for this user first (delete-and-recreate pattern)
+                var existingRecords = _context.AgreementTerms.Where(x => x.Username == model.Username).ToList();
+                
+                if (existingRecords.Any())
+                {
+                    Console.WriteLine($"AGREEMENT TERMS DEBUG: Found {existingRecords.Count} existing records for {model.Username} - deleting all");
+                    _context.AgreementTerms.RemoveRange(existingRecords);
+                    var deletedRows = _context.SaveChanges();
+                    Console.WriteLine($"AGREEMENT TERMS DEBUG: Deleted {deletedRows} existing records");
+                }
+
+                // CREATE new record with release information
+                model.IsReleased = true;
+                model.ReleasedBy = currentUser;
+                model.ReleasedDate = DateTime.UtcNow;
+                model.UpdatedAt = DateTime.UtcNow;
+
+                // Reset performer agreement when advisor releases new terms
+                model.IsAgreedByPerformer = false;
+                model.AgreedBy = null;
+                model.AgreedDate = null;
+
+                _context.AgreementTerms.Add(model);
+                var savedRows = _context.SaveChanges();
+                Console.WriteLine($"AGREEMENT TERMS DEBUG: Saved {savedRows} new records");
+
+                TempData["SuccessMessage"] = "Agreement terms released successfully!";
+                return RedirectToAction("AgreementTerms", new { performerUsername = model.Username });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"AGREEMENT TERMS DEBUG: Error during release: {ex.Message}");
+                TempData["ErrorMessage"] = "Error releasing agreement terms. Please try again.";
+                return RedirectToAction("AgreementTerms", new { performerUsername = model.Username });
+            }
+        }
+
+        [HttpPost]
+        public IActionResult AgreeToTerms(string performerUsername)
+        {
+            var currentUser = HttpContext.Session.GetString("username");
+            var currentRole = HttpContext.Session.GetString("role");
+            
+            if (string.IsNullOrEmpty(currentUser))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            // Only performer themselves can agree to their terms
+            if (currentUser != performerUsername && currentRole != "admin" && currentRole != "superuser")
+            {
+                Console.WriteLine($"AGREEMENT TERMS DEBUG: Access denied - {currentUser} cannot agree to terms for {performerUsername}");
+                TempData["ErrorMessage"] = "You can only agree to your own terms.";
+                return RedirectToAction("AgreementTerms", new { performerUsername = performerUsername });
+            }
+
+            Console.WriteLine($"AGREEMENT TERMS DEBUG: {currentUser} agreeing to terms for {performerUsername}");
+
+            try
+            {
+                var existingRecord = _context.AgreementTerms.FirstOrDefault(x => x.Username == performerUsername);
+                
+                if (existingRecord == null || !existingRecord.IsReleased)
+                {
+                    TempData["ErrorMessage"] = "Agreement terms must be released by an advisor before you can agree to them.";
+                    return RedirectToAction("AgreementTerms", new { performerUsername = performerUsername });
+                }
+
+                // Update agreement status
+                existingRecord.IsAgreedByPerformer = true;
+                existingRecord.AgreedBy = currentUser;
+                existingRecord.AgreedDate = DateTime.UtcNow;
+                existingRecord.UpdatedAt = DateTime.UtcNow;
+
+                _context.SaveChanges();
+                Console.WriteLine($"AGREEMENT TERMS DEBUG: {currentUser} successfully agreed to terms");
+
+                TempData["SuccessMessage"] = "You have successfully agreed to the terms!";
+                return RedirectToAction("AgreementTerms", new { performerUsername = performerUsername });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"AGREEMENT TERMS DEBUG: Error during agreement: {ex.Message}");
+                TempData["ErrorMessage"] = "Error agreeing to terms. Please try again.";
+                return RedirectToAction("AgreementTerms", new { performerUsername = performerUsername });
+            }
+        }
+
+        [HttpPost]
+        public IActionResult ResetPerformerAgreement(string performerUsername)
+        {
+            var currentUser = HttpContext.Session.GetString("username");
+            var currentRole = HttpContext.Session.GetString("role");
+            
+            if (string.IsNullOrEmpty(currentUser))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            // Permission check - only advisors/admins can reset
+            var canEditAdvisorFields = (currentRole == "advisor" || currentRole == "admin" || currentRole == "superuser");
+            
+            if (!canEditAdvisorFields)
+            {
+                Console.WriteLine($"AGREEMENT TERMS DEBUG: Access denied - role {currentRole} cannot reset performer agreement");
+                TempData["ErrorMessage"] = "Only advisors and administrators can reset performer agreements.";
+                return RedirectToAction("AgreementTerms", new { performerUsername = performerUsername });
+            }
+
+            Console.WriteLine($"AGREEMENT TERMS DEBUG: {currentRole} user {currentUser} resetting performer agreement for {performerUsername}");
+
+            try
+            {
+                var existingRecord = _context.AgreementTerms.FirstOrDefault(x => x.Username == performerUsername);
+                
+                if (existingRecord != null)
+                {
+                    // Reset performer agreement only
+                    existingRecord.IsAgreedByPerformer = false;
+                    existingRecord.AgreedBy = null;
+                    existingRecord.AgreedDate = null;
+                    existingRecord.UpdatedAt = DateTime.UtcNow;
+
+                    _context.SaveChanges();
+                    Console.WriteLine($"AGREEMENT TERMS DEBUG: Reset performer agreement for {performerUsername}");
+
+                    TempData["SuccessMessage"] = "Performer agreement has been reset. They can now agree to the terms again.";
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "No agreement terms found for this performer.";
+                }
+
+                return RedirectToAction("AgreementTerms", new { performerUsername = performerUsername });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"AGREEMENT TERMS DEBUG: Error during reset: {ex.Message}");
+                TempData["ErrorMessage"] = "Error resetting performer agreement. Please try again.";
+                return RedirectToAction("AgreementTerms", new { performerUsername = performerUsername });
+            }
         }
 
         public IActionResult WorkBasedAssessments(string performerUsername)

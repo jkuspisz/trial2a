@@ -1,3 +1,4 @@
+@model AgreementTermsModel
 @{
     ViewData["Title"] = "Agreement Terms";
     ViewBag.ActiveSection = "AgreementTerms";
@@ -51,10 +52,294 @@
                         <p>NHSE will review the Performer's progression through the Agreement at the agreed intervals and it will invite the Performer to submit evidence to prior to confirming whether agreed actions have been satisfactorily completed or whether further work is required.</p>
                     </div>
 
-                    <!-- Content area for future functionality -->
-                    <div class="mt-4">
-                        <p class="text-muted"><em>Agreement Terms content will be added here...</em></p>
-                    </div>
+                    <!-- Success/Error Messages -->
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+                    }
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+                    }
+
+                    @if (ViewBag.CanEditAdvisorFields == true)
+                    {
+                        <!-- ADVISOR VIEW - Can edit and release terms -->
+                        <form asp-action="ReleaseAgreementTerms" method="post">
+                            @Html.HiddenFor(m => m.Username)
+                            @Html.HiddenFor(m => m.Id)
+
+                            <h4 class="mt-4 mb-3">RESTRICTIONS</h4>
+                            <p class="text-muted">Whilst this Agreement is in force, the services you provide will be restricted to:</p>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check mb-3">
+                                        @Html.CheckBoxFor(m => m.Restriction1, new { @class = "form-check-input" })
+                                        @Html.LabelFor(m => m.Restriction1, "Practice Requirements & Supporting Dentist", new { @class = "form-check-label" })
+                                        <small class="form-text text-muted">Minimum 2 surgeries, supporting dentist present for first 2 months, etc.</small>
+                                    </div>
+                                    
+                                    <div class="form-check mb-3">
+                                        @Html.CheckBoxFor(m => m.Restriction2, new { @class = "form-check-input" })
+                                        @Html.LabelFor(m => m.Restriction2, "No Out of Hours or Locum Work", new { @class = "form-check-label" })
+                                        <small class="form-text text-muted">No emergency care sessions or locum work during agreement period.</small>
+                                    </div>
+                                    
+                                    <div class="form-check mb-3">
+                                        @Html.CheckBoxFor(m => m.Restriction3, new { @class = "form-check-input" })
+                                        @Html.LabelFor(m => m.Restriction3, "Report Complaints", new { @class = "form-check-label" })
+                                        <small class="form-text text-muted">Must report any complaints during agreement period.</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check mb-3">
+                                        @Html.CheckBoxFor(m => m.Restriction4, new { @class = "form-check-input" })
+                                        @Html.LabelFor(m => m.Restriction4, "12 Month Completion Timeframe", new { @class = "form-check-label" })
+                                        <small class="form-text text-muted">Expected completion within 12 months (24 months pro-rata).</small>
+                                    </div>
+                                    
+                                    <div class="form-check mb-3">
+                                        @Html.CheckBoxFor(m => m.Restriction5, new { @class = "form-check-input" })
+                                        @Html.LabelFor(m => m.Restriction5, "Probationary Flag Link", new { @class = "form-check-label" })
+                                        <small class="form-text text-muted">Agreement linked to probationary flag, remains if you change practice.</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h4 class="mt-4 mb-3">SPECIFIC ACTIONS</h4>
+                            <p class="text-muted">Required actions to be completed by the specified dates:</p>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check mb-2">
+                                        @Html.CheckBoxFor(m => m.Action1, new { @class = "form-check-input" })
+                                        @Html.LabelFor(m => m.Action1, "NHS Courses", new { @class = "form-check-label" })
+                                        <small class="form-text text-muted">NHS Rules & Regulations, Record Keeping, Prescribing, Communication Skills</small>
+                                    </div>
+                                    
+                                    <div class="form-check mb-2">
+                                        @Html.CheckBoxFor(m => m.Action2, new { @class = "form-check-input" })
+                                        @Html.LabelFor(m => m.Action2, "NHS Competency References (6 months)", new { @class = "form-check-label" })
+                                        <small class="form-text text-muted">Two references from appropriate clinicians, one from supporting dentist</small>
+                                    </div>
+                                    
+                                    <div class="form-check mb-2">
+                                        @Html.CheckBoxFor(m => m.Action3, new { @class = "form-check-input" })
+                                        @Html.LabelFor(m => m.Action3, "GDC Core CPD Topics", new { @class = "form-check-label" })
+                                        <small class="form-text text-muted">Medical Emergencies, Disinfection, Radiography, Safeguarding</small>
+                                    </div>
+                                    
+                                    <div class="form-check mb-2">
+                                        @Html.CheckBoxFor(m => m.Action4, new { @class = "form-check-input" })
+                                        @Html.LabelFor(m => m.Action4, "Up-to-date PDP", new { @class = "form-check-label" })
+                                        <small class="form-text text-muted">Personal Development Plan with training needs identified</small>
+                                    </div>
+                                    
+                                    <div class="form-check mb-2">
+                                        @Html.CheckBoxFor(m => m.Action5, new { @class = "form-check-input" })
+                                        @Html.LabelFor(m => m.Action5, "Record Keeping Audit (3 months)", new { @class = "form-check-label" })
+                                        <small class="form-text text-muted">Record keeping audit carried out by NHS England</small>
+                                    </div>
+                                    
+                                    <div class="form-check mb-2">
+                                        @Html.CheckBoxFor(m => m.Action6, new { @class = "form-check-input" })
+                                        @Html.LabelFor(m => m.Action6, "Clinical Audit with Reflection", new { @class = "form-check-label" })
+                                        <small class="form-text text-muted">Complete clinical audit in practice with reflection on outcome</small>
+                                    </div>
+                                    
+                                    <div class="form-check mb-2">
+                                        @Html.CheckBoxFor(m => m.Action7, new { @class = "form-check-input" })
+                                        @Html.LabelFor(m => m.Action7, "Patient Satisfaction Survey (6 months)", new { @class = "form-check-label" })
+                                        <small class="form-text text-muted">Min 20 responses + multi-source feedback with reflection</small>
+                                    </div>
+                                    
+                                    <div class="form-check mb-2">
+                                        @Html.CheckBoxFor(m => m.Action8, new { @class = "form-check-input" })
+                                        @Html.LabelFor(m => m.Action8, "IQD Programme Reflection", new { @class = "form-check-label" })
+                                        <small class="form-text text-muted">Reflection on the IQD programme completion</small>
+                                    </div>
+
+                                    <div class="form-check mb-2">
+                                        @Html.CheckBoxFor(m => m.Action9, new { @class = "form-check-input" })
+                                        @Html.LabelFor(m => m.Action9, "3 DOPS on ID Block", new { @class = "form-check-label" })
+                                        <small class="form-text text-muted">Direct Observation of Procedure skills with Supporting Dentist</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check mb-2">
+                                        @Html.CheckBoxFor(m => m.Action10, new { @class = "form-check-input" })
+                                        @Html.LabelFor(m => m.Action10, "DOPS/CBDs - Radiography", new { @class = "form-check-label" })
+                                        <small class="form-text text-muted">Show competence in Radiography with supporting dentist</small>
+                                    </div>
+                                    
+                                    <div class="form-check mb-2">
+                                        @Html.CheckBoxFor(m => m.Action11, new { @class = "form-check-input" })
+                                        @Html.LabelFor(m => m.Action11, "DOPS/CBDs - Periodontics", new { @class = "form-check-label" })
+                                        <small class="form-text text-muted">Show competence in Periodontics with supporting dentist</small>
+                                    </div>
+                                    
+                                    <div class="form-check mb-2">
+                                        @Html.CheckBoxFor(m => m.Action12, new { @class = "form-check-input" })
+                                        @Html.LabelFor(m => m.Action12, "DOPS/CBDs - Prosthetics", new { @class = "form-check-label" })
+                                        <small class="form-text text-muted">Show competence in Prosthetics with supporting dentist</small>
+                                    </div>
+                                    
+                                    <div class="form-check mb-2">
+                                        @Html.CheckBoxFor(m => m.Action13, new { @class = "form-check-input" })
+                                        @Html.LabelFor(m => m.Action13, "DOPS/CBDs - Direct Restorations", new { @class = "form-check-label" })
+                                        <small class="form-text text-muted">Show competence in Direct Restorations with supporting dentist</small>
+                                    </div>
+                                    
+                                    <div class="form-check mb-2">
+                                        @Html.CheckBoxFor(m => m.Action14, new { @class = "form-check-input" })
+                                        @Html.LabelFor(m => m.Action14, "DOPS/CBDs - Paedodontics", new { @class = "form-check-label" })
+                                        <small class="form-text text-muted">Show competence in Paedodontics with supporting dentist</small>
+                                    </div>
+                                    
+                                    <div class="form-check mb-2">
+                                        @Html.CheckBoxFor(m => m.Action15, new { @class = "form-check-input" })
+                                        @Html.LabelFor(m => m.Action15, "DOPS/CBDs - Oral Surgery", new { @class = "form-check-label" })
+                                        <small class="form-text text-muted">Show competence in Oral Surgery with supporting dentist</small>
+                                    </div>
+                                    
+                                    <div class="form-check mb-2">
+                                        @Html.CheckBoxFor(m => m.Action16, new { @class = "form-check-input" })
+                                        @Html.LabelFor(m => m.Action16, "DOPS/CBDs - Indirect Restorations", new { @class = "form-check-label" })
+                                        <small class="form-text text-muted">Show competence in Indirect Restorations with supporting dentist</small>
+                                    </div>
+                                    
+                                    <div class="form-check mb-2">
+                                        @Html.CheckBoxFor(m => m.Action17, new { @class = "form-check-input" })
+                                        @Html.LabelFor(m => m.Action17, "DOPS/CBDs - Endodontics", new { @class = "form-check-label" })
+                                        <small class="form-text text-muted">Show competence in Endodontics with supporting dentist</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Custom Terms Section -->
+                            <h4 class="mt-4 mb-3">Custom Agreement Terms</h4>
+                            <div class="form-group mb-3">
+                                @Html.LabelFor(m => m.CustomTerms, "Add Bespoke Terms (Optional)", new { @class = "form-label" })
+                                @Html.TextAreaFor(m => m.CustomTerms, new { @class = "form-control", rows = "4", placeholder = "Enter any additional custom agreement terms specific to this performer..." })
+                                <small class="form-text text-muted">These terms will be included with the selected standard terms above.</small>
+                            </div>
+
+                            <!-- Release Button -->
+                            <div class="mt-4">
+                                <button type="submit" class="btn btn-primary btn-lg">Release Agreement Terms</button>
+                                @if (Model.IsAgreedByPerformer)
+                                {
+                                    <form asp-action="ResetPerformerAgreement" method="post" style="display: inline-block; margin-left: 10px;">
+                                        <input type="hidden" name="performerUsername" value="@Model.Username" />
+                                        <button type="submit" class="btn btn-warning" onclick="return confirm('Are you sure you want to reset the performer agreement? They will need to agree to the terms again.')">Reset Performer Agreement</button>
+                                    </form>
+                                }
+                            </div>
+                        </form>
+                    }
+                    else
+                    {
+                        <!-- PERFORMER/SUPERVISOR VIEW - Read-only with agreement option -->
+                        @if (!Model.IsReleased)
+                        {
+                            <div class="alert alert-warning">
+                                <strong>No Agreement Terms Released Yet</strong><br />
+                                An advisor has not yet released agreement terms for this performer. Once terms are released, they will appear here.
+                            </div>
+                        }
+                        else
+                        {
+                            <h4 class="mt-4 mb-3">Active Agreement Terms</h4>
+                            <p class="text-muted">The following terms have been selected and released for this performer:</p>
+
+                            @* Show only selected restrictions *@
+                            @if (Model.Restriction1 || Model.Restriction2 || Model.Restriction3 || Model.Restriction4 || Model.Restriction5)
+                            {
+                                <h5 class="mt-3 mb-2">RESTRICTIONS</h5>
+                                <div class="list-group mb-3">
+                                    @if (Model.Restriction1) { <div class="list-group-item">✓ Practice Requirements & Supporting Dentist - Minimum 2 surgeries, supporting dentist present for first 2 months</div> }
+                                    @if (Model.Restriction2) { <div class="list-group-item">✓ No Out of Hours or Locum Work - No emergency care sessions or locum work during agreement period</div> }
+                                    @if (Model.Restriction3) { <div class="list-group-item">✓ Report Complaints - Must report any complaints during agreement period</div> }
+                                    @if (Model.Restriction4) { <div class="list-group-item">✓ 12 Month Completion Timeframe - Expected completion within 12 months (24 months pro-rata)</div> }
+                                    @if (Model.Restriction5) { <div class="list-group-item">✓ Probationary Flag Link - Agreement linked to probationary flag, remains if you change practice</div> }
+                                </div>
+                            }
+
+                            @* Show only selected actions *@
+                            @if (Model.Action1 || Model.Action2 || Model.Action3 || Model.Action4 || Model.Action5 || 
+                                 Model.Action6 || Model.Action7 || Model.Action8 || Model.Action9 || Model.Action10 ||
+                                 Model.Action11 || Model.Action12 || Model.Action13 || Model.Action14 || Model.Action15 ||
+                                 Model.Action16 || Model.Action17)
+                            {
+                                <h5 class="mt-3 mb-2">SPECIFIC ACTIONS</h5>
+                                <div class="list-group mb-3">
+                                    @if (Model.Action1) { <div class="list-group-item">✓ NHS Courses - NHS Rules & Regulations, Record Keeping, Prescribing, Communication Skills</div> }
+                                    @if (Model.Action2) { <div class="list-group-item">✓ NHS Competency References (After 6 months) - Two references from appropriate clinicians</div> }
+                                    @if (Model.Action3) { <div class="list-group-item">✓ GDC Core CPD Topics - Medical Emergencies, Disinfection, Radiography, Safeguarding</div> }
+                                    @if (Model.Action4) { <div class="list-group-item">✓ Up-to-date PDP - Personal Development Plan with training needs identified</div> }
+                                    @if (Model.Action5) { <div class="list-group-item">✓ Record Keeping Audit (After 3 months) - Record keeping audit carried out by NHS England</div> }
+                                    @if (Model.Action6) { <div class="list-group-item">✓ Clinical Audit with Reflection - Complete clinical audit in practice</div> }
+                                    @if (Model.Action7) { <div class="list-group-item">✓ Patient Satisfaction Survey (After 6 months) - Min 20 responses + multi-source feedback</div> }
+                                    @if (Model.Action8) { <div class="list-group-item">✓ IQD Programme Reflection - Reflection on the IQD programme completion</div> }
+                                    @if (Model.Action9) { <div class="list-group-item">✓ 3 DOPS on ID Block - Direct Observation of Procedure skills</div> }
+                                    @if (Model.Action10) { <div class="list-group-item">✓ DOPS/CBDs - Radiography - Show competence with supporting dentist</div> }
+                                    @if (Model.Action11) { <div class="list-group-item">✓ DOPS/CBDs - Periodontics - Show competence with supporting dentist</div> }
+                                    @if (Model.Action12) { <div class="list-group-item">✓ DOPS/CBDs - Prosthetics - Show competence with supporting dentist</div> }
+                                    @if (Model.Action13) { <div class="list-group-item">✓ DOPS/CBDs - Direct Restorations - Show competence with supporting dentist</div> }
+                                    @if (Model.Action14) { <div class="list-group-item">✓ DOPS/CBDs - Paedodontics - Show competence with supporting dentist</div> }
+                                    @if (Model.Action15) { <div class="list-group-item">✓ DOPS/CBDs - Oral Surgery - Show competence with supporting dentist</div> }
+                                    @if (Model.Action16) { <div class="list-group-item">✓ DOPS/CBDs - Indirect Restorations - Show competence with supporting dentist</div> }
+                                    @if (Model.Action17) { <div class="list-group-item">✓ DOPS/CBDs - Endodontics - Show competence with supporting dentist</div> }
+                                </div>
+                            }
+
+                            @* Show custom terms if any *@
+                            @if (!string.IsNullOrEmpty(Model.CustomTerms))
+                            {
+                                <h5 class="mt-3 mb-2">CUSTOM TERMS</h5>
+                                <div class="alert alert-secondary">
+                                    @Html.Raw(Model.CustomTerms.Replace("\n", "<br />"))
+                                </div>
+                            }
+
+                            <!-- Release Stamp -->
+                            <div class="alert alert-success mt-4">
+                                <strong>Released by:</strong> @Model.ReleasedBy<br />
+                                <strong>Release Date:</strong> @Model.ReleasedDate?.ToString("dddd, MMMM dd, yyyy 'at' HH:mm")
+                            </div>
+
+                            <!-- Performer Agreement Section -->
+                            @if (ViewBag.CurrentUser == Model.Username || ViewBag.CurrentRole == "admin" || ViewBag.CurrentRole == "superuser")
+                            {
+                                @if (!Model.IsAgreedByPerformer)
+                                {
+                                    <form asp-action="AgreeToTerms" method="post" class="mt-4">
+                                        <input type="hidden" name="performerUsername" value="@Model.Username" />
+                                        <button type="submit" class="btn btn-success btn-lg" onclick="return confirm('Are you sure you want to agree to these terms? This action confirms your acceptance of all the above agreement terms and restrictions.')">
+                                            I Agree with These Terms
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <div class="alert alert-info mt-4">
+                                        <strong>Agreed by:</strong> @Model.AgreedBy<br />
+                                        <strong>Agreement Date:</strong> @Model.AgreedDate?.ToString("dddd, MMMM dd, yyyy 'at' HH:mm")<br />
+                                        <em>You have successfully agreed to these terms.</em>
+                                    </div>
+                                }
+                            }
+                            else if (Model.IsAgreedByPerformer)
+                            {
+                                <div class="alert alert-info mt-4">
+                                    <strong>Agreed by:</strong> @Model.AgreedBy<br />
+                                    <strong>Agreement Date:</strong> @Model.AgreedDate?.ToString("dddd, MMMM dd, yyyy 'at' HH:mm")<br />
+                                    <em>Performer has agreed to these terms.</em>
+                                </div>
+                            }
+                        }
+                    }
                 </div>
             </div>
         </div>
