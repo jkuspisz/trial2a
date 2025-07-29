@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using SimpleGateway.Models;
 using SimpleGateway.Data;
 
+// Force fresh Railway deployment - WorkBasedAssessments system ready
 var builder = WebApplication.CreateBuilder(args);
 
 // Configure Railway port (Railway provides PORT environment variable)
