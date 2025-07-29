@@ -2162,18 +2162,12 @@ namespace SimpleGateway.Controllers
                 Console.WriteLine($"DEBUG: Found existing assessment:");
                 Console.WriteLine($"DEBUG: - ID: {existingAssessment.Id}, Username: '{existingAssessment.Username}'");
                 
-                // CRITICAL DATE CONFLICT CHECK - This could be the root cause!
-                Console.WriteLine($"DEBUG: CRITICAL DATE CONFLICT CHECK:");
-                Console.WriteLine($"DEBUG: - CreatedAt (shown in list): {existingAssessment.CreatedAt}");
-                Console.WriteLine($"DEBUG: - AssessmentDate (existing in DB): {existingAssessment.AssessmentDate}");
+                // SIMPLIFIED DATE CHECK - Remove complex date conflict logic
+                Console.WriteLine($"DEBUG: SIMPLIFIED DATE CHECK:");
+                Console.WriteLine($"DEBUG: - CreatedAt: {existingAssessment.CreatedAt}");
+                Console.WriteLine($"DEBUG: - AssessmentDate (existing): {existingAssessment.AssessmentDate}");
                 Console.WriteLine($"DEBUG: - AssessmentDate (new from form): {model.AssessmentDate}");
                 Console.WriteLine($"DEBUG: - UpdatedAt: {existingAssessment.UpdatedAt}");
-                
-                if (model.AssessmentDate.HasValue && existingAssessment.CreatedAt.Date != model.AssessmentDate.Value.Date)
-                {
-                    Console.WriteLine($"DEBUG: DATE CONFLICT WARNING - CreatedAt date ({existingAssessment.CreatedAt.Date}) differs from AssessmentDate ({model.AssessmentDate.Value.Date})");
-                    Console.WriteLine($"DEBUG: This might cause database constraints or validation issues!");
-                }
                 
                 Console.WriteLine($"DEBUG: - BEFORE UPDATE - AssessmentDate: {existingAssessment.AssessmentDate}");
                 Console.WriteLine($"DEBUG: - BEFORE UPDATE - ClinicalArea: '{existingAssessment.ClinicalArea}'");
@@ -2187,11 +2181,9 @@ namespace SimpleGateway.Controllers
                     return RedirectToAction("WorkBasedAssessments", new { performerUsername = currentUser });
                 }
 
-                // Update performer fields
-                // CRITICAL FIX: Strip time component from date to ensure only date is stored
-                existingAssessment.AssessmentDate = model.AssessmentDate?.Date;
-                Console.WriteLine($"DEBUG: DATE FIX - Original model.AssessmentDate: {model.AssessmentDate}");
-                Console.WriteLine($"DEBUG: DATE FIX - Stripped to date only: {existingAssessment.AssessmentDate}");
+                // Update performer fields - SIMPLIFIED: No date manipulation
+                existingAssessment.AssessmentDate = model.AssessmentDate;
+                Console.WriteLine($"DEBUG: SIMPLIFIED - AssessmentDate assigned directly: {existingAssessment.AssessmentDate}");
                 
                 existingAssessment.ClinicalArea = model.ClinicalArea;
                 existingAssessment.ProcedureDetails = model.ProcedureDetails;
