@@ -2181,9 +2181,19 @@ namespace SimpleGateway.Controllers
                     return RedirectToAction("WorkBasedAssessments", new { performerUsername = currentUser });
                 }
 
-                // Update performer fields - SIMPLIFIED: No date manipulation
-                existingAssessment.AssessmentDate = model.AssessmentDate;
-                Console.WriteLine($"DEBUG: SIMPLIFIED - AssessmentDate assigned directly: {existingAssessment.AssessmentDate}");
+                // Update performer fields - FIX DateTime.Kind for PostgreSQL compatibility
+                if (model.AssessmentDate.HasValue)
+                {
+                    // Convert to UTC if needed to match PostgreSQL timestamp expectations
+                    existingAssessment.AssessmentDate = model.AssessmentDate.Value.Kind == DateTimeKind.Unspecified 
+                        ? DateTime.SpecifyKind(model.AssessmentDate.Value, DateTimeKind.Utc)
+                        : model.AssessmentDate.Value.ToUniversalTime();
+                }
+                else
+                {
+                    existingAssessment.AssessmentDate = model.AssessmentDate;
+                }
+                Console.WriteLine($"DEBUG: DateTime.Kind FIX - Original: {model.AssessmentDate?.Kind}, Final: {existingAssessment.AssessmentDate?.Kind}");
                 
                 // SIMPLIFIED: Direct update instead of delete-and-recreate
                 existingAssessment.ClinicalArea = model.ClinicalArea;
