@@ -2045,6 +2045,21 @@ namespace SimpleGateway.Controllers
 
             // CHECK MODEL STATE VALIDATION - This might be the issue!
             Console.WriteLine($"DEBUG: CRITICAL VALIDATION CHECK - ModelState.IsValid: {ModelState.IsValid}");
+            
+            // CRITICAL CULTURE AND DATE FORMAT DEBUG
+            Console.WriteLine($"DEBUG: CRITICAL CULTURE DEBUG - Current Culture: {System.Globalization.CultureInfo.CurrentCulture.Name}");
+            Console.WriteLine($"DEBUG: CRITICAL CULTURE DEBUG - Current UI Culture: {System.Globalization.CultureInfo.CurrentUICulture.Name}");
+            
+            // Check raw form data for date
+            var rawDateValue = Request.Form["AssessmentDate"].ToString();
+            Console.WriteLine($"DEBUG: CRITICAL DATE FORMAT - Raw form AssessmentDate value: '{rawDateValue}'");
+            
+            // CRITICAL HIDDEN FIELDS DEBUG
+            Console.WriteLine($"DEBUG: CRITICAL HIDDEN FIELDS - Id: {model.Id}");
+            Console.WriteLine($"DEBUG: CRITICAL HIDDEN FIELDS - Username: '{model.Username}' (Length: {model.Username?.Length ?? 0})");
+            Console.WriteLine($"DEBUG: CRITICAL HIDDEN FIELDS - AssessmentType: '{model.AssessmentType}' (Length: {model.AssessmentType?.Length ?? 0})");
+            Console.WriteLine($"DEBUG: CRITICAL HIDDEN FIELDS - Title: '{model.Title}' (Length: {model.Title?.Length ?? 0})");
+            
             if (!ModelState.IsValid)
             {
                 Console.WriteLine($"DEBUG: CRITICAL VALIDATION ERRORS:");
