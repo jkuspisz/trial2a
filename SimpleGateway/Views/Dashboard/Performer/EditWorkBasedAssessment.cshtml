@@ -121,21 +121,24 @@
                                     </div>
 
                                     <div class="mb-3">
-                                        <label asp-for="ProcedureDetails" class="form-label">Procedure/Case Details</label>
-                                        <textarea asp-for="ProcedureDetails" class="form-control" rows="4" 
-                                                  placeholder="Describe the procedure, case, or clinical scenario in detail..."></textarea>
+                                        <label asp-for="ProcedureDescription" class="form-label">Description of Procedure/Case</label>
+                                        <textarea asp-for="ProcedureDescription" class="form-control" rows="4" 
+                                                  placeholder="Describe the procedure, case, or clinical scenario in detail..."
+                                                  readonly="@(!ViewBag.CanEditPerformer)"></textarea>
                                     </div>
 
                                     <div class="mb-3">
-                                        <label asp-for="LearningObjectives" class="form-label">What did you learn from this encounter? - What do you think you did well? What could have gone better?</label>
-                                        <textarea asp-for="LearningObjectives" class="form-control" rows="5"
-                                                  placeholder="Reflect on your learning from this encounter. What aspects went well and what areas could be improved?"></textarea>
+                                        <label asp-for="LearningReflection" class="form-label">What did you learn from this encounter? - What do you think you did well? What could have gone better?</label>
+                                        <textarea asp-for="LearningReflection" class="form-control" rows="5"
+                                                  placeholder="Reflect on your learning from this encounter. What aspects went well and what areas could be improved?"
+                                                  readonly="@(!ViewBag.CanEditPerformer)"></textarea>
                                     </div>
 
                                     <div class="mb-3">
-                                        <label asp-for="AreasForDevelopment" class="form-label">What (if any) learning needs does this encounter highlight for you?</label>
-                                        <textarea asp-for="AreasForDevelopment" class="form-control" rows="4"
-                                                  placeholder="Identify any specific learning needs or areas for further development highlighted by this encounter..."></textarea>
+                                        <label asp-for="LearningNeeds" class="form-label">What (if any) learning needs does this encounter highlight for you?</label>
+                                        <textarea asp-for="LearningNeeds" class="form-control" rows="4"
+                                                  placeholder="Identify any specific learning needs or areas for further development highlighted by this encounter..."
+                                                  readonly="@(!ViewBag.CanEditPerformer)"></textarea>
                                     </div>
 
                                     <div class="d-flex gap-2">
@@ -197,18 +200,18 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <strong>Procedure/Case Details:</strong>
-                                    <p class="border p-3 bg-light">@(Model.ProcedureDetails ?? "Not provided")</p>
+                                    <strong>Description of Procedure/Case:</strong>
+                                    <p class="border p-3 bg-light">@(Model.ProcedureDescription ?? "Not provided")</p>
                                 </div>
 
                                 <div class="mb-3">
                                     <strong>What did you learn from this encounter? - What do you think you did well? What could have gone better?</strong>
-                                    <p class="border p-3 bg-light">@(Model.LearningObjectives ?? "Not provided")</p>
+                                    <p class="border p-3 bg-light">@(Model.LearningReflection ?? "Not provided")</p>
                                 </div>
 
                                 <div class="mb-3">
                                     <strong>What (if any) learning needs does this encounter highlight for you?</strong>
-                                    <p class="border p-3 bg-light">@(Model.AreasForDevelopment ?? "Not provided")</p>
+                                    <p class="border p-3 bg-light">@(Model.LearningNeeds ?? "Not provided")</p>
                                 </div>
 
                                 @if (Model.IsPerformerSubmitted)
@@ -240,34 +243,27 @@
                             <form method="post" action="/Dashboard/CompleteSupervisorAssessment">
                                 <input type="hidden" asp-for="Id" />
 
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <label asp-for="SupervisorName" class="form-label">Supervisor Name</label>
-                                        <input asp-for="SupervisorName" class="form-control" 
-                                               placeholder="Full name of supervisor"
-                                               readonly="@(!ViewBag.CanEditSupervisor)" />
+                                <div class="mb-3">
+                                    <label asp-for="OverallAcceptable" class="form-label">Overall was this encounter acceptable or not acceptable?</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" asp-for="OverallAcceptable" value="true" id="acceptable"
+                                               disabled="@(!ViewBag.CanEditSupervisor)" />
+                                        <label class="form-check-label" for="acceptable">
+                                            Acceptable
+                                        </label>
                                     </div>
-                                    <div class="col-md-6">
-                                        <label asp-for="SupervisorRole" class="form-label">Supervisor Role</label>
-                                        <input asp-for="SupervisorRole" class="form-control" 
-                                               placeholder="e.g., Consultant, Senior Registrar"
-                                               readonly="@(!ViewBag.CanEditSupervisor)" />
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" asp-for="OverallAcceptable" value="false" id="notAcceptable"
+                                               disabled="@(!ViewBag.CanEditSupervisor)" />
+                                        <label class="form-check-label" for="notAcceptable">
+                                            Not Acceptable
+                                        </label>
                                     </div>
                                 </div>
 
                                 <div class="mb-3">
-                                    <label asp-for="OverallRating" class="form-label">Overall was this encounter acceptable or not acceptable?</label>
-                                    <select asp-for="OverallRating" class="form-select" 
-                                            disabled="@(!ViewBag.CanEditSupervisor)">
-                                        <option value="">Please select...</option>
-                                        <option value="Acceptable">Acceptable</option>
-                                        <option value="Not Acceptable">Not Acceptable</option>
-                                    </select>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label asp-for="SupervisorComments" class="form-label">Overall comment on the encounter and provide an agreed action plan (if needed). It is useful to include any resources the performer could reference.</label>
-                                    <textarea asp-for="SupervisorComments" class="form-control" rows="6"
+                                    <label asp-for="SupervisorActionPlan" class="form-label">Overall comment on the encounter and provide an agreed action plan (if needed). It is useful to include any resources the performer could reference.</label>
+                                    <textarea asp-for="SupervisorActionPlan" class="form-control" rows="6"
                                               placeholder="Provide your overall comments on the encounter and include an agreed action plan if needed. Consider including any useful resources or references for the performer..."
                                               readonly="@(!ViewBag.CanEditSupervisor)"></textarea>
                                 </div>

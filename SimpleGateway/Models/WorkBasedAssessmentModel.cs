@@ -21,59 +21,34 @@ namespace SimpleGateway.Models
         [Display(Name = "Status")]
         public string Status { get; set; } = "Draft"; // "Draft", "PerformerComplete", "Complete"
         
-        // PERFORMER SECTION
+        // PERFORMER SECTION - Customized Questions
         [Display(Name = "Date of Assessment")]
         [DataType(DataType.Date)]
         public DateTime? AssessmentDate { get; set; }
         
-        [Display(Name = "Clinical Area/Setting")]
-        public string? ClinicalArea { get; set; }
-        
-        [Display(Name = "Procedure/Case Details")]
+        [Display(Name = "Description of Procedure/Case")]
         [DataType(DataType.MultilineText)]
-        public string? ProcedureDetails { get; set; }
+        public string? ProcedureDescription { get; set; }
         
-        [Display(Name = "Learning Objectives")]
+        [Display(Name = "What did you learn from this encounter? - What do you think you did well? What could have gone better?")]
         [DataType(DataType.MultilineText)]
-        public string? LearningObjectives { get; set; }
+        public string? LearningReflection { get; set; }
         
-        [Display(Name = "Self-Assessment Comments")]
+        [Display(Name = "What (if any) learning needs does this encounter highlight for you?")]
         [DataType(DataType.MultilineText)]
-        public string? PerformerComments { get; set; }
-        
-        [Display(Name = "Areas for Development")]
-        [DataType(DataType.MultilineText)]
-        public string? AreasForDevelopment { get; set; }
+        public string? LearningNeeds { get; set; }
         
         // Performer submission tracking
         public bool IsPerformerSubmitted { get; set; } = false;
         public DateTime? PerformerSubmittedAt { get; set; }
         
-        // SUPERVISOR SECTION
-        [Display(Name = "Supervisor Name")]
-        public string? SupervisorName { get; set; }
+        // SUPERVISOR SECTION - Simplified to match new requirements
+        [Display(Name = "Overall was this encounter acceptable or not acceptable?")]
+        public bool? OverallAcceptable { get; set; } // true = Acceptable, false = Not Acceptable
         
-        [Display(Name = "Supervisor Role")]
-        public string? SupervisorRole { get; set; }
-        
-        [Display(Name = "Overall Performance Rating")]
-        public string? OverallRating { get; set; } // "Excellent", "Good", "Satisfactory", "Needs Improvement"
-        
-        [Display(Name = "Specific Skills Assessment")]
+        [Display(Name = "Overall comment on the encounter and provide an agreed action plan (if needed). It is useful to include any resources the performer could reference.")]
         [DataType(DataType.MultilineText)]
-        public string? SkillsAssessment { get; set; }
-        
-        [Display(Name = "Supervisor Comments")]
-        [DataType(DataType.MultilineText)]
-        public string? SupervisorComments { get; set; }
-        
-        [Display(Name = "Recommendations")]
-        [DataType(DataType.MultilineText)]
-        public string? Recommendations { get; set; }
-        
-        [Display(Name = "Action Plan")]
-        [DataType(DataType.MultilineText)]
-        public string? ActionPlan { get; set; }
+        public string? SupervisorActionPlan { get; set; }
         
         // Supervisor submission tracking
         public bool IsSupervisorCompleted { get; set; } = false;

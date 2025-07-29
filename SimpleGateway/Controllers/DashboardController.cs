@@ -1953,7 +1953,7 @@ namespace SimpleGateway.Controllers
                 foreach (var dbAssessment in allAssessments)
                 {
                     Console.WriteLine($"DEBUG: DB Record - ID: {dbAssessment.Id}, Username: '{dbAssessment.Username}', Type: '{dbAssessment.AssessmentType}'");
-                    Console.WriteLine($"DEBUG: DB Record - ClinicalArea: '{dbAssessment.ClinicalArea}', ProcedureDetails: '{dbAssessment.ProcedureDetails}'");
+                    Console.WriteLine($"DEBUG: DB Record - ProcedureDescription: '{dbAssessment.ProcedureDescription}', LearningReflection: '{dbAssessment.LearningReflection}'");
                 }
 
                 var assessment = _context.WorkBasedAssessments.FirstOrDefault(a => a.Id == id);
@@ -1966,9 +1966,9 @@ namespace SimpleGateway.Controllers
 
                 Console.WriteLine($"DEBUG: Found assessment for editing:");
                 Console.WriteLine($"DEBUG: - ID: {assessment.Id}, Username: '{assessment.Username}', Type: '{assessment.AssessmentType}'");
-                Console.WriteLine($"DEBUG: - Current ClinicalArea: '{assessment.ClinicalArea}'");
-                Console.WriteLine($"DEBUG: - Current ProcedureDetails: '{assessment.ProcedureDetails}'");
-                Console.WriteLine($"DEBUG: - Current LearningObjectives: '{assessment.LearningObjectives}'");
+                Console.WriteLine($"DEBUG: - Current ProcedureDescription: '{assessment.ProcedureDescription}'");
+                Console.WriteLine($"DEBUG: - Current LearningReflection: '{assessment.LearningReflection}'");
+                Console.WriteLine($"DEBUG: - Current LearningNeeds: '{assessment.LearningNeeds}'");
 
                 // CRITICAL FIX: Ensure we use the correct performer username
                 var targetPerformerUsername = !string.IsNullOrEmpty(performerUsername) ? performerUsername : assessment.Username;
@@ -2037,11 +2037,9 @@ namespace SimpleGateway.Controllers
                 Console.WriteLine($"DEBUG: CRITICAL DATE DEBUG - AssessmentDate Value: {model.AssessmentDate.Value}");
                 Console.WriteLine($"DEBUG: CRITICAL DATE DEBUG - AssessmentDate ToString: '{model.AssessmentDate.Value.ToString()}'");
             }
-            Console.WriteLine($"DEBUG: Form fields - ClinicalArea: '{model.ClinicalArea}'");
-            Console.WriteLine($"DEBUG: Form fields - ProcedureDetails: '{model.ProcedureDetails}'");
-            Console.WriteLine($"DEBUG: Form fields - LearningObjectives: '{model.LearningObjectives}'");
-            Console.WriteLine($"DEBUG: Form fields - PerformerComments: '{model.PerformerComments}'");
-            Console.WriteLine($"DEBUG: Form fields - AreasForDevelopment: '{model.AreasForDevelopment}'");
+            Console.WriteLine($"DEBUG: Form fields - ProcedureDescription: '{model.ProcedureDescription}'");
+            Console.WriteLine($"DEBUG: Form fields - LearningReflection: '{model.LearningReflection}'");
+            Console.WriteLine($"DEBUG: Form fields - LearningNeeds: '{model.LearningNeeds}'");
             
             var currentUser = HttpContext.Session.GetString("username");
             var currentRole = HttpContext.Session.GetString("role");
@@ -2118,20 +2116,13 @@ namespace SimpleGateway.Controllers
                                 ""Title"" TEXT NOT NULL,
                                 ""Status"" TEXT DEFAULT 'Draft',
                                 ""AssessmentDate"" TIMESTAMP WITH TIME ZONE,
-                                ""ClinicalArea"" TEXT,
-                                ""ProcedureDetails"" TEXT,
-                                ""LearningObjectives"" TEXT,
-                                ""PerformerComments"" TEXT,
-                                ""AreasForDevelopment"" TEXT,
+                                ""ProcedureDescription"" TEXT,
+                                ""LearningReflection"" TEXT,
+                                ""LearningNeeds"" TEXT,
                                 ""IsPerformerSubmitted"" BOOLEAN DEFAULT FALSE,
                                 ""PerformerSubmittedAt"" TIMESTAMP WITH TIME ZONE,
-                                ""SupervisorName"" TEXT,
-                                ""SupervisorRole"" TEXT,
-                                ""OverallRating"" TEXT,
-                                ""SkillsAssessment"" TEXT,
-                                ""SupervisorComments"" TEXT,
-                                ""Recommendations"" TEXT,
-                                ""ActionPlan"" TEXT,
+                                ""OverallAcceptable"" BOOLEAN,
+                                ""SupervisorActionPlan"" TEXT,
                                 ""IsSupervisorCompleted"" BOOLEAN DEFAULT FALSE,
                                 ""CompletedBySupervisor"" TEXT,
                                 ""SupervisorCompletedAt"" TIMESTAMP WITH TIME ZONE,
@@ -2175,8 +2166,8 @@ namespace SimpleGateway.Controllers
                 Console.WriteLine($"DEBUG: - UpdatedAt: {existingAssessment.UpdatedAt}");
                 
                 Console.WriteLine($"DEBUG: - BEFORE UPDATE - AssessmentDate: {existingAssessment.AssessmentDate}");
-                Console.WriteLine($"DEBUG: - BEFORE UPDATE - ClinicalArea: '{existingAssessment.ClinicalArea}'");
-                Console.WriteLine($"DEBUG: - BEFORE UPDATE - ProcedureDetails: '{existingAssessment.ProcedureDetails}'");
+                Console.WriteLine($"DEBUG: - BEFORE UPDATE - ProcedureDescription: '{existingAssessment.ProcedureDescription}'");
+                Console.WriteLine($"DEBUG: - BEFORE UPDATE - LearningReflection: '{existingAssessment.LearningReflection}'");
 
                 // Validate user permissions
                 if (existingAssessment.Username != currentUser && currentRole != "admin")
@@ -2201,16 +2192,14 @@ namespace SimpleGateway.Controllers
                 Console.WriteLine($"DEBUG: DateTime.Kind FIX - Original: {model.AssessmentDate?.Kind}, Final: {existingAssessment.AssessmentDate?.Kind}");
                 
                 // SIMPLIFIED: Direct update instead of delete-and-recreate
-                existingAssessment.ClinicalArea = model.ClinicalArea;
-                existingAssessment.ProcedureDetails = model.ProcedureDetails;
-                existingAssessment.LearningObjectives = model.LearningObjectives;
-                existingAssessment.PerformerComments = model.PerformerComments;
-                existingAssessment.AreasForDevelopment = model.AreasForDevelopment;
+                existingAssessment.ProcedureDescription = model.ProcedureDescription;
+                existingAssessment.LearningReflection = model.LearningReflection;
+                existingAssessment.LearningNeeds = model.LearningNeeds;
                 existingAssessment.UpdatedAt = DateTime.UtcNow;
 
                 Console.WriteLine($"DEBUG: SIMPLIFIED UPDATE - AssessmentDate: {existingAssessment.AssessmentDate}");
-                Console.WriteLine($"DEBUG: SIMPLIFIED UPDATE - ClinicalArea: '{existingAssessment.ClinicalArea}'");
-                Console.WriteLine($"DEBUG: SIMPLIFIED UPDATE - ProcedureDetails: '{existingAssessment.ProcedureDetails}'");
+                Console.WriteLine($"DEBUG: SIMPLIFIED UPDATE - ProcedureDescription: '{existingAssessment.ProcedureDescription}'");
+                Console.WriteLine($"DEBUG: SIMPLIFIED UPDATE - LearningReflection: '{existingAssessment.LearningReflection}'");
 
                 // SIMPLE SAVE: Just update the existing entity
                 Console.WriteLine("DEBUG: SIMPLIFIED - About to call SaveChanges for direct update");
@@ -2302,13 +2291,8 @@ namespace SimpleGateway.Controllers
                 }
 
                 // Update supervisor fields
-                existingAssessment.SupervisorName = model.SupervisorName;
-                existingAssessment.SupervisorRole = model.SupervisorRole;
-                existingAssessment.OverallRating = model.OverallRating;
-                existingAssessment.SkillsAssessment = model.SkillsAssessment;
-                existingAssessment.SupervisorComments = model.SupervisorComments;
-                existingAssessment.Recommendations = model.Recommendations;
-                existingAssessment.ActionPlan = model.ActionPlan;
+                existingAssessment.OverallAcceptable = model.OverallAcceptable;
+                existingAssessment.SupervisorActionPlan = model.SupervisorActionPlan;
                 
                 // Mark as completed
                 existingAssessment.IsSupervisorCompleted = true;
