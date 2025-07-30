@@ -368,13 +368,14 @@ namespace SimpleGateway.Controllers
                 return NotFound();
 
             var questionnaire = await _context.MSFQuestionnaires
-                .Include(q => q.Performer)
                 .FirstOrDefaultAsync(q => q.UniqueCode == code && q.IsActive);
 
             if (questionnaire == null)
                 return NotFound("Questionnaire not found or no longer active.");
 
-            ViewBag.PerformerName = questionnaire.Performer.Username;
+            // Get performer info by ID since we may not have navigation property
+            var performer = await _context.Users.FindAsync(questionnaire.PerformerId);
+            ViewBag.PerformerName = performer?.Username ?? "Unknown";
             ViewBag.QuestionnaireTitle = questionnaire.Title;
 
             return View(new SubmitMSFResponseDto { QuestionnaireCode = code });
@@ -387,12 +388,12 @@ namespace SimpleGateway.Controllers
             if (!ModelState.IsValid)
             {
                 var questionnaire = await _context.MSFQuestionnaires
-                    .Include(q => q.Performer)
                     .FirstOrDefaultAsync(q => q.UniqueCode == model.QuestionnaireCode && q.IsActive);
 
                 if (questionnaire != null)
                 {
-                    ViewBag.PerformerName = questionnaire.Performer.Username;
+                    var performer = await _context.Users.FindAsync(questionnaire.PerformerId);
+                    ViewBag.PerformerName = performer?.Username ?? "Unknown";
                     ViewBag.QuestionnaireTitle = questionnaire.Title;
                 }
 
