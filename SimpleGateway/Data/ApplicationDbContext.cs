@@ -20,6 +20,8 @@ namespace SimpleGateway.Data
         public DbSet<StructuredConversationModel> StructuredConversations { get; set; }
         public DbSet<WorkBasedAssessmentModel> WorkBasedAssessments { get; set; }
         public DbSet<AgreementTermsModel> AgreementTerms { get; set; }
+        public DbSet<MSFQuestionnaire> MSFQuestionnaires { get; set; }
+        public DbSet<MSFResponse> MSFResponses { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -185,6 +187,33 @@ namespace SimpleGateway.Data
             {
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Username).HasMaxLength(256);
+            });
+
+            // Configure MSFQuestionnaire
+            modelBuilder.Entity<MSFQuestionnaire>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Title).HasMaxLength(200).IsRequired();
+                entity.Property(e => e.UniqueCode).IsRequired();
+                entity.HasIndex(e => e.UniqueCode).IsUnique();
+                
+                entity.HasOne(q => q.Performer)
+                    .WithMany()
+                    .HasForeignKey(q => q.PerformerId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Configure MSFResponse
+            modelBuilder.Entity<MSFResponse>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.RespondentName).HasMaxLength(100);
+                entity.Property(e => e.RespondentRole).HasMaxLength(100);
+                
+                entity.HasOne(r => r.Questionnaire)
+                    .WithMany(q => q.Responses)
+                    .HasForeignKey(r => r.MSFQuestionnaireId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }

@@ -1,0 +1,133 @@
+@model SimpleGateway.Models.SubmitMSFResponseDto
+@{
+    ViewData["Title"] = "MSF Feedback Form";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="fas fa-comments me-2"></i>Multi-Source Feedback
+                    </h4>
+                    <p class="mb-0 text-muted">Providing anonymous feedback for: <strong>@ViewBag.PerformerName</strong></p>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <strong>Rating Scale:</strong>
+                        <ul class="mb-0">
+                            <li><strong>1 - Working towards:</strong> Performance below expected standard</li>
+                            <li><strong>2 - Meets:</strong> Performance meets the expected standard</li>
+                            <li><strong>3 - Exceeds:</strong> Performance exceeds the expected standard</li>
+                            <li><strong>4 - Not observed:</strong> Unable to assess this area</li>
+                        </ul>
+                    </div>
+
+                    <form method="post" action="@Url.Action("Feedback", "MSF")">
+                        @Html.HiddenFor(m => m.QuestionnaireCode)
+                        
+                        <!-- Respondent Information -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">Your Information (Optional)</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="RespondentName" class="form-label">Your Name</label>
+                                            @Html.TextBoxFor(m => m.RespondentName, new { @class = "form-control", placeholder = "Optional" })
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="RespondentRole" class="form-label">Your Role</label>
+                                            @Html.TextBoxFor(m => m.RespondentRole, new { @class = "form-control", placeholder = "e.g., Consultant, Nurse, etc." })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Patient Care & Communication -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">Patient Care & Communication</h5>
+                            </div>
+                            <div class="card-body">
+                                @await Html.PartialAsync("_MSFQuestionGroup", new ViewDataDictionary(ViewData) {
+                                    ["GroupQuestions"] = new[] {
+                                        new { Field = "PatientCareQualityScore", CommentField = "PatientCareQualityComment", Question = "1. Quality of patient care provided" },
+                                        new { Field = "CommunicationSkillsScore", CommentField = "CommunicationSkillsComment", Question = "2. Communication skills with patients and families" },
+                                        new { Field = "CommunicationEmpathyScore", CommentField = "CommunicationEmpathyComment", Question = "3. Shows empathy and understanding in communication" },
+                                        new { Field = "HistoryTakingScore", CommentField = "HistoryTakingComment", Question = "4. Ability to take comprehensive patient history" },
+                                        new { Field = "ConsultationManagementScore", CommentField = "ConsultationManagementComment", Question = "5. Management of patient consultations" },
+                                        new { Field = "CulturalSensitivityScore", CommentField = "CulturalSensitivityComment", Question = "6. Cultural sensitivity and awareness" }
+                                    }
+                                })
+                            </div>
+                        </div>
+
+                        <!-- Professional Integrity & Development -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">Professional Integrity & Development</h5>
+                            </div>
+                            <div class="card-body">
+                                @await Html.PartialAsync("_MSFQuestionGroup", new ViewDataDictionary(ViewData) {
+                                    ["GroupQuestions"] = new[] {
+                                        new { Field = "EthicalProfessionalismScore", CommentField = "EthicalProfessionalismComment", Question = "7. Ethical behavior and professionalism" },
+                                        new { Field = "ProfessionalDevelopmentScore", CommentField = "ProfessionalDevelopmentComment", Question = "8. Commitment to professional development" },
+                                        new { Field = "TechnicalCompetenceScore", CommentField = "TechnicalCompetenceComment", Question = "9. Technical competence and clinical skills" },
+                                        new { Field = "DecisionMakingScore", CommentField = "DecisionMakingComment", Question = "10. Clinical decision-making abilities" },
+                                        new { Field = "DocumentationScore", CommentField = "DocumentationComment", Question = "11. Quality of documentation and record keeping" }
+                                    }
+                                })
+                            </div>
+                        </div>
+
+                        <!-- Team Working & Quality Improvement -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">Team Working & Quality Improvement</h5>
+                            </div>
+                            <div class="card-body">
+                                @await Html.PartialAsync("_MSFQuestionGroup", new ViewDataDictionary(ViewData) {
+                                    ["GroupQuestions"] = new[] {
+                                        new { Field = "TeamCollaborationScore", CommentField = "TeamCollaborationComment", Question = "12. Collaboration and teamwork skills" },
+                                        new { Field = "TeamSupportScore", CommentField = "TeamSupportComment", Question = "13. Support provided to team members" },
+                                        new { Field = "LeadershipSkillsScore", CommentField = "LeadershipSkillsComment", Question = "14. Leadership and guidance abilities" },
+                                        new { Field = "QualityImprovementScore", CommentField = "QualityImprovementComment", Question = "15. Contribution to quality improvement" },
+                                        new { Field = "HealthSafetyAwarenessScore", CommentField = "HealthSafetyAwarenessComment", Question = "16. Health and safety awareness" },
+                                        new { Field = "ContinuousImprovementScore", CommentField = "ContinuousImprovementComment", Question = "17. Commitment to continuous improvement" }
+                                    }
+                                })
+                            </div>
+                        </div>
+
+                        <!-- Additional Comments -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">Additional Comments</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="AdditionalComments" class="form-label">Any additional feedback or comments:</label>
+                                    @Html.TextAreaFor(m => m.AdditionalComments, new { @class = "form-control", rows = "4", placeholder = "Optional: Any other feedback you'd like to provide..." })
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-paper-plane me-2"></i>Submit Feedback
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
