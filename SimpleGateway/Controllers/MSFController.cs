@@ -23,6 +23,14 @@ namespace SimpleGateway.Controllers
             return Content("MSF Controller is working! Current time: " + DateTime.Now.ToString());
         }
 
+        // Test feedback URL generation
+        public IActionResult TestFeedback()
+        {
+            var testCode = "TESTCODE";
+            var testUrl = Url.Action("Feedback", "MSF", new { code = testCode }, Request.Scheme);
+            return Content($"Test feedback URL: {testUrl}");
+        }
+
         // MSF Dashboard - Shows questionnaire status and results
         public async Task<IActionResult> Index(string performerUsername = null)
         {
@@ -91,6 +99,9 @@ namespace SimpleGateway.Controllers
                 var feedbackUrl = Url.Action("Feedback", "MSF", new { code = questionnaire.UniqueCode }, Request.Scheme);
                 var qrCodeImage = ""; // Skip QR code generation for debugging
 
+                Console.WriteLine($"MSF: Generated feedback URL for display: {feedbackUrl}");
+                Console.WriteLine($"MSF: Questionnaire unique code: {questionnaire.UniqueCode}");
+
                 ViewBag.FeedbackUrl = feedbackUrl;
                 ViewBag.QRCodeImage = qrCodeImage;
                 ViewBag.ResponseCount = questionnaire.Responses?.Count ?? 0;
@@ -124,21 +135,27 @@ namespace SimpleGateway.Controllers
                     return RedirectToAction("Login", "Account");
 
                 // Create new questionnaire
+                var uniqueCode = GenerateUniqueCode();
                 var questionnaire = new MSFQuestionnaire
                 {
                     PerformerId = user.Id,
                     Title = $"MSF Assessment for {user.Username}",
-                    UniqueCode = GenerateUniqueCode(),
+                    UniqueCode = uniqueCode,
                     IsActive = true,
                     CreatedAt = DateTime.UtcNow
                 };
 
                 Console.WriteLine($"MSF: Creating new questionnaire for {user.Username}");
+                Console.WriteLine($"MSF: Generated unique code: {uniqueCode}");
                 _context.MSFQuestionnaires.Add(questionnaire);
                 await _context.SaveChangesAsync();
-                Console.WriteLine($"MSF: Successfully created questionnaire with code {questionnaire.UniqueCode}");
+                Console.WriteLine($"MSF: Successfully created questionnaire with ID {questionnaire.Id} and code {questionnaire.UniqueCode}");
 
-                TempData["SuccessMessage"] = "MSF assessment link created successfully!";
+                // Generate feedback URL for verification
+                var testFeedbackUrl = Url.Action("Feedback", "MSF", new { code = questionnaire.UniqueCode }, Request.Scheme);
+                Console.WriteLine($"MSF: Generated feedback URL: {testFeedbackUrl}");
+
+                TempData["SuccessMessage"] = $"MSF assessment link created successfully! Code: {questionnaire.UniqueCode}";
                 return RedirectToAction("Index", new { performerUsername = targetUsername });
             }
             catch (Exception ex)
