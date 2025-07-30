@@ -1,0 +1,245 @@
+@model SimpleGateway.Models.SimplePreviousExperienceModel
+@{
+    ViewData["Title"] = "Previous Experience";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h2>Previous Experience - @ViewBag.PerformerName</h2>
+            @if (!string.IsNullOrEmpty(ViewBag.SuccessMessage))
+            {
+                <div class="alert alert-success">@ViewBag.SuccessMessage</div>
+            }
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-3">
+            <ul class="list-group">
+                <li class="list-group-item @(ViewBag.ActiveSection == "PerformerDetails" ? "active" : "")">
+                    <a href="/Dashboard/PerformerDetails?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "PerformerDetails" ? "color: white;" : "")">Performer Details</a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "PreviousExperience" ? "active" : "")">
+                    <a href="/Dashboard/PreviousExperience?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "PreviousExperience" ? "color: white;" : "")">Previous Experience</a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "Uploads" ? "active" : "")">
+                    <a href="/Dashboard/Uploads?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "Uploads" ? "color: white;" : "")">Uploads</a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "StructuredConversation" ? "active" : "")">
+                    <a href="/Dashboard/StructuredConversation?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "StructuredConversation" ? "color: white;" : "")">Structured Conversation</a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "AgreementTerms" ? "active" : "")">
+                    <a href="/Dashboard/AgreementTerms?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "AgreementTerms" ? "color: white;" : "")">Agreement Terms</a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "WorkBasedAssessments" ? "active" : "")">
+                    <a href="/Dashboard/WorkBasedAssessments?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "WorkBasedAssessments" ? "color: white;" : "")">Work Based Assessments</a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "CPD" ? "active" : "")">
+                    <a href="/Dashboard/CPD?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "CPD" ? "color: white;" : "")">CPD</a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "MSF" ? "active" : "")">
+                    <a href="@Url.Action("Index", "MSF")" style="@(ViewBag.ActiveSection == "MSF" ? "color: white;" : "")">
+                        <i class="fas fa-comments"></i> MSF Assessment
+                    </a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "PSQ" ? "active" : "")">
+                    <a href="/Dashboard/PSQ?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "PSQ" ? "color: white;" : "")">PSQ</a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "ClinicalNoteAudit" ? "active" : "")">
+                    <a href="/Dashboard/ClinicalNoteAudit?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "ClinicalNoteAudit" ? "color: white;" : "")">Clinical Note Audit</a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "HelpGuidance" ? "active" : "")">
+                    <a href="/Dashboard/HelpGuidance?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "HelpGuidance" ? "color: white;" : "")">Help & Guidance</a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "FinalSignOff" ? "active" : "")">
+                    <a href="/Dashboard/FinalSignOff?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "FinalSignOff" ? "color: white;" : "")">Final Sign off</a>
+                </li>
+                @if (ViewBag.IsOwnDashboard == true)
+                {
+                    <li class="list-group-item"><a href="/Account/Logout">Logout</a></li>
+                }
+                else
+                {
+                    <li class="list-group-item"><a href="/Dashboard/Index">Back to List</a></li>
+                }
+            </ul>
+        </div>
+        
+        <div class="col-9">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Previous Experience & Background</h4>
+                    <p class="mb-0 text-muted">Document your previous healthcare, dental, or relevant professional experience.</p>
+                </div>
+                <div class="card-body">
+                    @if (ViewBag.CanEdit)
+                    {
+                        <form asp-action="SimplePreviousExperience" method="post">
+                            <input type="hidden" asp-for="Username" value="@ViewBag.PerformerUsername" />
+                            
+                            <!-- Previous Employment Section -->
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <h5 class="text-primary border-bottom pb-2">Previous Employment</h5>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="PreviousEmployer" class="form-label">Previous Employer</label>
+                                        <input asp-for="PreviousEmployer" class="form-control" placeholder="Enter previous employer name" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="JobTitle" class="form-label">Job Title</label>
+                                        <input asp-for="JobTitle" class="form-control" placeholder="Enter job title" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="StartDate" class="form-label">Start Date</label>
+                                        <input asp-for="StartDate" class="form-control" placeholder="MM/YYYY" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="EndDate" class="form-label">End Date</label>
+                                        <input asp-for="EndDate" class="form-control" placeholder="MM/YYYY or 'Current'" />
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="mb-3">
+                                        <label asp-for="JobDescription" class="form-label">Job Description & Responsibilities</label>
+                                        <textarea asp-for="JobDescription" class="form-control" rows="4" placeholder="Describe your role and key responsibilities"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Education & Qualifications Section -->
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <h5 class="text-primary border-bottom pb-2">Education & Qualifications</h5>
+                                </div>
+                                <div class="col-12">
+                                    <div class="mb-3">
+                                        <label asp-for="QualificationsSummary" class="form-label">Qualifications & Certifications</label>
+                                        <textarea asp-for="QualificationsSummary" class="form-control" rows="4" placeholder="List your relevant qualifications, certifications, and educational background"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Clinical Experience Section -->
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <h5 class="text-primary border-bottom pb-2">Clinical Experience</h5>
+                                </div>
+                                <div class="col-12">
+                                    <div class="mb-3">
+                                        <label asp-for="ClinicalExperience" class="form-label">Clinical Experience Summary</label>
+                                        <textarea asp-for="ClinicalExperience" class="form-control" rows="4" placeholder="Describe your clinical experience, placements, and relevant healthcare background"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Skills & Competencies Section -->
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <h5 class="text-primary border-bottom pb-2">Skills & Competencies</h5>
+                                </div>
+                                <div class="col-12">
+                                    <div class="mb-3">
+                                        <label asp-for="SkillsAndCompetencies" class="form-label">Key Skills & Competencies</label>
+                                        <textarea asp-for="SkillsAndCompetencies" class="form-control" rows="4" placeholder="List your key skills, technical competencies, and areas of expertise"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Additional Notes Section -->
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <h5 class="text-primary border-bottom pb-2">Additional Information</h5>
+                                </div>
+                                <div class="col-12">
+                                    <div class="mb-3">
+                                        <label asp-for="AdditionalNotes" class="form-label">Additional Notes</label>
+                                        <textarea asp-for="AdditionalNotes" class="form-control" rows="3" placeholder="Any additional information about your background or experience"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-primary me-2">Save Previous Experience</button>
+                                    <a href="/Dashboard/PerformerDetails?performerUsername=@ViewBag.PerformerUsername" class="btn btn-secondary">Cancel</a>
+                                </div>
+                            </div>
+                        </form>
+                    }
+                    else
+                    {
+                        <!-- Read-only view -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="text-primary border-bottom pb-2">Previous Employment</h5>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Previous Employer:</strong> @(Model?.PreviousEmployer ?? "Not specified")</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Job Title:</strong> @(Model?.JobTitle ?? "Not specified")</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Start Date:</strong> @(Model?.StartDate ?? "Not specified")</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>End Date:</strong> @(Model?.EndDate ?? "Not specified")</p>
+                            </div>
+                            <div class="col-12">
+                                <p><strong>Job Description:</strong></p>
+                                <p>@(Model?.JobDescription ?? "Not specified")</p>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="text-primary border-bottom pb-2">Education & Qualifications</h5>
+                            </div>
+                            <div class="col-12">
+                                <p>@(Model?.QualificationsSummary ?? "Not specified")</p>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="text-primary border-bottom pb-2">Clinical Experience</h5>
+                            </div>
+                            <div class="col-12">
+                                <p>@(Model?.ClinicalExperience ?? "Not specified")</p>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="text-primary border-bottom pb-2">Skills & Competencies</h5>
+                            </div>
+                            <div class="col-12">
+                                <p>@(Model?.SkillsAndCompetencies ?? "Not specified")</p>
+                            </div>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(Model?.AdditionalNotes))
+                        {
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <h5 class="text-primary border-bottom pb-2">Additional Information</h5>
+                                </div>
+                                <div class="col-12">
+                                    <p>@Model.AdditionalNotes</p>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

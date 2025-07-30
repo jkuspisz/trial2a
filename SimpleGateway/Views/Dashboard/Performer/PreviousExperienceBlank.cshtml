@@ -1,0 +1,100 @@
+@{
+    ViewData["Title"] = "Previous Experie                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "MSF" ? "active" : "")">
+                    <a href="@Url.Action("Index", "MSF")" style="@(ViewBag.ActiveSection == "MSF" ? "color: white;" : "")">
+                        <i class="fas fa-comments"></i> MSF Assessment
+                    </a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "PSQ" ? "active" : "")">"
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h2>Previous Experience - @ViewBag.PerformerName</h2>
+            @if (!string.IsNullOrEmpty(TempData["Message"] as string))
+            {
+                <div class="alert alert-info">@TempData["Message"]</div>
+            }
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-3">
+            <ul class="list-group">
+                <li class="list-group-item @(ViewBag.ActiveSection == "Dashboard" ? "active" : "")">
+                    <a href="/Dashboard/Index" style="@(ViewBag.ActiveSection == "Dashboard" ? "color: white;" : "")">
+                        <i class="bi bi-speedometer2"></i> Dashboard Overview
+                    </a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "PerformerDetails" ? "active" : "")">
+                    <a href="/Dashboard/PerformerDetails?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "PerformerDetails" ? "color: white;" : "")">Performer Details</a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "PreviousExperience" ? "active" : "")">
+                    <a href="/Dashboard/PreviousExperienceForm?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "PreviousExperience" ? "color: white;" : "")">Previous Experience</a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "TestPractice" ? "active" : "")">
+                    <a href="/Dashboard/TestPractice?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "TestPractice" ? "color: white;" : "")">Test Practice</a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "Uploads" ? "active" : "")">
+                    <a href="/Dashboard/Uploads?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "Uploads" ? "color: white;" : "")">Uploads</a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "StructuredConversation" ? "active" : "")">
+                    <a href="/Dashboard/StructuredConversation?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "StructuredConversation" ? "color: white;" : "")">Structured Conversation</a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "AgreementTerms" ? "active" : "")">
+                    <a href="/Dashboard/AgreementTerms?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "AgreementTerms" ? "color: white;" : "")">Agreement Terms</a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "WorkBasedAssessments" ? "active" : "")">
+                    <a href="/Dashboard/WorkBasedAssessments?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "WorkBasedAssessments" ? "color: white;" : "")">Work Based Assessments</a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "CPD" ? "active" : "")">
+                    <a href="/Dashboard/CPD?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "CPD" ? "color: white;" : "")">CPD</a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "MSF" ? "active" : "")">
+                    <a href="/Dashboard/MSF?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "MSF" ? "color: white;" : "")">MSF</a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "PSQ" ? "active" : "")">
+                    <a href="/Dashboard/PSQ?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "PSQ" ? "color: white;" : "")">PSQ</a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "ClinicalNoteAudit" ? "active" : "")">
+                    <a href="/Dashboard/ClinicalNoteAudit?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "ClinicalNoteAudit" ? "color: white;" : "")">Clinical Note Audit</a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "HelpGuidance" ? "active" : "")">
+                    <a href="/Dashboard/HelpGuidance?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "HelpGuidance" ? "color: white;" : "")">Help & Guidance</a>
+                </li>
+                <li class="list-group-item @(ViewBag.ActiveSection == "FinalSignOff" ? "active" : "")">
+                    <a href="/Dashboard/FinalSignOff?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "FinalSignOff" ? "color: white;" : "")">Final Sign off</a>
+                </li>
+                @if (ViewBag.IsOwnDashboard == true)
+                {
+                    <li class="list-group-item"><a href="/Account/Logout">Logout</a></li>
+                }
+                else
+                {
+                    <li class="list-group-item"><a href="/Dashboard/Index">Back to List</a></li>
+                }
+            </ul>
+        </div>
+        
+        <div class="col-9">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Previous Experience</h4>
+                    <p class="mb-0 text-muted">This section is currently under development.</p>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <h5>Coming Soon</h5>
+                        <p>The Previous Experience section will be available in a future update. This will include:</p>
+                        <ul>
+                            <li>Qualification details</li>
+                            <li>Employment history</li>
+                            <li>Clinical experience</li>
+                            <li>Professional development</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
