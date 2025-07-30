@@ -194,7 +194,6 @@ namespace SimpleGateway.Controllers
                                 FOREIGN KEY (""MSFQuestionnaireId"") REFERENCES ""MSFQuestionnaires""(""Id"") ON DELETE CASCADE
                             );
                         ");
-                        ");
                         Console.WriteLine("✅ MSF tables created successfully");
                     }
                     catch (Exception createEx)
