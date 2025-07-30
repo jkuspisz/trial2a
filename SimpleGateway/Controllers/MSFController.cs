@@ -129,11 +129,64 @@ namespace SimpleGateway.Controllers
 
                 Console.WriteLine("MSF: Database connection verified");
 
-                // Check if MSF tables exist before querying
+                // Emergency MSF table creation - following WorkBasedAssessments pattern
+                try
+                {
+                    var testQuery = _context.MSFQuestionnaires.Take(1).ToList();
+                    Console.WriteLine("MSF: MSFQuestionnaires table exists and is accessible");
+                }
+                catch (Exception tableEx)
+                {
+                    Console.WriteLine($"MSF: MSFQuestionnaires table access failed: {tableEx.Message}");
+                    
+                    // Create the complete MSF tables
+                    try
+                    {
+                        Console.WriteLine("MSF: Creating MSF tables with emergency creation");
+                        _context.Database.ExecuteSqlRaw(@"
+                            CREATE TABLE IF NOT EXISTS ""MSFQuestionnaires"" (
+                                ""Id"" SERIAL PRIMARY KEY,
+                                ""PerformerId"" INTEGER NOT NULL,
+                                ""Title"" TEXT NOT NULL,
+                                ""Description"" TEXT,
+                                ""CreatedAt"" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                                ""IsActive"" BOOLEAN NOT NULL DEFAULT TRUE,
+                                ""ShareableUrl"" TEXT
+                            );
+
+                            CREATE TABLE IF NOT EXISTS ""MSFResponses"" (
+                                ""Id"" SERIAL PRIMARY KEY,
+                                ""QuestionnaireId"" INTEGER NOT NULL,
+                                ""RespondentName"" TEXT,
+                                ""RespondentEmail"" TEXT,
+                                ""WorkingRelationship"" TEXT,
+                                ""CommunicationRating"" INTEGER,
+                                ""CommunicationComments"" TEXT,
+                                ""TeamworkRating"" INTEGER,
+                                ""TeamworkComments"" TEXT,
+                                ""ClinicalKnowledgeRating"" INTEGER,
+                                ""ClinicalKnowledgeComments"" TEXT,
+                                ""ProfessionalismRating"" INTEGER,
+                                ""ProfessionalismComments"" TEXT,
+                                ""OverallComments"" TEXT,
+                                ""SubmittedAt"" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                                FOREIGN KEY (""QuestionnaireId"") REFERENCES ""MSFQuestionnaires""(""Id"") ON DELETE CASCADE
+                            );
+                        ");
+                        Console.WriteLine("✅ MSF tables created successfully");
+                    }
+                    catch (Exception createEx)
+                    {
+                        Console.WriteLine($"MSF: Emergency table creation failed: {createEx.Message}");
+                        _context.Database.EnsureCreated();
+                    }
+                }
+
+                // Check if MSF questionnaire exists
                 MSFQuestionnaire questionnaire = null;
                 try
                 {
-                    // Try to query for existing questionnaire - this will fail if tables don't exist
+                    // Try to query for existing questionnaire
                     questionnaire = await _context.MSFQuestionnaires
                         .Include(q => q.Responses)
                         .FirstOrDefaultAsync(q => q.PerformerId == user.Id && q.IsActive);
