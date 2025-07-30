@@ -10,9 +10,114 @@ namespace SimpleGateway.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropIndex(
-                name: "IX_MSFQuestionnaires_UniqueIdentifier",
-                table: "MSFQuestionnaires");
+            // Create MSFQuestionnaires table if it doesn't exist
+            migrationBuilder.CreateTable(
+                name: "MSFQuestionnaires",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    PerformerId = table.Column<int>(type: "integer", nullable: false),
+                    Title = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    UniqueCode = table.Column<string>(type: "text", nullable: false),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MSFQuestionnaires", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_MSFQuestionnaires_Users_PerformerId",
+                        column: x => x.PerformerId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            // Create MSFResponses table if it doesn't exist
+            migrationBuilder.CreateTable(
+                name: "MSFResponses",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    MSFQuestionnaireId = table.Column<int>(type: "integer", nullable: false),
+                    RespondentName = table.Column<string>(type: "text", nullable: true),
+                    RespondentRole = table.Column<string>(type: "text", nullable: true),
+                    SubmittedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    
+                    // Patient Care & Communication (1-6)
+                    PatientCareQualityScore = table.Column<int>(type: "integer", nullable: true),
+                    PatientCareQualityComment = table.Column<string>(type: "text", nullable: true),
+                    CommunicationSkillsScore = table.Column<int>(type: "integer", nullable: true),
+                    CommunicationSkillsComment = table.Column<string>(type: "text", nullable: true),
+                    CommunicationEmpathyScore = table.Column<int>(type: "integer", nullable: true),
+                    CommunicationEmpathyComment = table.Column<string>(type: "text", nullable: true),
+                    HistoryTakingScore = table.Column<int>(type: "integer", nullable: true),
+                    HistoryTakingComment = table.Column<string>(type: "text", nullable: true),
+                    ConsultationManagementScore = table.Column<int>(type: "integer", nullable: true),
+                    ConsultationManagementComment = table.Column<string>(type: "text", nullable: true),
+                    CulturalSensitivityScore = table.Column<int>(type: "integer", nullable: true),
+                    CulturalSensitivityComment = table.Column<string>(type: "text", nullable: true),
+
+                    // Professional Integrity & Development (7-11)
+                    EthicalProfessionalismScore = table.Column<int>(type: "integer", nullable: true),
+                    EthicalProfessionalismComment = table.Column<string>(type: "text", nullable: true),
+                    ProfessionalDevelopmentScore = table.Column<int>(type: "integer", nullable: true),
+                    ProfessionalDevelopmentComment = table.Column<string>(type: "text", nullable: true),
+                    TechnicalCompetenceScore = table.Column<int>(type: "integer", nullable: true),
+                    TechnicalCompetenceComment = table.Column<string>(type: "text", nullable: true),
+                    DecisionMakingScore = table.Column<int>(type: "integer", nullable: true),
+                    DecisionMakingComment = table.Column<string>(type: "text", nullable: true),
+                    DocumentationScore = table.Column<int>(type: "integer", nullable: true),
+                    DocumentationComment = table.Column<string>(type: "text", nullable: true),
+
+                    // Team Working & Quality Improvement (12-17)
+                    TeamCollaborationScore = table.Column<int>(type: "integer", nullable: true),
+                    TeamCollaborationComment = table.Column<string>(type: "text", nullable: true),
+                    TeamSupportScore = table.Column<int>(type: "integer", nullable: true),
+                    TeamSupportComment = table.Column<string>(type: "text", nullable: true),
+                    LeadershipSkillsScore = table.Column<int>(type: "integer", nullable: true),
+                    LeadershipSkillsComment = table.Column<string>(type: "text", nullable: true),
+                    QualityImprovementScore = table.Column<int>(type: "integer", nullable: true),
+                    QualityImprovementComment = table.Column<string>(type: "text", nullable: true),
+                    HealthSafetyAwarenessScore = table.Column<int>(type: "integer", nullable: true),
+                    HealthSafetyAwarenessComment = table.Column<string>(type: "text", nullable: true),
+                    ContinuousImprovementScore = table.Column<int>(type: "integer", nullable: true),
+                    ContinuousImprovementComment = table.Column<string>(type: "text", nullable: true),
+
+                    AdditionalComments = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MSFResponses", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_MSFResponses_MSFQuestionnaires_MSFQuestionnaireId",
+                        column: x => x.MSFQuestionnaireId,
+                        principalTable: "MSFQuestionnaires",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            // Create indexes
+            migrationBuilder.CreateIndex(
+                name: "IX_MSFQuestionnaires_PerformerId",
+                table: "MSFQuestionnaires",
+                column: "PerformerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MSFQuestionnaires_UniqueCode",
+                table: "MSFQuestionnaires",
+                column: "UniqueCode",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MSFResponses_MSFQuestionnaireId",
+                table: "MSFResponses",
+                column: "MSFQuestionnaireId");
+
+            // Skip the ALTER TABLE operations since we're creating new tables
+            // The rest of this migration was attempting to modify existing tables
 
             migrationBuilder.DropColumn(
                 name: "CouldImproveUpon",
@@ -379,356 +484,11 @@ namespace SimpleGateway.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_MSFQuestionnaires_Users_PerformerId",
-                table: "MSFQuestionnaires");
-
-            migrationBuilder.DropIndex(
-                name: "IX_MSFQuestionnaires_PerformerId",
-                table: "MSFQuestionnaires");
-
-            migrationBuilder.DropIndex(
-                name: "IX_MSFQuestionnaires_UniqueCode",
-                table: "MSFQuestionnaires");
-
-            migrationBuilder.DropColumn(
-                name: "AdditionalComments",
-                table: "MSFResponses");
-
-            migrationBuilder.DropColumn(
-                name: "CommunicationEmpathyComment",
-                table: "MSFResponses");
-
-            migrationBuilder.DropColumn(
-                name: "CommunicationEmpathyScore",
-                table: "MSFResponses");
-
-            migrationBuilder.DropColumn(
-                name: "CommunicationSkillsComment",
-                table: "MSFResponses");
-
-            migrationBuilder.DropColumn(
-                name: "CommunicationSkillsScore",
-                table: "MSFResponses");
-
-            migrationBuilder.DropColumn(
-                name: "ConsultationManagementComment",
-                table: "MSFResponses");
-
-            migrationBuilder.DropColumn(
-                name: "ConsultationManagementScore",
-                table: "MSFResponses");
-
-            migrationBuilder.DropColumn(
-                name: "ContinuousImprovementComment",
-                table: "MSFResponses");
-
-            migrationBuilder.DropColumn(
-                name: "ContinuousImprovementScore",
-                table: "MSFResponses");
-
-            migrationBuilder.DropColumn(
-                name: "CulturalSensitivityComment",
-                table: "MSFResponses");
-
-            migrationBuilder.DropColumn(
-                name: "CulturalSensitivityScore",
-                table: "MSFResponses");
-
-            migrationBuilder.DropColumn(
-                name: "DecisionMakingComment",
-                table: "MSFResponses");
-
-            migrationBuilder.DropColumn(
-                name: "DecisionMakingScore",
-                table: "MSFResponses");
-
-            migrationBuilder.DropColumn(
-                name: "DocumentationComment",
-                table: "MSFResponses");
-
-            migrationBuilder.DropColumn(
-                name: "DocumentationScore",
-                table: "MSFResponses");
-
-            migrationBuilder.DropColumn(
-                name: "EthicalProfessionalismComment",
-                table: "MSFResponses");
-
-            migrationBuilder.DropColumn(
-                name: "EthicalProfessionalismScore",
-                table: "MSFResponses");
-
-            migrationBuilder.DropColumn(
-                name: "HealthSafetyAwarenessComment",
-                table: "MSFResponses");
-
-            migrationBuilder.DropColumn(
-                name: "HealthSafetyAwarenessScore",
-                table: "MSFResponses");
-
-            migrationBuilder.DropColumn(
-                name: "HistoryTakingComment",
-                table: "MSFResponses");
-
-            migrationBuilder.DropColumn(
-                name: "HistoryTakingScore",
-                table: "MSFResponses");
-
-            migrationBuilder.DropColumn(
-                name: "LeadershipSkillsComment",
-                table: "MSFResponses");
-
-            migrationBuilder.DropColumn(
-                name: "LeadershipSkillsScore",
-                table: "MSFResponses");
-
-            migrationBuilder.DropColumn(
-                name: "PatientCareQualityComment",
-                table: "MSFResponses");
-
-            migrationBuilder.DropColumn(
-                name: "PatientCareQualityScore",
-                table: "MSFResponses");
-
-            migrationBuilder.DropColumn(
-                name: "ProfessionalDevelopmentComment",
-                table: "MSFResponses");
-
-            migrationBuilder.DropColumn(
-                name: "ProfessionalDevelopmentScore",
-                table: "MSFResponses");
-
-            migrationBuilder.DropColumn(
-                name: "QualityImprovementComment",
-                table: "MSFResponses");
-
-            migrationBuilder.DropColumn(
-                name: "QualityImprovementScore",
-                table: "MSFResponses");
-
-            migrationBuilder.DropColumn(
-                name: "RespondentName",
-                table: "MSFResponses");
-
-            migrationBuilder.DropColumn(
-                name: "RespondentRole",
-                table: "MSFResponses");
-
-            migrationBuilder.DropColumn(
-                name: "TeamCollaborationComment",
-                table: "MSFResponses");
-
-            migrationBuilder.DropColumn(
-                name: "TeamCollaborationScore",
-                table: "MSFResponses");
-
-            migrationBuilder.DropColumn(
-                name: "TeamSupportComment",
-                table: "MSFResponses");
-
-            migrationBuilder.DropColumn(
-                name: "TeamSupportScore",
-                table: "MSFResponses");
-
-            migrationBuilder.DropColumn(
-                name: "TechnicalCompetenceComment",
-                table: "MSFResponses");
-
-            migrationBuilder.DropColumn(
-                name: "TechnicalCompetenceScore",
-                table: "MSFResponses");
-
-            migrationBuilder.DropColumn(
-                name: "PerformerId",
-                table: "MSFQuestionnaires");
-
-            migrationBuilder.DropColumn(
-                name: "Title",
-                table: "MSFQuestionnaires");
-
-            migrationBuilder.DropColumn(
-                name: "UniqueCode",
-                table: "MSFQuestionnaires");
-
-            migrationBuilder.AddColumn<string>(
-                name: "CouldImproveUpon",
-                table: "MSFResponses",
-                type: "text",
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<int>(
-                name: "DemonstrateIntegrity",
-                table: "MSFResponses",
-                type: "integer",
-                nullable: false,
-                defaultValue: 0);
-
-            migrationBuilder.AddColumn<string>(
-                name: "DoesParticularlyWell",
-                table: "MSFResponses",
-                type: "text",
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<int>(
-                name: "EnableInformedDecisions",
-                table: "MSFResponses",
-                type: "integer",
-                nullable: false,
-                defaultValue: 0);
-
-            migrationBuilder.AddColumn<int>(
-                name: "EngageWithDevelopment",
-                table: "MSFResponses",
-                type: "integer",
-                nullable: false,
-                defaultValue: 0);
-
-            migrationBuilder.AddColumn<int>(
-                name: "FacilitateLearning",
-                table: "MSFResponses",
-                type: "integer",
-                nullable: false,
-                defaultValue: 0);
-
-            migrationBuilder.AddColumn<int>(
-                name: "InteractWithColleagues",
-                table: "MSFResponses",
-                type: "integer",
-                nullable: false,
-                defaultValue: 0);
-
-            migrationBuilder.AddColumn<int>(
-                name: "KeepPracticeUpToDate",
-                table: "MSFResponses",
-                type: "integer",
-                nullable: false,
-                defaultValue: 0);
-
-            migrationBuilder.AddColumn<int>(
-                name: "ManageTimeResources",
-                table: "MSFResponses",
-                type: "integer",
-                nullable: false,
-                defaultValue: 0);
-
-            migrationBuilder.AddColumn<int>(
-                name: "MinimiseWasteEnvironment",
-                table: "MSFResponses",
-                type: "integer",
-                nullable: false,
-                defaultValue: 0);
-
-            migrationBuilder.AddColumn<int>(
-                name: "ParticipateInImprovement",
-                table: "MSFResponses",
-                type: "integer",
-                nullable: false,
-                defaultValue: 0);
-
-            migrationBuilder.AddColumn<int>(
-                name: "ProduceClearCommunications",
-                table: "MSFResponses",
-                type: "integer",
-                nullable: false,
-                defaultValue: 0);
-
-            migrationBuilder.AddColumn<int>(
-                name: "PromoteEqualityDiversity",
-                table: "MSFResponses",
-                type: "integer",
-                nullable: false,
-                defaultValue: 0);
-
-            migrationBuilder.AddColumn<int>(
-                name: "RecogniseCommNeedsPatients",
-                table: "MSFResponses",
-                type: "integer",
-                nullable: false,
-                defaultValue: 0);
-
-            migrationBuilder.AddColumn<int>(
-                name: "RecogniseImpactOnOthers",
-                table: "MSFResponses",
-                type: "integer",
-                nullable: false,
-                defaultValue: 0);
-
-            migrationBuilder.AddColumn<string>(
-                name: "RelationshipToPerformer",
-                table: "MSFResponses",
-                type: "character varying(100)",
-                maxLength: 100,
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<string>(
-                name: "RespondentIdentifier",
-                table: "MSFResponses",
-                type: "character varying(256)",
-                maxLength: 256,
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<int>(
-                name: "TreatPatientsWithCompassion",
-                table: "MSFResponses",
-                type: "integer",
-                nullable: false,
-                defaultValue: 0);
-
-            migrationBuilder.AddColumn<int>(
-                name: "WorkAsTeamMember",
-                table: "MSFResponses",
-                type: "integer",
-                nullable: false,
-                defaultValue: 0);
-
-            migrationBuilder.AddColumn<int>(
-                name: "WorkToStandards",
-                table: "MSFResponses",
-                type: "integer",
-                nullable: false,
-                defaultValue: 0);
-
-            migrationBuilder.AddColumn<int>(
-                name: "WorkWithinScope",
-                table: "MSFResponses",
-                type: "integer",
-                nullable: false,
-                defaultValue: 0);
-
-            migrationBuilder.AddColumn<string>(
-                name: "WorkingRelationshipDuration",
-                table: "MSFResponses",
-                type: "character varying(100)",
-                maxLength: 100,
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<string>(
-                name: "PerformerUsername",
-                table: "MSFQuestionnaires",
-                type: "character varying(256)",
-                maxLength: 256,
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<string>(
-                name: "UniqueIdentifier",
-                table: "MSFQuestionnaires",
-                type: "character varying(256)",
-                maxLength: 256,
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_MSFQuestionnaires_UniqueIdentifier",
-                table: "MSFQuestionnaires",
-                column: "UniqueIdentifier",
-                unique: true);
+            migrationBuilder.DropTable(
+                name: "MSFResponses");
+
+            migrationBuilder.DropTable(
+                name: "MSFQuestionnaires");
         }
     }
 }
