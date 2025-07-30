@@ -16,73 +16,103 @@ namespace SimpleGateway.Controllers
             _context = context;
         }
 
+        // Simple test action to verify controller is working
+        public IActionResult Test()
+        {
+            Console.WriteLine("MSF: Test action called successfully");
+            return Content("MSF Controller is working! Current time: " + DateTime.Now.ToString());
+        }
+
         // MSF Dashboard - Shows questionnaire status and results
         public async Task<IActionResult> Index(string performerUsername = null)
         {
-            // Get current user from session
-            var currentUser = HttpContext.Session.GetString("username");
-            if (string.IsNullOrEmpty(currentUser))
-                return RedirectToAction("Login", "Account");
-
-            // If no performer specified, use current user
-            var targetUsername = !string.IsNullOrEmpty(performerUsername) ? performerUsername : currentUser;
-
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == targetUsername);
-            if (user == null)
-                return RedirectToAction("Login", "Account");
-
-            // Get or create active MSF questionnaire for this user
-            var questionnaire = await _context.MSFQuestionnaires
-                .Include(q => q.Responses)
-                .FirstOrDefaultAsync(q => q.PerformerId == user.Id && q.IsActive);
-
-            if (questionnaire == null)
+            try
             {
-                try
+                // Get current user from session
+                var currentUser = HttpContext.Session.GetString("username");
+                if (string.IsNullOrEmpty(currentUser))
                 {
-                    // Database connection verification - SAFE METHOD (following Database Integration Pattern)
-                    var canConnect = _context.Database.CanConnect();
-                    if (!canConnect)
-                    {
-                        // Log and handle gracefully - DON'T DELETE DATABASE
-                        Console.WriteLine("MSF: Database connection issue");
-                        TempData["ErrorMessage"] = "Database connection issue. Contact administrator.";
-                        return RedirectToAction("Index", "Home");
-                    }
-                    
-                    // Create new questionnaire
-                    questionnaire = new MSFQuestionnaire
-                    {
-                        PerformerId = user.Id,
-                        Title = $"MSF Assessment for {user.Username}",
-                        UniqueCode = GenerateUniqueCode(),
-                        IsActive = true,
-                        CreatedAt = DateTime.UtcNow
-                    };
-
-                    Console.WriteLine($"MSF: Creating new questionnaire for {user.Username}");
-                    _context.MSFQuestionnaires.Add(questionnaire);
-                    await _context.SaveChangesAsync();
-                    Console.WriteLine($"MSF: Successfully created questionnaire with code {questionnaire.UniqueCode}");
+                    Console.WriteLine("MSF: No current user in session, redirecting to login");
+                    return RedirectToAction("Login", "Account");
                 }
-                catch (Exception ex)
+
+                // If no performer specified, use current user
+                var targetUsername = !string.IsNullOrEmpty(performerUsername) ? performerUsername : currentUser;
+                Console.WriteLine($"MSF: Loading MSF for performer: {targetUsername}");
+
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == targetUsername);
+                if (user == null)
                 {
-                    // ✅ SAFE ERROR HANDLING - Log errors without destroying data
-                    Console.WriteLine($"MSF: Database error creating questionnaire: {ex.Message}");
-                    TempData["ErrorMessage"] = "Error creating MSF assessment. Please try again.";
+                    Console.WriteLine($"MSF: User {targetUsername} not found, redirecting to login");
+                    return RedirectToAction("Login", "Account");
+                }
+
+                Console.WriteLine($"MSF: Found user {user.Username} with ID {user.Id}");
+
+                // Database connection verification - SAFE METHOD (following Database Integration Pattern)
+                var canConnect = _context.Database.CanConnect();
+                if (!canConnect)
+                {
+                    Console.WriteLine("MSF: Database connection issue");
+                    TempData["ErrorMessage"] = "Database connection issue. Contact administrator.";
                     return RedirectToAction("Index", "Home");
                 }
+
+                Console.WriteLine("MSF: Database connection verified");
+
+                // Get or create active MSF questionnaire for this user
+                var questionnaire = await _context.MSFQuestionnaires
+                    .Include(q => q.Responses)
+                    .FirstOrDefaultAsync(q => q.PerformerId == user.Id && q.IsActive);
+
+                Console.WriteLine($"MSF: Found existing questionnaire: {questionnaire != null}");
+
+                if (questionnaire == null)
+                {
+                    try
+                    {
+                        // Create new questionnaire
+                        questionnaire = new MSFQuestionnaire
+                        {
+                            PerformerId = user.Id,
+                            Title = $"MSF Assessment for {user.Username}",
+                            UniqueCode = GenerateUniqueCode(),
+                            IsActive = true,
+                            CreatedAt = DateTime.UtcNow
+                        };
+
+                        Console.WriteLine($"MSF: Creating new questionnaire for {user.Username}");
+                        _context.MSFQuestionnaires.Add(questionnaire);
+                        await _context.SaveChangesAsync();
+                        Console.WriteLine($"MSF: Successfully created questionnaire with code {questionnaire.UniqueCode}");
+                    }
+                    catch (Exception ex)
+                    {
+                        // ✅ SAFE ERROR HANDLING - Log errors without destroying data
+                        Console.WriteLine($"MSF: Database error creating questionnaire: {ex.Message}");
+                        TempData["ErrorMessage"] = "Error creating MSF assessment. Please try again.";
+                        return RedirectToAction("Index", "Home");
+                    }
+                }
+
+                // Generate QR code for the feedback URL (skip QR generation for now to avoid errors)
+                var feedbackUrl = Url.Action("Feedback", "MSF", new { code = questionnaire.UniqueCode }, Request.Scheme);
+                var qrCodeImage = ""; // Skip QR code generation for debugging
+
+                ViewBag.FeedbackUrl = feedbackUrl;
+                ViewBag.QRCodeImage = qrCodeImage;
+                ViewBag.ResponseCount = questionnaire.Responses?.Count ?? 0;
+
+                Console.WriteLine($"MSF: Successfully loaded MSF dashboard for {user.Username}");
+                return View(questionnaire);
             }
-
-            // Generate QR code for the feedback URL
-            var feedbackUrl = Url.Action("Feedback", "MSF", new { code = questionnaire.UniqueCode }, Request.Scheme);
-            var qrCodeImage = !string.IsNullOrEmpty(feedbackUrl) ? GenerateQRCode(feedbackUrl) : string.Empty;
-
-            ViewBag.FeedbackUrl = feedbackUrl;
-            ViewBag.QRCodeImage = qrCodeImage;
-            ViewBag.ResponseCount = questionnaire.Responses?.Count ?? 0;
-
-            return View(questionnaire);
+            catch (Exception ex)
+            {
+                Console.WriteLine($"MSF: Unexpected error in Index: {ex.Message}");
+                Console.WriteLine($"MSF: Stack trace: {ex.StackTrace}");
+                TempData["ErrorMessage"] = $"Unexpected error loading MSF: {ex.Message}";
+                return RedirectToAction("Index", "Home");
+            }
         }
 
         // Anonymous feedback form
