@@ -143,35 +143,57 @@ namespace SimpleGateway.Controllers
                     try
                     {
                         Console.WriteLine("MSF: Creating MSF tables with emergency creation");
+                        
+                        // First try to drop existing tables if they exist with wrong schema
+                        try
+                        {
+                            _context.Database.ExecuteSqlRaw(@"
+                                DROP TABLE IF EXISTS ""MSFResponses"";
+                                DROP TABLE IF EXISTS ""MSFQuestionnaires"";
+                            ");
+                            Console.WriteLine("MSF: Dropped existing tables");
+                        }
+                        catch (Exception dropEx)
+                        {
+                            Console.WriteLine($"MSF: Drop tables failed (may not exist): {dropEx.Message}");
+                        }
+                        
+                        // Create tables with correct schema
                         _context.Database.ExecuteSqlRaw(@"
                             CREATE TABLE IF NOT EXISTS ""MSFQuestionnaires"" (
                                 ""Id"" SERIAL PRIMARY KEY,
                                 ""PerformerId"" INTEGER NOT NULL,
                                 ""Title"" TEXT NOT NULL,
-                                ""Description"" TEXT,
-                                ""CreatedAt"" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                                ""UniqueCode"" TEXT NOT NULL,
                                 ""IsActive"" BOOLEAN NOT NULL DEFAULT TRUE,
-                                ""ShareableUrl"" TEXT
+                                ""CreatedAt"" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
                             );
 
                             CREATE TABLE IF NOT EXISTS ""MSFResponses"" (
                                 ""Id"" SERIAL PRIMARY KEY,
-                                ""QuestionnaireId"" INTEGER NOT NULL,
+                                ""MSFQuestionnaireId"" INTEGER NOT NULL,
                                 ""RespondentName"" TEXT,
-                                ""RespondentEmail"" TEXT,
-                                ""WorkingRelationship"" TEXT,
-                                ""CommunicationRating"" INTEGER,
-                                ""CommunicationComments"" TEXT,
-                                ""TeamworkRating"" INTEGER,
-                                ""TeamworkComments"" TEXT,
-                                ""ClinicalKnowledgeRating"" INTEGER,
-                                ""ClinicalKnowledgeComments"" TEXT,
-                                ""ProfessionalismRating"" INTEGER,
-                                ""ProfessionalismComments"" TEXT,
-                                ""OverallComments"" TEXT,
+                                ""RespondentRole"" TEXT,
                                 ""SubmittedAt"" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                                FOREIGN KEY (""QuestionnaireId"") REFERENCES ""MSFQuestionnaires""(""Id"") ON DELETE CASCADE
+                                ""PatientCareQualityScore"" INTEGER,
+                                ""PatientCareQualityComment"" TEXT,
+                                ""CommunicationScore"" INTEGER,
+                                ""CommunicationComment"" TEXT,
+                                ""TeamworkScore"" INTEGER,
+                                ""TeamworkComment"" TEXT,
+                                ""ProfessionalismScore"" INTEGER,
+                                ""ProfessionalismComment"" TEXT,
+                                ""ClinicalKnowledgeScore"" INTEGER,
+                                ""ClinicalKnowledgeComment"" TEXT,
+                                ""OrganisationSkillsScore"" INTEGER,
+                                ""OrganisationSkillsComment"" TEXT,
+                                ""OverallPerformanceScore"" INTEGER,
+                                ""OverallPerformanceComment"" TEXT,
+                                ""AreasForImprovement"" TEXT,
+                                ""PositiveFeedback"" TEXT,
+                                FOREIGN KEY (""MSFQuestionnaireId"") REFERENCES ""MSFQuestionnaires""(""Id"") ON DELETE CASCADE
                             );
+                        ");
                         ");
                         Console.WriteLine("✅ MSF tables created successfully");
                     }
