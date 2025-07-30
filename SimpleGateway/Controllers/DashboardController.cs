@@ -1709,10 +1709,19 @@ namespace SimpleGateway.Controllers
 
             try
             {
-                // Check for existing active MSF questionnaire
+                // Get the performer user first
+                var performer = _context.Users.FirstOrDefault(u => u.Username == performerUsername);
+                if (performer == null)
+                {
+                    ViewBag.HasActiveAssessment = false;
+                    ViewBag.ResponseCount = 0;
+                    return HandlePerformerSection(performerUsername, "MSF");
+                }
+
+                // Check for existing active MSF questionnaire using PerformerId
                 var existingQuestionnaire = _context.MSFQuestionnaires
                     .Include(q => q.Responses)
-                    .FirstOrDefault(q => q.Performer.Username == performerUsername && q.IsActive);
+                    .FirstOrDefault(q => q.PerformerId == performer.Id && q.IsActive);
 
                 if (existingQuestionnaire != null)
                 {
@@ -1722,23 +1731,12 @@ namespace SimpleGateway.Controllers
                     ViewBag.CreatedDate = existingQuestionnaire.CreatedAt.ToString("dd/MM/yyyy");
                     ViewBag.ResponseCount = existingQuestionnaire.Responses?.Count ?? 0;
                     
-                    // Generate feedback URL and QR code
-                    var feedbackUrl = Url.Action("Feedback", "MSF", new { code = existingQuestionnaire.UniqueCode }, Request.Scheme);
+                    // Generate feedback URL - we'll need to implement the MSF feedback controller later
+                    var feedbackUrl = $"https://localhost:8080/MSF/Feedback/{existingQuestionnaire.UniqueCode}";
                     ViewBag.FeedbackUrl = feedbackUrl;
                     
-                    // Generate QR code if we have a URL
-                    if (!string.IsNullOrEmpty(feedbackUrl) && existingQuestionnaire.UniqueCode != null)
-                    {
-                        try
-                        {
-                            // For now, we'll skip QR code generation to avoid complexity
-                            ViewBag.QRCodeImage = "";
-                        }
-                        catch
-                        {
-                            ViewBag.QRCodeImage = "";
-                        }
-                    }
+                    // For now, skip QR code generation to avoid complexity
+                    ViewBag.QRCodeImage = "";
                 }
                 else
                 {
@@ -1779,23 +1777,23 @@ namespace SimpleGateway.Controllers
             {
                 try
                 {
-                    // Use Database Integration Pattern: Delete and recreate
-                    // First, deactivate any existing questionnaires for this performer
-                    var existingQuestionnaires = _context.MSFQuestionnaires
-                        .Where(q => q.Performer.Username == performerUsername)
-                        .ToList();
-
-                    foreach (var existing in existingQuestionnaires)
-                    {
-                        existing.IsActive = false;
-                    }
-
-                    // Get the performer user
+                    // Get the performer user first
                     var performer = _context.Users.FirstOrDefault(u => u.Username == performerUsername);
                     if (performer == null)
                     {
                         TempData["ErrorMessage"] = "Performer not found.";
                         return RedirectToAction("MSF", new { performerUsername });
+                    }
+
+                    // Use Database Integration Pattern: Delete and recreate
+                    // First, deactivate any existing questionnaires for this performer using PerformerId
+                    var existingQuestionnaires = _context.MSFQuestionnaires
+                        .Where(q => q.PerformerId == performer.Id)
+                        .ToList();
+
+                    foreach (var existing in existingQuestionnaires)
+                    {
+                        existing.IsActive = false;
                     }
 
                     // Create new MSF questionnaire

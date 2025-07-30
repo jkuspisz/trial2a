@@ -19,7 +19,7 @@ namespace SimpleGateway.Controllers
         // MSF Dashboard - Shows questionnaire status and results
         public async Task<IActionResult> Index()
         {
-            var username = User.Identity?.Name;
+            var username = HttpContext.Session.GetString("username");
             if (string.IsNullOrEmpty(username))
                 return RedirectToAction("Login", "Account");
 
@@ -34,18 +34,40 @@ namespace SimpleGateway.Controllers
 
             if (questionnaire == null)
             {
-                // Create new questionnaire
-                questionnaire = new MSFQuestionnaire
+                try
                 {
-                    PerformerId = user.Id,
-                    Title = $"MSF Assessment for {user.Username}",
-                    UniqueCode = GenerateUniqueCode(),
-                    IsActive = true,
-                    CreatedAt = DateTime.UtcNow
-                };
+                    // Database connection verification - SAFE METHOD (following Database Integration Pattern)
+                    var canConnect = _context.Database.CanConnect();
+                    if (!canConnect)
+                    {
+                        // Log and handle gracefully - DON'T DELETE DATABASE
+                        Console.WriteLine("MSF: Database connection issue");
+                        TempData["ErrorMessage"] = "Database connection issue. Contact administrator.";
+                        return RedirectToAction("Index", "Home");
+                    }
+                    
+                    // Create new questionnaire
+                    questionnaire = new MSFQuestionnaire
+                    {
+                        PerformerId = user.Id,
+                        Title = $"MSF Assessment for {user.Username}",
+                        UniqueCode = GenerateUniqueCode(),
+                        IsActive = true,
+                        CreatedAt = DateTime.UtcNow
+                    };
 
-                _context.MSFQuestionnaires.Add(questionnaire);
-                await _context.SaveChangesAsync();
+                    Console.WriteLine($"MSF: Creating new questionnaire for {user.Username}");
+                    _context.MSFQuestionnaires.Add(questionnaire);
+                    await _context.SaveChangesAsync();
+                    Console.WriteLine($"MSF: Successfully created questionnaire with code {questionnaire.UniqueCode}");
+                }
+                catch (Exception ex)
+                {
+                    // ✅ SAFE ERROR HANDLING - Log errors without destroying data
+                    Console.WriteLine($"MSF: Database error creating questionnaire: {ex.Message}");
+                    TempData["ErrorMessage"] = "Error creating MSF assessment. Please try again.";
+                    return RedirectToAction("Index", "Home");
+                }
             }
 
             // Generate QR code for the feedback URL
@@ -155,16 +177,49 @@ namespace SimpleGateway.Controllers
                 AdditionalComments = model.AdditionalComments
             };
 
-            _context.MSFResponses.Add(response);
-            await _context.SaveChangesAsync();
+            try
+            {
+                // Database connection verification - SAFE METHOD (following Database Integration Pattern)
+                var canConnect = _context.Database.CanConnect();
+                if (!canConnect)
+                {
+                    Console.WriteLine("MSF: Database connection issue during feedback submission");
+                    TempData["ErrorMessage"] = "Database connection issue. Please try again.";
+                    return View(model);
+                }
 
-            return View("FeedbackSubmitted");
+                Console.WriteLine($"MSF: Submitting feedback for questionnaire {targetQuestionnaire.Id} from {model.RespondentName}");
+                _context.MSFResponses.Add(response);
+                await _context.SaveChangesAsync();
+                Console.WriteLine($"MSF: Successfully saved feedback response");
+
+                return View("FeedbackSubmitted");
+            }
+            catch (Exception ex)
+            {
+                // ✅ SAFE ERROR HANDLING - Log errors without destroying data
+                Console.WriteLine($"MSF: Database error saving feedback: {ex.Message}");
+                TempData["ErrorMessage"] = "Error saving feedback. Please try again.";
+                
+                // Reload questionnaire info for the view
+                var questionnaire = await _context.MSFQuestionnaires
+                    .Include(q => q.Performer)
+                    .FirstOrDefaultAsync(q => q.UniqueCode == model.QuestionnaireCode && q.IsActive);
+
+                if (questionnaire != null)
+                {
+                    ViewBag.PerformerName = questionnaire.Performer.Username;
+                    ViewBag.QuestionnaireTitle = questionnaire.Title;
+                }
+
+                return View(model);
+            }
         }
 
         // View MSF Results
         public async Task<IActionResult> Results()
         {
-            var username = User.Identity?.Name;
+            var username = HttpContext.Session.GetString("username");
             if (string.IsNullOrEmpty(username))
                 return RedirectToAction("Login", "Account");
 
@@ -191,7 +246,7 @@ namespace SimpleGateway.Controllers
         [HttpPost]
         public async Task<IActionResult> StartNewAssessment()
         {
-            var username = User.Identity?.Name;
+            var username = HttpContext.Session.GetString("username");
             if (string.IsNullOrEmpty(username))
                 return RedirectToAction("Login", "Account");
 
