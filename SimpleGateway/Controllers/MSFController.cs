@@ -184,19 +184,54 @@ namespace SimpleGateway.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateQuestionnaire(string performerUsername)
         {
+            Console.WriteLine($"=== MSF CREATE QUESTIONNAIRE START ===");
+            Console.WriteLine($"Received performerUsername: {performerUsername}");
+            
             try
             {
                 var currentUser = HttpContext.Session.GetString("username");
+                Console.WriteLine($"Current user from session: {currentUser}");
+                
                 if (string.IsNullOrEmpty(currentUser))
+                {
+                    Console.WriteLine("ERROR: No current user in session, redirecting to login");
                     return RedirectToAction("Login", "Account");
+                }
 
                 var targetUsername = !string.IsNullOrEmpty(performerUsername) ? performerUsername : currentUser;
+                Console.WriteLine($"Target username: {targetUsername}");
+                
                 var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == targetUsername);
+                Console.WriteLine($"Found user in database: {user != null}");
+                
                 if (user == null)
+                {
+                    Console.WriteLine("ERROR: User not found in database, redirecting to login");
                     return RedirectToAction("Login", "Account");
+                }
+
+                Console.WriteLine($"User details - ID: {user.Id}, Username: {user.Username}");
+
+                // Test database connection before creating questionnaire
+                try
+                {
+                    var canConnect = _context.Database.CanConnect();
+                    Console.WriteLine($"Database connection test: {canConnect}");
+                    
+                    var userCount = await _context.Users.CountAsync();
+                    Console.WriteLine($"Total users in database: {userCount}");
+                }
+                catch (Exception dbEx)
+                {
+                    Console.WriteLine($"Database connection error: {dbEx.Message}");
+                    TempData["ErrorMessage"] = "Database connection issue. Please try again.";
+                    return RedirectToAction("Index", new { performerUsername });
+                }
 
                 // Create new questionnaire
                 var uniqueCode = GenerateUniqueCode();
+                Console.WriteLine($"Generated unique code: {uniqueCode}");
+                
                 var questionnaire = new MSFQuestionnaire
                 {
                     PerformerId = user.Id,
@@ -206,24 +241,37 @@ namespace SimpleGateway.Controllers
                     CreatedAt = DateTime.UtcNow
                 };
 
-                Console.WriteLine($"MSF: Creating new questionnaire for {user.Username}");
-                Console.WriteLine($"MSF: Generated unique code: {uniqueCode}");
+                Console.WriteLine($"Creating questionnaire object completed");
+                Console.WriteLine($"About to add to context...");
+                
                 _context.MSFQuestionnaires.Add(questionnaire);
+                Console.WriteLine($"Added to context, about to save...");
+                
                 await _context.SaveChangesAsync();
-                Console.WriteLine($"MSF: Successfully created questionnaire with ID {questionnaire.Id} and code {questionnaire.UniqueCode}");
+                Console.WriteLine($"SAVE SUCCESSFUL! Questionnaire ID: {questionnaire.Id}");
 
                 // Generate feedback URL for verification
                 var testFeedbackUrl = Url.Action("Feedback", "MSF", new { code = questionnaire.UniqueCode }, Request.Scheme);
-                Console.WriteLine($"MSF: Generated feedback URL: {testFeedbackUrl}");
+                Console.WriteLine($"Generated feedback URL: {testFeedbackUrl}");
 
                 TempData["SuccessMessage"] = $"MSF assessment link created successfully! Code: {questionnaire.UniqueCode}";
+                Console.WriteLine($"About to redirect to Index...");
+                
                 return RedirectToAction("Index", new { performerUsername = targetUsername });
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"MSF: Error creating questionnaire: {ex.Message}");
-                TempData["ErrorMessage"] = "Error creating MSF assessment. Please try again.";
+                Console.WriteLine($"=== MSF CREATE ERROR ===");
+                Console.WriteLine($"Error message: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                Console.WriteLine($"Inner exception: {ex.InnerException?.Message}");
+                
+                TempData["ErrorMessage"] = $"Error creating MSF assessment: {ex.Message}";
                 return RedirectToAction("Index", new { performerUsername });
+            }
+            finally
+            {
+                Console.WriteLine($"=== MSF CREATE QUESTIONNAIRE END ===");
             }
         }
 
