@@ -31,6 +31,67 @@ namespace SimpleGateway.Controllers
             return Content($"Test feedback URL: {testUrl}");
         }
 
+        // Diagnostic action to check MSF status
+        public async Task<IActionResult> Diagnostic()
+        {
+            try
+            {
+                var currentUser = HttpContext.Session.GetString("username");
+                var output = new System.Text.StringBuilder();
+                
+                output.AppendLine($"=== MSF DIAGNOSTIC ===");
+                output.AppendLine($"Current User: {currentUser ?? "NOT LOGGED IN"}");
+                output.AppendLine($"Current Time: {DateTime.Now}");
+                output.AppendLine();
+
+                if (!string.IsNullOrEmpty(currentUser))
+                {
+                    var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == currentUser);
+                    output.AppendLine($"User Found: {user != null}");
+                    if (user != null)
+                    {
+                        output.AppendLine($"User ID: {user.Id}");
+                        
+                        // Check for existing questionnaire
+                        var questionnaire = await _context.MSFQuestionnaires
+                            .FirstOrDefaultAsync(q => q.PerformerId == user.Id && q.IsActive);
+                        
+                        output.AppendLine($"Existing Questionnaire: {questionnaire != null}");
+                        if (questionnaire != null)
+                        {
+                            output.AppendLine($"Questionnaire ID: {questionnaire.Id}");
+                            output.AppendLine($"Unique Code: {questionnaire.UniqueCode}");
+                            output.AppendLine($"Title: {questionnaire.Title}");
+                            output.AppendLine($"Created: {questionnaire.CreatedAt}");
+                            
+                            var feedbackUrl = Url.Action("Feedback", "MSF", new { code = questionnaire.UniqueCode }, Request.Scheme);
+                            output.AppendLine($"Feedback URL: {feedbackUrl}");
+                        }
+                    }
+                }
+
+                // Test database connection
+                try
+                {
+                    var canConnect = _context.Database.CanConnect();
+                    output.AppendLine($"Database Connection: {canConnect}");
+                    
+                    var questCount = await _context.MSFQuestionnaires.CountAsync();
+                    output.AppendLine($"Total MSF Questionnaires: {questCount}");
+                }
+                catch (Exception dbEx)
+                {
+                    output.AppendLine($"Database Error: {dbEx.Message}");
+                }
+
+                return Content(output.ToString(), "text/plain");
+            }
+            catch (Exception ex)
+            {
+                return Content($"Diagnostic Error: {ex.Message}", "text/plain");
+            }
+        }
+
         // MSF Dashboard - Shows questionnaire status and results
         public async Task<IActionResult> Index(string performerUsername = null)
         {
