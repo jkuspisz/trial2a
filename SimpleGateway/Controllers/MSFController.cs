@@ -302,7 +302,18 @@ namespace SimpleGateway.Controllers
                     return RedirectToAction("Index", new { performerUsername });
                 }
 
-                // Create new questionnaire
+                // Check if questionnaire already exists for this user
+                var existingQuestionnaire = await _context.MSFQuestionnaires
+                    .FirstOrDefaultAsync(q => q.PerformerId == user.Id && q.IsActive);
+                
+                if (existingQuestionnaire != null)
+                {
+                    Console.WriteLine($"MSF: Questionnaire already exists for user {user.Username}, code: {existingQuestionnaire.UniqueCode}");
+                    TempData["InfoMessage"] = $"MSF assessment already exists! Using existing link with code: {existingQuestionnaire.UniqueCode}";
+                    return RedirectToAction("Index", new { performerUsername = targetUsername });
+                }
+
+                // Create new questionnaire only if none exists
                 var uniqueCode = GenerateUniqueCode();
                 Console.WriteLine($"Generated unique code: {uniqueCode}");
                 
@@ -315,7 +326,7 @@ namespace SimpleGateway.Controllers
                     CreatedAt = DateTime.UtcNow
                 };
 
-                Console.WriteLine($"Creating questionnaire object completed");
+                Console.WriteLine($"Creating NEW questionnaire object completed");
                 Console.WriteLine($"About to add to context...");
                 
                 _context.MSFQuestionnaires.Add(questionnaire);
@@ -328,7 +339,7 @@ namespace SimpleGateway.Controllers
                 var testFeedbackUrl = Url.Action("Feedback", "MSF", new { code = questionnaire.UniqueCode }, Request.Scheme);
                 Console.WriteLine($"Generated feedback URL: {testFeedbackUrl}");
 
-                TempData["SuccessMessage"] = $"MSF assessment link created successfully! Code: {questionnaire.UniqueCode}";
+                TempData["SuccessMessage"] = $"NEW MSF assessment created! Share this permanent link with colleagues. Code: {questionnaire.UniqueCode}";
                 Console.WriteLine($"About to redirect to Index...");
                 
                 return RedirectToAction("Index", new { performerUsername = targetUsername });

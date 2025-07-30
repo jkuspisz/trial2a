@@ -57,6 +57,11 @@
             <div class="alert alert-success">@TempData["SuccessMessage"]</div>
         }
 
+        @if (TempData["InfoMessage"] != null)
+        {
+            <div class="alert alert-info">@TempData["InfoMessage"]</div>
+        }
+
         @if (showCreateForm)
         {
             <!-- Show creation form when no questionnaire exists -->
@@ -71,12 +76,12 @@
                     </div>
                     
                     <p>No MSF assessment has been created yet for <strong>@performerName</strong>.</p>
-                    <p>Click the button below to create a new MSF assessment and generate a shareable link for external feedback.</p>
+                    <p>Create a <strong>permanent</strong> MSF assessment link that colleagues can use to provide anonymous feedback. Once created, the same link will always be available for this user.</p>
                     
                     <form method="post" action="@Url.Action("CreateQuestionnaire", "MSF")">
                         <input type="hidden" name="performerUsername" value="@performerUsername" />
                         <button type="submit" class="btn btn-primary btn-lg">
-                            <i class="fas fa-plus"></i> Create & Generate Link
+                            <i class="fas fa-plus"></i> Create Permanent MSF Link
                         </button>
                     </form>
                 </div>
