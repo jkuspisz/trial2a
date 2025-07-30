@@ -560,7 +560,15 @@ namespace SimpleGateway.Controllers
                 TempData["ErrorMessage"] = "An error occurred while uploading the file. Please try again.";
             }
 
-            return RedirectToAction("Uploads", new { performerUsername });
+            // Redirect to appropriate page based on category
+            if (category.StartsWith("CPD_"))
+            {
+                return RedirectToAction("CPD", new { performerUsername });
+            }
+            else
+            {
+                return RedirectToAction("Uploads", new { performerUsername });
+            }
         }
 
         public IActionResult DownloadFile(int id)
@@ -677,7 +685,15 @@ namespace SimpleGateway.Controllers
                 TempData["ErrorMessage"] = "An error occurred while deleting the file.";
             }
 
-            return RedirectToAction("Uploads", new { performerUsername });
+            // Redirect to appropriate page based on category
+            if (fileEntry.Category.StartsWith("CPD_"))
+            {
+                return RedirectToAction("CPD", new { performerUsername });
+            }
+            else
+            {
+                return RedirectToAction("Uploads", new { performerUsername });
+            }
         }
 
         // TestPractice - Supervisor/Supporting Dentist Information
@@ -1597,7 +1613,82 @@ namespace SimpleGateway.Controllers
 
         public IActionResult CPD(string performerUsername)
         {
-            return HandlePerformerSection(performerUsername, "CPD");
+            var currentUser = HttpContext.Session.GetString("username");
+            var currentRole = HttpContext.Session.GetString("role");
+            
+            if (string.IsNullOrEmpty(currentUser))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            // Check permissions
+            if (currentRole == "performer" && currentUser != performerUsername)
+            {
+                return RedirectToAction("Index");
+            }
+
+            // Set common ViewBag properties
+            ViewBag.PerformerUsername = performerUsername;
+            ViewBag.CurrentUserRole = currentRole;
+            ViewBag.CurrentUser = currentUser;
+            ViewBag.IsOwnDashboard = (currentUser == performerUsername);
+            ViewBag.CanEdit = (currentRole == "performer" && currentUser == performerUsername);
+            ViewBag.CanComment = (currentRole == "supervisor" || currentRole == "advisor" || currentRole == "superuser");
+            ViewBag.CanApprove = (currentRole == "supervisor" || currentRole == "advisor" || currentRole == "superuser");
+            ViewBag.IsReadOnly = (currentRole == "admin");
+            ViewBag.ActiveSection = "CPD";
+
+            // Get performer's name for display
+            var performer = _context.Users.FirstOrDefault(u => u.Username == performerUsername);
+            if (performer != null)
+            {
+                ViewBag.PerformerName = $"{performer.FirstName} {performer.LastName}";
+            }
+
+            // Get uploaded CPD files for this performer
+            var fileUpload = _context.FileUploads
+                .Where(f => f.Username == performerUsername)
+                .FirstOrDefault();
+
+            if (fileUpload != null)
+            {
+                // Get file entries for this FileUpload
+                var allFiles = _context.FileUploadEntries
+                    .Where(f => f.FileUploadModelId == fileUpload.Id)
+                    .OrderByDescending(f => f.UploadedAt)
+                    .ToList();
+
+                // Separate CPD files by category
+                ViewBag.MedicalEmergenciesFiles = allFiles
+                    .Where(f => f.Category == "CPD_MedicalEmergencies")
+                    .ToList();
+                
+                ViewBag.DisinfectionDecontaminationFiles = allFiles
+                    .Where(f => f.Category == "CPD_DisinfectionDecontamination")
+                    .ToList();
+                
+                ViewBag.RadiographyRadiationProtectionFiles = allFiles
+                    .Where(f => f.Category == "CPD_RadiographyRadiationProtection")
+                    .ToList();
+                
+                ViewBag.SafeguardingChildrenVulnerableAdultsFiles = allFiles
+                    .Where(f => f.Category == "CPD_SafeguardingChildrenVulnerableAdults")
+                    .ToList();
+                
+                ViewBag.ExtraCPDFiles = allFiles
+                    .Where(f => f.Category == "CPD_Extra")
+                    .ToList();
+            }
+            else
+            {
+                ViewBag.MedicalEmergenciesFiles = new List<FileUploadEntry>();
+                ViewBag.DisinfectionDecontaminationFiles = new List<FileUploadEntry>();
+                ViewBag.RadiographyRadiationProtectionFiles = new List<FileUploadEntry>();
+                ViewBag.SafeguardingChildrenVulnerableAdultsFiles = new List<FileUploadEntry>();
+                ViewBag.ExtraCPDFiles = new List<FileUploadEntry>();
+            }
+
+            return View("Performer/CPD");
         }
 
         public IActionResult MSF(string performerUsername)

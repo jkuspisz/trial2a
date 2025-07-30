@@ -1,0 +1,424 @@
+@{
+    ViewBag.Title = "CPD - " + ViewBag.PerformerName;
+    Layout = "_Layout";
+}
+
+<div class="row">
+    <div class="col-3">
+        <ul class="list-group">
+            <li class="list-group-item @(ViewBag.ActiveSection == "Dashboard" ? "active" : "")">
+                <a href="/Dashboard/Index" style="@(ViewBag.ActiveSection == "Dashboard" ? "color: white;" : "")">
+                    <i class="bi bi-speedometer2"></i> Dashboard Overview
+                </a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "PerformerDetails" ? "active" : "")">
+                <a href="/Dashboard/PerformerDetails?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "PerformerDetails" ? "color: white;" : "")">Performer Details</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "TestPractice" ? "active" : "")">
+                <a href="/Dashboard/TestPractice?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "TestPractice" ? "color: white;" : "")">Test Practice</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "TestPractice2" ? "active" : "")">
+                <a href="/Dashboard/TestPractice2?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "TestPractice2" ? "color: white;" : "")">Test Practice 2</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "Uploads" ? "active" : "")">
+                <a href="/Dashboard/Uploads?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "Uploads" ? "color: white;" : "")">Uploads</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "LearningModules" ? "active" : "")">
+                <a href="/Dashboard/LearningModules?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "LearningModules" ? "color: white;" : "")">Learning Modules</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "LearningProgress" ? "active" : "")">
+                <a href="/Dashboard/LearningProgress?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "LearningProgress" ? "color: white;" : "")">Learning Progress</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "SupplementaryUploads" ? "active" : "")">
+                <a href="/Dashboard/SupplementaryUploads?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "SupplementaryUploads" ? "color: white;" : "")">Supplementary Uploads</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "ManagementPlan" ? "active" : "")">
+                <a href="/Dashboard/ManagementPlan?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "ManagementPlan" ? "color: white;" : "")">Management Plan</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "SkillsAssessment" ? "active" : "")">
+                <a href="/Dashboard/SkillsAssessment?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "SkillsAssessment" ? "color: white;" : "")">Skills Assessment</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "CPD" ? "active" : "")">
+                <a href="/Dashboard/CPD?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "CPD" ? "color: white;" : "")">CPD</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "ClinicalNoteAudit" ? "active" : "")">
+                <a href="/Dashboard/ClinicalNoteAudit?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "ClinicalNoteAudit" ? "color: white;" : "")">Clinical Note Audit</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "HelpGuidance" ? "active" : "")">
+                <a href="/Dashboard/HelpGuidance?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "HelpGuidance" ? "color: white;" : "")">Help & Guidance</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "FinalSignOff" ? "active" : "")">
+                <a href="/Dashboard/FinalSignOff?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "FinalSignOff" ? "color: white;" : "")">Final Sign off</a>
+            </li>
+            @if (ViewBag.IsOwnDashboard == true)
+            {
+                <li class="list-group-item"><a href="/Account/Logout">Logout</a></li>
+            }
+            else
+            {
+                <li class="list-group-item"><a href="/Dashboard/Index">Back to List</a></li>
+            }
+        </ul>
+    </div>
+    
+    <div class="col-9">
+        <h2>Continuing Professional Development (CPD) - @ViewBag.PerformerName</h2>
+        
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+        
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+        
+        <div class="alert alert-info mb-4">
+            <i class="fas fa-info-circle"></i> 
+            <strong>CPD Requirements:</strong> Please upload evidence of your continuing professional development in the required categories below.
+        </div>
+
+        <!-- Medical Emergencies CPD -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-heartbeat"></i> Medical Emergencies
+                </h4>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Upload certificates or evidence of Medical Emergencies training and CPD.</p>
+                
+                @if (ViewBag.CanEdit == true)
+                {
+                    <form asp-action="UploadFile" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="performerUsername" value="@ViewBag.PerformerUsername" />
+                        <input type="hidden" name="category" value="CPD_MedicalEmergencies" />
+                        <input type="hidden" name="isRequired" value="false" />
+                        
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Upload Medical Emergencies CPD:</strong></label>
+                            <input type="file" class="form-control" name="uploadFile" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required />
+                            <input type="hidden" name="description" value="Medical Emergencies CPD" />
+                            <small class="form-text text-muted">Accepted formats: PDF, Word documents, Images (Max 10MB)</small>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-upload"></i> Upload CPD Evidence
+                        </button>
+                    </form>
+                }
+                
+                @* Display existing Medical Emergencies files *@
+                @if (ViewBag.MedicalEmergenciesFiles != null)
+                {
+                    var medicalEmergenciesFiles = ViewBag.MedicalEmergenciesFiles as List<SimpleGateway.Models.FileUploadEntry>;
+                    if (medicalEmergenciesFiles != null && medicalEmergenciesFiles.Any())
+                    {
+                        <hr />
+                        <h6>Uploaded Medical Emergencies CPD:</h6>
+                        @foreach (var file in medicalEmergenciesFiles)
+                        {
+                            <div class="d-flex justify-content-between align-items-center border rounded p-2 mb-2">
+                                <div>
+                                    <i class="fas fa-file"></i> <strong>@file.FileName</strong>
+                                    <small class="text-muted">(@(file.FileSize / 1024)KB - Uploaded @file.UploadedAt.ToString("MMM dd, yyyy"))</small>
+                                </div>
+                                <div>
+                                    <a href="/Dashboard/DownloadFile/@file.Id" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-download"></i> Download
+                                    </a>
+                                    @if (ViewBag.CanEdit == true)
+                                    {
+                                        <a href="/Dashboard/DeleteFile/@file.Id" class="btn btn-sm btn-outline-danger ms-1" 
+                                           onclick="return confirm('Are you sure you want to delete this file?')">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </a>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    }
+                }
+            </div>
+        </div>
+
+        <!-- Disinfection and Decontamination CPD -->
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-shield-virus"></i> Disinfection and Decontamination
+                </h4>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Upload certificates or evidence of Disinfection and Decontamination training and CPD.</p>
+                
+                @if (ViewBag.CanEdit == true)
+                {
+                    <form asp-action="UploadFile" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="performerUsername" value="@ViewBag.PerformerUsername" />
+                        <input type="hidden" name="category" value="CPD_DisinfectionDecontamination" />
+                        <input type="hidden" name="isRequired" value="false" />
+                        
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Upload Disinfection and Decontamination CPD:</strong></label>
+                            <input type="file" class="form-control" name="uploadFile" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required />
+                            <input type="hidden" name="description" value="Disinfection and Decontamination CPD" />
+                            <small class="form-text text-muted">Accepted formats: PDF, Word documents, Images (Max 10MB)</small>
+                        </div>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-upload"></i> Upload CPD Evidence
+                        </button>
+                    </form>
+                }
+                
+                @* Display existing Disinfection and Decontamination files *@
+                @if (ViewBag.DisinfectionDecontaminationFiles != null)
+                {
+                    var disinfectionFiles = ViewBag.DisinfectionDecontaminationFiles as List<SimpleGateway.Models.FileUploadEntry>;
+                    if (disinfectionFiles != null && disinfectionFiles.Any())
+                    {
+                        <hr />
+                        <h6>Uploaded Disinfection and Decontamination CPD:</h6>
+                        @foreach (var file in disinfectionFiles)
+                        {
+                            <div class="d-flex justify-content-between align-items-center border rounded p-2 mb-2">
+                                <div>
+                                    <i class="fas fa-file"></i> <strong>@file.FileName</strong>
+                                    <small class="text-muted">(@(file.FileSize / 1024)KB - Uploaded @file.UploadedAt.ToString("MMM dd, yyyy"))</small>
+                                </div>
+                                <div>
+                                    <a href="/Dashboard/DownloadFile/@file.Id" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-download"></i> Download
+                                    </a>
+                                    @if (ViewBag.CanEdit == true)
+                                    {
+                                        <a href="/Dashboard/DeleteFile/@file.Id" class="btn btn-sm btn-outline-danger ms-1" 
+                                           onclick="return confirm('Are you sure you want to delete this file?')">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </a>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    }
+                }
+            </div>
+        </div>
+
+        <!-- Radiography and Radiation Protection CPD -->
+        <div class="card mb-4">
+            <div class="card-header bg-warning text-dark">
+                <h4 class="mb-0">
+                    <i class="fas fa-radiation"></i> Radiography and Radiation Protection
+                </h4>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Upload certificates or evidence of Radiography and Radiation Protection training and CPD.</p>
+                
+                @if (ViewBag.CanEdit == true)
+                {
+                    <form asp-action="UploadFile" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="performerUsername" value="@ViewBag.PerformerUsername" />
+                        <input type="hidden" name="category" value="CPD_RadiographyRadiationProtection" />
+                        <input type="hidden" name="isRequired" value="false" />
+                        
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Upload Radiography and Radiation Protection CPD:</strong></label>
+                            <input type="file" class="form-control" name="uploadFile" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required />
+                            <input type="hidden" name="description" value="Radiography and Radiation Protection CPD" />
+                            <small class="form-text text-muted">Accepted formats: PDF, Word documents, Images (Max 10MB)</small>
+                        </div>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="fas fa-upload"></i> Upload CPD Evidence
+                        </button>
+                    </form>
+                }
+                
+                @* Display existing Radiography and Radiation Protection files *@
+                @if (ViewBag.RadiographyRadiationProtectionFiles != null)
+                {
+                    var radiographyFiles = ViewBag.RadiographyRadiationProtectionFiles as List<SimpleGateway.Models.FileUploadEntry>;
+                    if (radiographyFiles != null && radiographyFiles.Any())
+                    {
+                        <hr />
+                        <h6>Uploaded Radiography and Radiation Protection CPD:</h6>
+                        @foreach (var file in radiographyFiles)
+                        {
+                            <div class="d-flex justify-content-between align-items-center border rounded p-2 mb-2">
+                                <div>
+                                    <i class="fas fa-file"></i> <strong>@file.FileName</strong>
+                                    <small class="text-muted">(@(file.FileSize / 1024)KB - Uploaded @file.UploadedAt.ToString("MMM dd, yyyy"))</small>
+                                </div>
+                                <div>
+                                    <a href="/Dashboard/DownloadFile/@file.Id" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-download"></i> Download
+                                    </a>
+                                    @if (ViewBag.CanEdit == true)
+                                    {
+                                        <a href="/Dashboard/DeleteFile/@file.Id" class="btn btn-sm btn-outline-danger ms-1" 
+                                           onclick="return confirm('Are you sure you want to delete this file?')">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </a>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    }
+                }
+            </div>
+        </div>
+
+        <!-- Safeguarding Children and Vulnerable Adults CPD -->
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-shield-alt"></i> Safeguarding Children and Vulnerable Adults
+                </h4>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Upload certificates or evidence of Safeguarding Children and Vulnerable Adults training and CPD.</p>
+                
+                @if (ViewBag.CanEdit == true)
+                {
+                    <form asp-action="UploadFile" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="performerUsername" value="@ViewBag.PerformerUsername" />
+                        <input type="hidden" name="category" value="CPD_SafeguardingChildrenVulnerableAdults" />
+                        <input type="hidden" name="isRequired" value="false" />
+                        
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Upload Safeguarding Children and Vulnerable Adults CPD:</strong></label>
+                            <input type="file" class="form-control" name="uploadFile" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required />
+                            <input type="hidden" name="description" value="Safeguarding Children and Vulnerable Adults CPD" />
+                            <small class="form-text text-muted">Accepted formats: PDF, Word documents, Images (Max 10MB)</small>
+                        </div>
+                        <button type="submit" class="btn btn-info">
+                            <i class="fas fa-upload"></i> Upload CPD Evidence
+                        </button>
+                    </form>
+                }
+                
+                @* Display existing Safeguarding files *@
+                @if (ViewBag.SafeguardingChildrenVulnerableAdultsFiles != null)
+                {
+                    var safeguardingFiles = ViewBag.SafeguardingChildrenVulnerableAdultsFiles as List<SimpleGateway.Models.FileUploadEntry>;
+                    if (safeguardingFiles != null && safeguardingFiles.Any())
+                    {
+                        <hr />
+                        <h6>Uploaded Safeguarding Children and Vulnerable Adults CPD:</h6>
+                        @foreach (var file in safeguardingFiles)
+                        {
+                            <div class="d-flex justify-content-between align-items-center border rounded p-2 mb-2">
+                                <div>
+                                    <i class="fas fa-file"></i> <strong>@file.FileName</strong>
+                                    <small class="text-muted">(@(file.FileSize / 1024)KB - Uploaded @file.UploadedAt.ToString("MMM dd, yyyy"))</small>
+                                </div>
+                                <div>
+                                    <a href="/Dashboard/DownloadFile/@file.Id" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-download"></i> Download
+                                    </a>
+                                    @if (ViewBag.CanEdit == true)
+                                    {
+                                        <a href="/Dashboard/DeleteFile/@file.Id" class="btn btn-sm btn-outline-danger ms-1" 
+                                           onclick="return confirm('Are you sure you want to delete this file?')">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </a>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    }
+                }
+            </div>
+        </div>
+
+        <!-- Extra CPD -->
+        <div class="card mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-plus-circle"></i> Extra CPD
+                </h4>
+                <small class="text-light">Upload any additional CPD that doesn't fit the categories above</small>
+            </div>
+            <div class="card-body">
+                @if (ViewBag.CanEdit == true)
+                {
+                    <form asp-action="UploadFile" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="performerUsername" value="@ViewBag.PerformerUsername" />
+                        <input type="hidden" name="category" value="CPD_Extra" />
+                        <input type="hidden" name="isRequired" value="false" />
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label">CPD Description:</label>
+                                <input type="text" class="form-control" name="description" placeholder="Describe your additional CPD..." required />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Choose File:</label>
+                                <input type="file" class="form-control" name="uploadFile" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required />
+                                <small class="form-text text-muted">Max 10MB</small>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">&nbsp;</label><br>
+                                <button type="submit" class="btn btn-secondary">
+                                    <i class="fas fa-plus"></i> Add Extra CPD
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    <hr>
+                }
+
+                @* Display extra CPD files *@
+                @if (ViewBag.ExtraCPDFiles != null)
+                {
+                    var extraCPDFiles = ViewBag.ExtraCPDFiles as List<SimpleGateway.Models.FileUploadEntry>;
+                    if (extraCPDFiles != null && extraCPDFiles.Any())
+                    {
+                        <h6>Additional CPD Uploads:</h6>
+                        @foreach (var file in extraCPDFiles)
+                        {
+                            <div class="d-flex justify-content-between align-items-center border rounded p-3 mb-2">
+                                <div>
+                                    <i class="fas fa-file"></i> <strong>@file.Description</strong><br>
+                                    <small class="text-muted">File: @file.FileName (@(file.FileSize / 1024)KB - Uploaded @file.UploadedAt.ToString("MMM dd, yyyy"))</small>
+                                </div>
+                                <div>
+                                    <a href="/Dashboard/DownloadFile/@file.Id" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-download"></i> Download
+                                    </a>
+                                    @if (ViewBag.CanEdit == true)
+                                    {
+                                        <a href="/Dashboard/DeleteFile/@file.Id" class="btn btn-sm btn-outline-danger ms-1" 
+                                           onclick="return confirm('Are you sure you want to delete this file?')">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </a>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center text-muted">
+                            <i class="fas fa-folder-open fa-3x mb-3"></i>
+                            <p>No additional CPD uploaded yet.</p>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="text-center text-muted">
+                        <i class="fas fa-folder-open fa-3x mb-3"></i>
+                        <p>No additional CPD uploaded yet.</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

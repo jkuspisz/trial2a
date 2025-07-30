@@ -260,6 +260,88 @@ ViewBag.CanEditPerformanceInfo = (currentRole == "manager" || currentRole == "ad
 - Centralized permission logic in controllers
 - Consistent implementation approach
 
+## Common Implementation Pitfalls & Solutions
+
+### ❌ **Pitfall 1: Multiple Forms for Different Roles**
+**Problem**: Creating separate `<form>` elements for different user roles
+```html
+<!-- WRONG APPROACH -->
+<form><!-- Performer fields --></form>
+<form><!-- Supervisor fields --></form>
+```
+
+**Solution**: Use single form with conditional readonly attributes
+```html
+<!-- CORRECT APPROACH -->
+<form method="post" action="...">
+    <input asp-for="PerformerField" readonly="@(!ViewBag.CanEditPerformer)" />
+    <textarea asp-for="SupervisorField" readonly="@(!ViewBag.CanEditSupervisor)"></textarea>
+    <button type="submit">Save</button>
+</form>
+```
+
+### ❌ **Pitfall 2: Fields Outside Form Context**
+**Problem**: Permission-controlled fields placed outside the main form
+```html
+<form><!-- Main fields --></form>
+<div><!-- Supervisor fields with submit button but NO FORM! --></div>
+```
+
+**Solution**: Keep ALL editable fields within the form boundaries
+
+### ❌ **Pitfall 3: Client-Side Only Protection**
+**Problem**: Relying solely on `readonly`/`disabled` attributes for security
+**Solution**: Always validate permissions server-side in POST methods
+
+## Real-World Case Studies
+
+### Case Study 1: EditWorkBasedAssessment Fix (July 2025)
+
+**Problem**: Supervisor section showing completion messages but not saving data
+
+**Root Cause**: Supervisor fields were completely outside any `<form>` element
+```html
+<!-- BROKEN STRUCTURE -->
+<form method="post">
+    <!-- Performer fields -->
+</form>
+<!-- Supervisor section with submit button - NO FORM CONTEXT! -->
+<div class="supervisor-section">
+    <button type="submit">Complete Assessment</button>
+</div>
+```
+
+**Solution Applied**: Moved supervisor section inside proper form following Field-Level Permissions Pattern
+```html
+<!-- FIXED STRUCTURE -->
+<form method="post" action="/Dashboard/UpdatePerformerAssessment">
+    <input type="hidden" asp-for="Id" />
+    <!-- Supervisor fields with conditional readonly -->
+    <textarea asp-for="SupervisorActionPlan" readonly="@(!ViewBag.CanEditSupervisor)"></textarea>
+    <button type="submit" name="isSupervisorCompletion" value="true">Complete Assessment</button>
+</form>
+```
+
+**Key Lessons**:
+- Form structure is critical - fields outside forms cannot submit
+- Field-Level Permissions Pattern requires single form architecture
+- Hidden fields are essential for proper model binding
+- Conditional submit logic prevents unauthorized submissions
+
+### Case Study 2: AgreementTerms Restoration (July 2025)
+
+**Problem**: Complete page corruption - empty model and view files
+
+**Root Cause**: Files were accidentally emptied, breaking the entire workflow
+
+**Solution Process**:
+1. Restored view from git history (commit 69516eb)
+2. Recreated AgreementTermsModel with 22 boolean properties
+3. Added missing DbSet to ApplicationDbContext
+4. Fixed controller action to properly load/create models
+
+**Pattern Application**: Applied Field-Level Permissions for advisor vs performer access
+
 ## Future Enhancements
 
 ### Advanced Features
@@ -274,6 +356,72 @@ ViewBag.CanEditPerformanceInfo = (currentRole == "manager" || currentRole == "ad
 - **API permissions**: Extend pattern to REST API endpoints
 - **Reporting**: Permission-aware data export and reporting
 
+## Debugging & Troubleshooting
+
+### 🔍 **Field Not Saving Issues**
+1. **Check Form Structure**: Ensure all editable fields are within `<form>` tags
+2. **Verify Hidden Fields**: Model binding requires proper Id and key fields
+3. **Validate POST Action**: Confirm form action points to correct controller method
+4. **Review Server Logic**: Check if field preservation is overwriting intended changes
+
+### 🔍 **Permission Logic Issues**  
+1. **ViewBag Properties**: Ensure all required ViewBag permissions are set in controller
+2. **Role Validation**: Verify session role values match expected string values
+3. **Conditional Logic**: Test all user role combinations in development
+4. **Server-Side Validation**: Confirm POST method validates permissions before processing
+
+### 🔍 **UI/UX Issues**
+1. **Visual Indicators**: Check that readonly/disabled fields have appropriate styling
+2. **Status Messages**: Ensure users understand why fields are not editable
+3. **Submit Button Logic**: Verify conditional buttons show appropriate messages
+4. **Cross-Browser Testing**: Test readonly/disabled behavior across browsers
+
+## Performance Considerations
+
+### Database Optimization
+- **Selective Loading**: Load only fields the current user can access
+- **Batch Operations**: Group permission checks to minimize database queries
+- **Caching**: Cache role-based permission matrices for frequent operations
+- **Indexing**: Index fields commonly used in permission queries
+
+### Memory Management
+- **Reflection Caching**: Cache PropertyInfo objects for field preservation
+- **ViewBag Optimization**: Minimize ViewBag properties to essential permissions only
+- **Model Binding**: Use targeted model binding for large forms with many fields
+
+## Testing Strategy
+
+### Unit Tests
+```csharp
+[Test]
+public void TestPractice2_PerformerCanEditMainFields_AdvisorCannotEdit()
+{
+    // Arrange
+    var controller = new DashboardController();
+    SetupSession("performer", "testuser");
+    
+    // Act
+    var result = controller.TestPractice2("testuser") as ViewResult;
+    
+    // Assert
+    Assert.IsTrue((bool)result.ViewBag.CanEditMainFields);
+    Assert.IsFalse((bool)result.ViewBag.CanEditAdvisorComment);
+}
+```
+
+### Integration Tests
+- Test complete form submission workflows for each user role
+- Verify field preservation works correctly across different scenarios
+- Validate unauthorized access attempts are properly blocked
+- Test concurrent editing scenarios with multiple user roles
+
+### Manual Testing Checklist
+- [ ] Each user role can access appropriate fields
+- [ ] Readonly/disabled fields cannot be manipulated via developer tools  
+- [ ] Form submissions work correctly for authorized users
+- [ ] Unauthorized submissions are blocked with appropriate messages
+- [ ] Field values are preserved correctly during partial updates
+
 ## Conclusion
 
 The Field-Level Permissions Pattern provides a robust, scalable solution for implementing granular access control within forms. It balances security, usability, and maintainability while providing the flexibility needed for complex multi-role scenarios.
@@ -282,6 +430,9 @@ This pattern can be adapted and extended for various use cases, making it a valu
 
 ---
 
-**Last Updated**: July 28, 2025  
+**Last Updated**: July 30, 2025  
 **Pattern Status**: Production-Ready ✅  
-**Reference Implementation**: TestPractice2 feature
+**Reference Implementations**: 
+- TestPractice2 (Original implementation)
+- EditWorkBasedAssessment (Fixed July 2025)
+- AgreementTerms (Restored July 2025)
