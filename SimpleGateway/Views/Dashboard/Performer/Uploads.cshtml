@@ -36,7 +36,9 @@
                 <a href="/Dashboard/CPD?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "CPD" ? "color: white;" : "")">CPD</a>
             </li>
             <li class="list-group-item @(ViewBag.ActiveSection == "MSF" ? "active" : "")">
-                <a href="/Dashboard/MSF?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "MSF" ? "color: white;" : "")">MSF</a>
+                <a href="/Dashboard/MSF?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "MSF" ? "color: white;" : "")">
+                    <i class="fas fa-comments"></i> MSF Assessment
+                </a>
             </li>
             <li class="list-group-item @(ViewBag.ActiveSection == "PSQ" ? "active" : "")">
                 <a href="/Dashboard/PSQ?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "PSQ" ? "color: white;" : "")">PSQ</a>

@@ -1693,7 +1693,135 @@ namespace SimpleGateway.Controllers
 
         public IActionResult MSF(string performerUsername)
         {
+            var currentUser = HttpContext.Session.GetString("username");
+            var currentRole = HttpContext.Session.GetString("role");
+            
+            if (string.IsNullOrEmpty(currentUser))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            // Check permissions
+            if (currentRole == "performer" && currentUser != performerUsername)
+            {
+                return RedirectToAction("Index");
+            }
+
+            try
+            {
+                // Check for existing active MSF questionnaire
+                var existingQuestionnaire = _context.MSFQuestionnaires
+                    .Include(q => q.Responses)
+                    .FirstOrDefault(q => q.Performer.Username == performerUsername && q.IsActive);
+
+                if (existingQuestionnaire != null)
+                {
+                    // Set ViewBag properties for existing assessment
+                    ViewBag.HasActiveAssessment = true;
+                    ViewBag.AssessmentTitle = existingQuestionnaire.Title;
+                    ViewBag.CreatedDate = existingQuestionnaire.CreatedAt.ToString("dd/MM/yyyy");
+                    ViewBag.ResponseCount = existingQuestionnaire.Responses?.Count ?? 0;
+                    
+                    // Generate feedback URL and QR code
+                    var feedbackUrl = Url.Action("Feedback", "MSF", new { code = existingQuestionnaire.UniqueCode }, Request.Scheme);
+                    ViewBag.FeedbackUrl = feedbackUrl;
+                    
+                    // Generate QR code if we have a URL
+                    if (!string.IsNullOrEmpty(feedbackUrl) && existingQuestionnaire.UniqueCode != null)
+                    {
+                        try
+                        {
+                            // For now, we'll skip QR code generation to avoid complexity
+                            ViewBag.QRCodeImage = "";
+                        }
+                        catch
+                        {
+                            ViewBag.QRCodeImage = "";
+                        }
+                    }
+                }
+                else
+                {
+                    ViewBag.HasActiveAssessment = false;
+                    ViewBag.ResponseCount = 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"MSF DEBUG: Error loading MSF data: {ex.Message}");
+                ViewBag.HasActiveAssessment = false;
+                ViewBag.ResponseCount = 0;
+                TempData["ErrorMessage"] = "Error loading MSF data. Using blank form.";
+            }
+
             return HandlePerformerSection(performerUsername, "MSF");
+        }
+
+        [HttpPost]
+        public IActionResult MSF(string performerUsername, string action)
+        {
+            var currentUser = HttpContext.Session.GetString("username");
+            
+            if (string.IsNullOrEmpty(currentUser))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            // Check permissions - only the performer can start their own MSF assessment
+            var currentRole = HttpContext.Session.GetString("role");
+            if (currentRole == "performer" && currentUser != performerUsername)
+            {
+                TempData["ErrorMessage"] = "You can only manage your own MSF assessments.";
+                return RedirectToAction("MSF", new { performerUsername = currentUser });
+            }
+
+            if (action == "start")
+            {
+                try
+                {
+                    // Use Database Integration Pattern: Delete and recreate
+                    // First, deactivate any existing questionnaires for this performer
+                    var existingQuestionnaires = _context.MSFQuestionnaires
+                        .Where(q => q.Performer.Username == performerUsername)
+                        .ToList();
+
+                    foreach (var existing in existingQuestionnaires)
+                    {
+                        existing.IsActive = false;
+                    }
+
+                    // Get the performer user
+                    var performer = _context.Users.FirstOrDefault(u => u.Username == performerUsername);
+                    if (performer == null)
+                    {
+                        TempData["ErrorMessage"] = "Performer not found.";
+                        return RedirectToAction("MSF", new { performerUsername });
+                    }
+
+                    // Create new MSF questionnaire
+                    var newQuestionnaire = new MSFQuestionnaire
+                    {
+                        Title = $"MSF Assessment - {DateTime.Now:dd/MM/yyyy}",
+                        UniqueCode = Guid.NewGuid().ToString("N")[..8].ToUpper(), // 8-character unique code
+                        PerformerId = performer.Id,
+                        CreatedAt = DateTime.UtcNow,
+                        IsActive = true
+                    };
+
+                    _context.MSFQuestionnaires.Add(newQuestionnaire);
+                    _context.SaveChanges();
+
+                    TempData["SuccessMessage"] = "New MSF assessment created successfully!";
+                    Console.WriteLine($"MSF DEBUG: Created new questionnaire with code {newQuestionnaire.UniqueCode} for {performerUsername}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"MSF DEBUG: Error creating new assessment: {ex.Message}");
+                    TempData["ErrorMessage"] = "Error creating new MSF assessment. Please try again.";
+                }
+            }
+
+            return RedirectToAction("MSF", new { performerUsername });
         }
 
         public IActionResult PSQ(string performerUsername)

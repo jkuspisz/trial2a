@@ -1,0 +1,175 @@
+@{
+    ViewBag.Title = "MSF Assessment - " + ViewBag.PerformerName;
+    Layout = "_Layout";
+}
+
+<div class="row">
+    <div class="col-3">
+        <ul class="list-group">
+            <li class="list-group-item @(ViewBag.ActiveSection == "Dashboard" ? "active" : "")">
+                <a href="/Dashboard/ViewPerformerDashboard?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "Dashboard" ? "color: white;" : "")">
+                    <i class="bi bi-speedometer2"></i> Dashboard Overview
+                </a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "PerformerDetails" ? "active" : "")">
+                <a href="/Dashboard/PerformerDetails?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "PerformerDetails" ? "color: white;" : "")">Performer Details</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "TestPractice" ? "active" : "")">
+                <a href="/Dashboard/TestPractice?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "TestPractice" ? "color: white;" : "")">Test Practice</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "TestPractice2" ? "active" : "")">
+                <a href="/Dashboard/TestPractice2?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "TestPractice2" ? "color: white;" : "")">Test Practice 2</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "Uploads" ? "active" : "")">
+                <a href="/Dashboard/Uploads?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "Uploads" ? "color: white;" : "")">Uploads</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "StructuredConversation" ? "active" : "")">
+                <a href="/Dashboard/StructuredConversation?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "StructuredConversation" ? "color: white;" : "")">Structured Conversation</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "AgreementTerms" ? "active" : "")">
+                <a href="/Dashboard/AgreementTerms?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "AgreementTerms" ? "color: white;" : "")">Agreement Terms</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "WorkBasedAssessments" ? "active" : "")">
+                <a href="/Dashboard/WorkBasedAssessments?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "WorkBasedAssessments" ? "color: white;" : "")">Work Based Assessments</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "CPD" ? "active" : "")">
+                <a href="/Dashboard/CPD?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "CPD" ? "color: white;" : "")">CPD</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "MSF" ? "active" : "")">
+                <a href="/Dashboard/MSF?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "MSF" ? "color: white;" : "")">
+                    <i class="fas fa-comments"></i> MSF Assessment
+                </a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "PSQ" ? "active" : "")">
+                <a href="/Dashboard/PSQ?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "PSQ" ? "color: white;" : "")">PSQ</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "ClinicalNoteAudit" ? "active" : "")">
+                <a href="/Dashboard/ClinicalNoteAudit?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "ClinicalNoteAudit" ? "color: white;" : "")">Clinical Note Audit</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "HelpGuidance" ? "active" : "")">
+                <a href="/Dashboard/HelpGuidance?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "HelpGuidance" ? "color: white;" : "")">Help & Guidance</a>
+            </li>
+        </ul>
+    </div>
+    <div class="col-9">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">
+                    <i class="fas fa-comments me-2"></i>Multi-Source Feedback (MSF)
+                </h4>
+                @if (ViewBag.CanEdit == true)
+                {
+                    <button type="button" class="btn btn-primary" onclick="startNewAssessment()">
+                        <i class="fas fa-plus"></i> Start New Assessment
+                    </button>
+                }
+            </div>
+            <div class="card-body">
+                @if (ViewBag.HasActiveAssessment == true)
+                {
+                    <div class="alert alert-info">
+                        <h5><i class="fas fa-info-circle"></i> Active MSF Assessment</h5>
+                        <p><strong>Title:</strong> @ViewBag.AssessmentTitle</p>
+                        <p><strong>Created:</strong> @ViewBag.CreatedDate</p>
+                        <p><strong>Responses:</strong> @ViewBag.ResponseCount</p>
+                        
+                        <div class="mt-3">
+                            <h6><i class="fas fa-share-alt"></i> Share with Colleagues</h6>
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="feedbackUrl" value="@ViewBag.FeedbackUrl" readonly>
+                                        <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard()">
+                                            <i class="fas fa-copy"></i> Copy Link
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-center">
+                                    @if (!string.IsNullOrEmpty(ViewBag.QRCodeImage))
+                                    {
+                                        <img src="data:image/png;base64,@ViewBag.QRCodeImage" alt="QR Code" class="img-fluid" style="max-width: 120px;">
+                                        <small class="d-block text-muted">QR Code for Easy Sharing</small>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <a href="javascript:viewResults()" class="btn btn-success">
+                                <i class="fas fa-chart-bar"></i> View Results (@ViewBag.ResponseCount responses)
+                            </a>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-secondary">
+                        <h5><i class="fas fa-info-circle"></i> No Active MSF Assessment</h5>
+                        <p>You don't have an active MSF assessment. Click "Start New Assessment" to begin collecting feedback from your colleagues.</p>
+                        
+                        <h6>What is MSF?</h6>
+                        <p>Multi-Source Feedback (MSF) is a 360-degree feedback tool that allows you to collect anonymous feedback from colleagues, supervisors, and other healthcare professionals you work with.</p>
+                        
+                        <ul>
+                            <li>Anonymous feedback from multiple sources</li>
+                            <li>17 key competency areas assessed</li>
+                            <li>4-point rating scale with comments</li>
+                            <li>Aggregated results for reflection and development</li>
+                        </ul>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyToClipboard() {
+    const urlInput = document.getElementById('feedbackUrl');
+    urlInput.select();
+    urlInput.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(urlInput.value);
+    
+    // Show success message
+    const button = document.querySelector('[onclick="copyToClipboard()"]');
+    const originalText = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-check"></i> Copied!';
+    button.classList.add('btn-success');
+    button.classList.remove('btn-outline-secondary');
+    
+    setTimeout(() => {
+        button.innerHTML = originalText;
+        button.classList.remove('btn-success');
+        button.classList.add('btn-outline-secondary');
+    }, 2000);
+}
+
+function startNewAssessment() {
+    if (confirm('Are you sure you want to start a new MSF assessment? This will deactivate any current assessment.')) {
+        // Create a form and submit it
+        const form = document.createElement('form');
+        form.method = 'post';
+        form.action = '/Dashboard/MSF';
+        
+        const performerInput = document.createElement('input');
+        performerInput.type = 'hidden';
+        performerInput.name = 'performerUsername';
+        performerInput.value = '@ViewBag.PerformerUsername';
+        
+        const actionInput = document.createElement('input');
+        actionInput.type = 'hidden';
+        actionInput.name = 'action';
+        actionInput.value = 'start';
+        
+        form.appendChild(performerInput);
+        form.appendChild(actionInput);
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+function viewResults() {
+    // For now, show an alert - we'll need to implement the results view
+    alert('Results view will be implemented next. You have @ViewBag.ResponseCount responses to analyze.');
+}
+</script>
