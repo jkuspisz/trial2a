@@ -1731,8 +1731,8 @@ namespace SimpleGateway.Controllers
                     ViewBag.CreatedDate = existingQuestionnaire.CreatedAt.ToString("dd/MM/yyyy");
                     ViewBag.ResponseCount = existingQuestionnaire.Responses?.Count ?? 0;
                     
-                    // Generate feedback URL - we'll need to implement the MSF feedback controller later
-                    var feedbackUrl = $"https://localhost:8080/MSF/Feedback/{existingQuestionnaire.UniqueCode}";
+                    // Generate feedback URL using proper URL generation
+                    var feedbackUrl = Url.Action("Feedback", "MSF", new { code = existingQuestionnaire.UniqueCode }, Request.Scheme);
                     ViewBag.FeedbackUrl = feedbackUrl;
                     
                     // For now, skip QR code generation to avoid complexity
