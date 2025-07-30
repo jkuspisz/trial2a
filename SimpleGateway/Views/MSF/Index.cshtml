@@ -1,53 +1,94 @@
 @model SimpleGateway.Models.MSFQuestionnaire
 @{
-    ViewData["Title"] = "MSF Assessment Dashboard";
+    ViewData["Title"] = "Multi-Source Feedback (MSF)";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var showCreateForm = ViewBag.ShowCreateForm ?? false;
+    var performerUsername = ViewBag.PerformerUsername ?? "";
+    var performerName = ViewBag.PerformerName ?? "";
 }
 
 <div class="row">
     <div class="col-3">
         <ul class="list-group">
             <li class="list-group-item">
-                <a href="/Dashboard/ViewPerformerDashboard?performerUsername=@(User.Identity?.Name ?? "")">
+                <a href="/Dashboard/ViewPerformerDashboard?performerUsername=@performerUsername">
                     <i class="bi bi-speedometer2"></i> Dashboard Overview
                 </a>
             </li>
             <li class="list-group-item">
-                <a href="/Dashboard/PerformerDetails?performerUsername=@(User.Identity?.Name ?? "")">Performer Details</a>
+                <a href="/Dashboard/PerformerDetails?performerUsername=@performerUsername">Performer Details</a>
             </li>
             <li class="list-group-item">
-                <a href="/Dashboard/TestPractice?performerUsername=@(User.Identity?.Name ?? "")">Test Practice</a>
+                <a href="/Dashboard/TestPractice?performerUsername=@performerUsername">Test Practice</a>
             </li>
             <li class="list-group-item">
-                <a href="/Dashboard/TestPractice2?performerUsername=@(User.Identity?.Name ?? "")">Test Practice 2</a>
+                <a href="/Dashboard/TestPractice2?performerUsername=@performerUsername">Test Practice 2</a>
             </li>
             <li class="list-group-item">
-                <a href="/Dashboard/Uploads?performerUsername=@(User.Identity?.Name ?? "")">Uploads</a>
+                <a href="/Dashboard/Uploads?performerUsername=@performerUsername">Uploads</a>
             </li>
             <li class="list-group-item active">
-                <a href="@Url.Action("Index", "MSF", new { performerUsername = User.Identity?.Name ?? "" })" style="color: white;">
+                <a href="@Url.Action("Index", "MSF", new { performerUsername = performerUsername })" style="color: white;">
                     <i class="fas fa-comments"></i> MSF Assessment
                 </a>
             </li>
             <li class="list-group-item">
-                <a href="/Dashboard/StructuredConversation?performerUsername=@(User.Identity?.Name ?? "")">Structured Conversation</a>
+                <a href="/Dashboard/StructuredConversation?performerUsername=@performerUsername">Structured Conversation</a>
             </li>
             <li class="list-group-item">
-                <a href="/Dashboard/AgreementTerms?performerUsername=@(User.Identity?.Name ?? "")">Agreement Terms</a>
+                <a href="/Dashboard/AgreementTerms?performerUsername=@performerUsername">Agreement Terms</a>
             </li>
             <li class="list-group-item">
-                <a href="/Dashboard/WorkBasedAssessment?performerUsername=@(User.Identity?.Name ?? "")">Work Based Assessment</a>
+                <a href="/Dashboard/WorkBasedAssessment?performerUsername=@performerUsername">Work Based Assessment</a>
             </li>
             <li class="list-group-item">
-                <a href="/Dashboard/CPD?performerUsername=@(User.Identity?.Name ?? "")">CPD</a>
+                <a href="/Dashboard/CPD?performerUsername=@performerUsername">CPD</a>
             </li>
         </ul>
     </div>
     <div class="col-9">
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+        }
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+        }
+
+        @if (showCreateForm)
+        {
+            <!-- Show creation form when no questionnaire exists -->
+            <div class="card">
+                <div class="card-header">
+                    <h4><i class="fas fa-plus me-2"></i>Create MSF Assessment</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <h5><i class="fas fa-info-circle me-2"></i>Multi-Source Feedback (MSF)</h5>
+                        <p>MSF is a tool for collecting anonymous feedback from colleagues about your professional performance.</p>
+                    </div>
+                    
+                    <p>No MSF assessment has been created yet for <strong>@performerName</strong>.</p>
+                    <p>Click the button below to create a new MSF assessment and generate a shareable link for external feedback.</p>
+                    
+                    <form method="post" action="@Url.Action("CreateQuestionnaire", "MSF")">
+                        <input type="hidden" name="performerUsername" value="@performerUsername" />
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-plus"></i> Create & Generate Link
+                        </button>
+                    </form>
+                </div>
+            </div>
+        }
+        else if (Model != null)
+        {
+            <!-- Show existing questionnaire dashboard -->
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h4 class="mb-0">
-                        <i class="fas fa-comments me-2"></i>Multi-Source Feedback (MSF)
+                        <i class="fas fa-comments me-2"></i>Multi-Source Feedback (MSF) - @performerName
                     </h4>
                     <div>
                         @if (ViewBag.ResponseCount > 0)
@@ -57,6 +98,7 @@
                             </a>
                         }
                         <form method="post" action="@Url.Action("StartNewAssessment", "MSF")" style="display:inline;">
+                            <input type="hidden" name="performerUsername" value="@performerUsername" />
                             <button type="submit" class="btn btn-primary btn-sm" onclick="return confirm('This will deactivate your current assessment and start a new one. Continue?')">
                                 <i class="fas fa-plus me-1"></i>New Assessment
                             </button>
@@ -64,88 +106,89 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    @if (Model != null)
-                    {
-                        <div class="row">
-                            <div class="col-md-8">
-                                <h5>@Model.Title</h5>
-                                <p class="text-muted">Created: @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
-                                
-                                <div class="alert alert-info">
-                                    <h6><i class="fas fa-info-circle me-2"></i>Share this link with colleagues for anonymous feedback:</h6>
-                                    <div class="input-group mt-2">
-                                        <input type="text" class="form-control" id="feedbackUrl" value="@ViewBag.FeedbackUrl" readonly>
-                                        <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard()">
-                                            <i class="fas fa-copy"></i> Copy
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div class="row mt-4">
-                                    <div class="col-sm-6">
-                                        <div class="card bg-light">
-                                            <div class="card-body text-center">
-                                                <h5 class="card-title">Responses Received</h5>
-                                                <h2 class="text-primary">@ViewBag.ResponseCount</h2>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <div class="card bg-light">
-                                            <div class="card-body text-center">
-                                                <h5 class="card-title">Assessment Code</h5>
-                                                <h4 class="text-info">@Model.UniqueCode</h4>
-                                            </div>
-                                        </div>
-                                    </div>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h5>@Model.Title</h5>
+                            <p class="text-muted">Created: @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
+                            
+                            <div class="alert alert-info">
+                                <h6><i class="fas fa-info-circle me-2"></i>Share this link with colleagues for anonymous feedback:</h6>
+                                <div class="input-group mt-2">
+                                    <input type="text" class="form-control" id="feedbackUrl" value="@ViewBag.FeedbackUrl" readonly>
+                                    <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard()">
+                                        <i class="fas fa-copy"></i> Copy
+                                    </button>
                                 </div>
                             </div>
-                            <div class="col-md-4">
-                                @if (!string.IsNullOrEmpty(ViewBag.QRCodeImage))
-                                {
-                                    <div class="card">
-                                        <div class="card-header">
-                                            <h6 class="mb-0">QR Code for Easy Sharing</h6>
-                                        </div>
+
+                            <div class="row mt-4">
+                                <div class="col-sm-6">
+                                    <div class="card bg-light">
                                         <div class="card-body text-center">
-                                            <img src="data:image/png;base64,@ViewBag.QRCodeImage" alt="QR Code" class="img-fluid" style="max-width: 200px;">
-                                            <p class="small text-muted mt-2">Scan to access feedback form</p>
+                                            <h5 class="card-title">Responses Received</h5>
+                                            <h2 class="text-primary">@ViewBag.ResponseCount</h2>
                                         </div>
                                     </div>
-                                }
-                                else
-                                {
-                                    <div class="card">
-                                        <div class="card-body text-center text-muted">
-                                            <i class="fas fa-qrcode fa-3x mb-3"></i>
-                                            <p>QR Code unavailable</p>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h5 class="card-title">Assessment Code</h5>
+                                            <h4 class="text-info">@Model.UniqueCode</h4>
                                         </div>
                                     </div>
-                                }
+                                </div>
                             </div>
                         </div>
+                        <div class="col-md-4">
+                            @if (!string.IsNullOrEmpty(ViewBag.QRCodeImage))
+                            {
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">QR Code for Easy Sharing</h6>
+                                    </div>
+                                    <div class="card-body text-center">
+                                        <img src="data:image/png;base64,@ViewBag.QRCodeImage" alt="QR Code" class="img-fluid" style="max-width: 200px;">
+                                        <p class="small text-muted mt-2">Scan to access feedback form</p>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="card">
+                                    <div class="card-body text-center text-muted">
+                                        <i class="fas fa-qrcode fa-3x mb-3"></i>
+                                        <p>QR Code will be generated once assessment is created</p>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
 
-                        <div class="mt-4">
-                            <h6>Instructions for Colleagues:</h6>
-                            <ol class="small">
-                                <li>Click the feedback link above or scan the QR code</li>
-                                <li>Complete the anonymous assessment form</li>
-                                <li>Provide ratings using the 4-point scale: 1=Working towards, 2=Meets, 3=Exceeds, 4=Not observed</li>
-                                <li>Add specific comments to support your ratings</li>
-                                <li>Submit your feedback</li>
-                            </ol>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="alert alert-warning">
-                            <h5>No Active Assessment</h5>
-                            <p>Click "New Assessment" to create your MSF questionnaire.</p>
-                        </div>
-                    }
+                    <div class="mt-4">
+                        <h6>Instructions for Colleagues:</h6>
+                        <ol class="small">
+                            <li>Click the feedback link above or scan the QR code</li>
+                            <li>Complete the anonymous assessment form</li>
+                            <li>Provide ratings using the 4-point scale: 1=Working towards, 2=Meets, 3=Exceeds, 4=Not observed</li>
+                            <li>Add specific comments to support your ratings</li>
+                            <li>Submit your feedback</li>
+                        </ol>
+                    </div>
                 </div>
             </div>
-        </div>
+        }
+        else
+        {
+            <div class="card">
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <h5>Unable to Load MSF Assessment</h5>
+                        <p>There was an issue loading the MSF assessment. Please try again or contact support.</p>
+                    </div>
+                </div>
+            </div>
+        }
     </div>
 </div>
 

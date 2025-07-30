@@ -60,39 +60,31 @@ namespace SimpleGateway.Controllers
 
                 Console.WriteLine("MSF: Database connection verified");
 
-                // Get or create active MSF questionnaire for this user
-                var questionnaire = await _context.MSFQuestionnaires
-                    .Include(q => q.Responses)
-                    .FirstOrDefaultAsync(q => q.PerformerId == user.Id && q.IsActive);
+                // Check if MSF tables exist before querying
+                MSFQuestionnaire questionnaire = null;
+                try
+                {
+                    // Try to query for existing questionnaire - this will fail if tables don't exist
+                    questionnaire = await _context.MSFQuestionnaires
+                        .Include(q => q.Responses)
+                        .FirstOrDefaultAsync(q => q.PerformerId == user.Id && q.IsActive);
+                    
+                    Console.WriteLine($"MSF: Found existing questionnaire: {questionnaire != null}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"MSF: Tables don't exist yet or query error: {ex.Message}");
+                    questionnaire = null;
+                }
 
-                Console.WriteLine($"MSF: Found existing questionnaire: {questionnaire != null}");
-
+                // If no questionnaire exists, show creation form
                 if (questionnaire == null)
                 {
-                    try
-                    {
-                        // Create new questionnaire
-                        questionnaire = new MSFQuestionnaire
-                        {
-                            PerformerId = user.Id,
-                            Title = $"MSF Assessment for {user.Username}",
-                            UniqueCode = GenerateUniqueCode(),
-                            IsActive = true,
-                            CreatedAt = DateTime.UtcNow
-                        };
-
-                        Console.WriteLine($"MSF: Creating new questionnaire for {user.Username}");
-                        _context.MSFQuestionnaires.Add(questionnaire);
-                        await _context.SaveChangesAsync();
-                        Console.WriteLine($"MSF: Successfully created questionnaire with code {questionnaire.UniqueCode}");
-                    }
-                    catch (Exception ex)
-                    {
-                        // ✅ SAFE ERROR HANDLING - Log errors without destroying data
-                        Console.WriteLine($"MSF: Database error creating questionnaire: {ex.Message}");
-                        TempData["ErrorMessage"] = "Error creating MSF assessment. Please try again.";
-                        return RedirectToAction("Index", "Home");
-                    }
+                    Console.WriteLine("MSF: No questionnaire exists, showing creation form");
+                    ViewBag.ShowCreateForm = true;
+                    ViewBag.PerformerUsername = targetUsername;
+                    ViewBag.PerformerName = user.Username;
+                    return View((MSFQuestionnaire)null);
                 }
 
                 // Generate QR code for the feedback URL (skip QR generation for now to avoid errors)
@@ -102,6 +94,7 @@ namespace SimpleGateway.Controllers
                 ViewBag.FeedbackUrl = feedbackUrl;
                 ViewBag.QRCodeImage = qrCodeImage;
                 ViewBag.ResponseCount = questionnaire.Responses?.Count ?? 0;
+                ViewBag.ShowCreateForm = false;
 
                 Console.WriteLine($"MSF: Successfully loaded MSF dashboard for {user.Username}");
                 return View(questionnaire);
@@ -112,6 +105,47 @@ namespace SimpleGateway.Controllers
                 Console.WriteLine($"MSF: Stack trace: {ex.StackTrace}");
                 TempData["ErrorMessage"] = $"Unexpected error loading MSF: {ex.Message}";
                 return RedirectToAction("Index", "Home");
+            }
+        }
+
+        // POST: Create new MSF questionnaire
+        [HttpPost]
+        public async Task<IActionResult> CreateQuestionnaire(string performerUsername)
+        {
+            try
+            {
+                var currentUser = HttpContext.Session.GetString("username");
+                if (string.IsNullOrEmpty(currentUser))
+                    return RedirectToAction("Login", "Account");
+
+                var targetUsername = !string.IsNullOrEmpty(performerUsername) ? performerUsername : currentUser;
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == targetUsername);
+                if (user == null)
+                    return RedirectToAction("Login", "Account");
+
+                // Create new questionnaire
+                var questionnaire = new MSFQuestionnaire
+                {
+                    PerformerId = user.Id,
+                    Title = $"MSF Assessment for {user.Username}",
+                    UniqueCode = GenerateUniqueCode(),
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                Console.WriteLine($"MSF: Creating new questionnaire for {user.Username}");
+                _context.MSFQuestionnaires.Add(questionnaire);
+                await _context.SaveChangesAsync();
+                Console.WriteLine($"MSF: Successfully created questionnaire with code {questionnaire.UniqueCode}");
+
+                TempData["SuccessMessage"] = "MSF assessment link created successfully!";
+                return RedirectToAction("Index", new { performerUsername = targetUsername });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"MSF: Error creating questionnaire: {ex.Message}");
+                TempData["ErrorMessage"] = "Error creating MSF assessment. Please try again.";
+                return RedirectToAction("Index", new { performerUsername });
             }
         }
 
