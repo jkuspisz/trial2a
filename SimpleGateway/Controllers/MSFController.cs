@@ -17,13 +17,17 @@ namespace SimpleGateway.Controllers
         }
 
         // MSF Dashboard - Shows questionnaire status and results
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string performerUsername = null)
         {
-            var username = HttpContext.Session.GetString("username");
-            if (string.IsNullOrEmpty(username))
+            // Get current user from session
+            var currentUser = HttpContext.Session.GetString("username");
+            if (string.IsNullOrEmpty(currentUser))
                 return RedirectToAction("Login", "Account");
 
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+            // If no performer specified, use current user
+            var targetUsername = !string.IsNullOrEmpty(performerUsername) ? performerUsername : currentUser;
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == targetUsername);
             if (user == null)
                 return RedirectToAction("Login", "Account");
 

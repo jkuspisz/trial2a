@@ -57,7 +57,7 @@
                     <a href="/Dashboard/CPD?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "CPD" ? "color: white;" : "")">CPD</a>
                 </li>
                 <li class="list-group-item @(ViewBag.ActiveSection == "MSF" ? "active" : "")">
-                    <a href="@Url.Action("Index", "MSF")" style="@(ViewBag.ActiveSection == "MSF" ? "color: white;" : "")">
+                    <a href="@Url.Action("Index", "MSF", new { performerUsername = ViewBag.PerformerUsername })" style="@(ViewBag.ActiveSection == "MSF" ? "color: white;" : "")">
                         <i class="fas fa-comments"></i> MSF Assessment
                     </a>
                 </li>

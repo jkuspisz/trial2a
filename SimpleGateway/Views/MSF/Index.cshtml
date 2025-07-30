@@ -25,7 +25,7 @@
                 <a href="/Dashboard/Uploads?performerUsername=@(User.Identity?.Name ?? "")">Uploads</a>
             </li>
             <li class="list-group-item active">
-                <a href="@Url.Action("Index", "MSF")" style="color: white;">
+                <a href="@Url.Action("Index", "MSF", new { performerUsername = User.Identity?.Name ?? "" })" style="color: white;">
                     <i class="fas fa-comments"></i> MSF Assessment
                 </a>
             </li>
