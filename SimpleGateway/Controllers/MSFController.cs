@@ -93,7 +93,7 @@ namespace SimpleGateway.Controllers
         }
 
         // MSF Dashboard - Shows questionnaire status and results
-        public async Task<IActionResult> Index(string performerUsername = null)
+        public async Task<IActionResult> Index(string? performerUsername = null)
         {
             try
             {
