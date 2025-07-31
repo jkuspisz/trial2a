@@ -180,6 +180,14 @@ namespace SimpleGateway.Controllers
                 MSFQuestionnaire questionnaire = null;
                 try
                 {
+                    // Emergency: Ensure comment columns exist before querying
+                    await _context.Database.ExecuteSqlRawAsync(@"
+                        ALTER TABLE ""MSFResponses"" 
+                        ADD COLUMN IF NOT EXISTS ""PositiveComments"" TEXT,
+                        ADD COLUMN IF NOT EXISTS ""ImprovementComments"" TEXT;
+                    ");
+                    Console.WriteLine("MSF: Ensured comment columns exist");
+
                     // Try to query for existing questionnaire
                     questionnaire = await _context.MSFQuestionnaires
                         .Include(q => q.Responses)
@@ -189,7 +197,7 @@ namespace SimpleGateway.Controllers
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"MSF: Tables don't exist yet or query error: {ex.Message}");
+                    Console.WriteLine($"MSF: Error with questionnaire query: {ex.Message}");
                     questionnaire = null;
                 }
 

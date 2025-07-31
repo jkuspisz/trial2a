@@ -306,6 +306,8 @@ try
                                 ""OverallPerformanceComment"" text,
                                 ""StrengthsComment"" text,
                                 ""ImprovementAreasComment"" text,
+                                ""PositiveComments"" text,
+                                ""ImprovementComments"" text,
                                 CONSTRAINT ""PK_MSFResponses"" PRIMARY KEY (""Id""),
                                 CONSTRAINT ""FK_MSFResponses_MSFQuestionnaires_MSFQuestionnaireId"" FOREIGN KEY (""MSFQuestionnaireId"") REFERENCES ""MSFQuestionnaires"" (""Id"") ON DELETE CASCADE
                             );
