@@ -163,59 +163,28 @@ namespace SimpleGateway.Controllers
 
                 Console.WriteLine("MSF: Database connection verified");
 
-                // Emergency MSF table creation - force recreation for schema fix
+                // Ensure MSF tables exist using EF Core (safe, doesn't drop existing data)
                 try
                 {
-                    Console.WriteLine("MSF: Forcing table recreation to fix schema mismatch");
-                    
-                    // Drop existing tables to fix schema mismatch
-                    _context.Database.ExecuteSqlRaw(@"
-                        DROP TABLE IF EXISTS ""MSFResponses"";
-                        DROP TABLE IF EXISTS ""MSFQuestionnaires"";
-                    ");
-                    Console.WriteLine("MSF: Dropped existing tables for schema update");
-                    
-                    // Create tables with correct simplified schema
-                    _context.Database.ExecuteSqlRaw(@"
-                        CREATE TABLE ""MSFQuestionnaires"" (
-                            ""Id"" SERIAL PRIMARY KEY,
-                            ""PerformerId"" INTEGER NOT NULL,
-                            ""Title"" TEXT NOT NULL,
-                            ""UniqueCode"" TEXT NOT NULL,
-                            ""IsActive"" BOOLEAN NOT NULL DEFAULT TRUE,
-                            ""CreatedAt"" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-                        );
-
-                        CREATE TABLE ""MSFResponses"" (
-                            ""Id"" SERIAL PRIMARY KEY,
-                            ""MSFQuestionnaireId"" INTEGER NOT NULL,
-                            ""SubmittedAt"" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                            ""PatientCareQualityScore"" INTEGER,
-                            ""CommunicationSkillsScore"" INTEGER,
-                            ""CommunicationEmpathyScore"" INTEGER,
-                            ""HistoryTakingScore"" INTEGER,
-                            ""ConsultationManagementScore"" INTEGER,
-                            ""CulturalSensitivityScore"" INTEGER,
-                            ""EthicalProfessionalismScore"" INTEGER,
-                            ""ProfessionalDevelopmentScore"" INTEGER,
-                            ""TechnicalCompetenceScore"" INTEGER,
-                            ""DecisionMakingScore"" INTEGER,
-                            ""DocumentationScore"" INTEGER,
-                            ""TeamCollaborationScore"" INTEGER,
-                            ""TeamSupportScore"" INTEGER,
-                            ""LeadershipSkillsScore"" INTEGER,
-                            ""QualityImprovementScore"" INTEGER,
-                            ""HealthSafetyAwarenessScore"" INTEGER,
-                            ""ContinuousImprovementScore"" INTEGER,
-                            FOREIGN KEY (""MSFQuestionnaireId"") REFERENCES ""MSFQuestionnaires""(""Id"") ON DELETE CASCADE
-                        );
-                    ");
-                    Console.WriteLine("✅ MSF tables recreated successfully with simplified schema");
+                    // Use EF Core to ensure tables exist without dropping data
+                    _context.Database.EnsureCreated();
+                    Console.WriteLine("MSF: Ensured MSF tables exist using EF Core");
                 }
                 catch (Exception createEx)
                 {
-                    Console.WriteLine($"MSF: Emergency table recreation failed: {createEx.Message}");
-                    _context.Database.EnsureCreated();
+                    Console.WriteLine($"MSF: EF Core table creation issue: {createEx.Message}");
+                    // If EF Core fails, try a gentle check for table existence
+                    try
+                    {
+                        var testCount = await _context.MSFQuestionnaires.CountAsync();
+                        Console.WriteLine($"MSF: Tables accessible, found {testCount} questionnaires");
+                    }
+                    catch (Exception testEx)
+                    {
+                        Console.WriteLine($"MSF: Cannot access MSF tables: {testEx.Message}");
+                        TempData["ErrorMessage"] = "MSF database tables not available. Please contact administrator.";
+                        return RedirectToAction("Index", "Home");
+                    }
                 }
 
                 // Check if MSF questionnaire exists
@@ -552,20 +521,31 @@ namespace SimpleGateway.Controllers
                 catch (Exception saveEx) when (saveEx.Message.Contains("column") || saveEx.Message.Contains("does not exist") || saveEx.Message.Contains("relation"))
                 {
                     Console.WriteLine($"MSF: Database schema error detected: {saveEx.Message}");
-                    Console.WriteLine("MSF: Triggering emergency table recreation for schema fix...");
+                    Console.WriteLine("MSF: Attempting to fix schema issue using EF Core migrations...");
                     
                     try
                     {
-                        // Emergency MSF table recreation - Database Integration Pattern
-                        Console.WriteLine("MSF: Dropping existing tables for schema update");
+                        // First try EF Core's built-in table creation (preserves data when possible)
+                        _context.Database.EnsureCreated();
+                        Console.WriteLine("MSF: EF Core table creation completed");
                         
+                        // Retry the save operation
+                        await _context.SaveChangesAsync();
+                        Console.WriteLine($"MSF: Successfully saved feedback response after EF Core fix");
+                    }
+                    catch (Exception efEx)
+                    {
+                        Console.WriteLine($"MSF: EF Core fix failed: {efEx.Message}");
+                        Console.WriteLine("MSF: Emergency table recreation required - THIS WILL LOSE EXISTING DATA");
+                        
+                        // Only as absolute last resort, recreate tables
                         await _context.Database.ExecuteSqlRawAsync(@"
                             DROP TABLE IF EXISTS ""MSFResponses"";
                             DROP TABLE IF EXISTS ""MSFQuestionnaires"";
                         ");
-                        Console.WriteLine("MSF: Dropped existing tables for schema update");
+                        Console.WriteLine("MSF: Dropped existing tables for emergency schema fix");
                         
-                        // Create tables with correct schema including AdditionalComments
+                        // Create tables with correct schema
                         await _context.Database.ExecuteSqlRawAsync(@"
                             CREATE TABLE ""MSFQuestionnaires"" (
                                 ""Id"" SERIAL PRIMARY KEY,
@@ -600,17 +580,11 @@ namespace SimpleGateway.Controllers
                                 FOREIGN KEY (""MSFQuestionnaireId"") REFERENCES ""MSFQuestionnaires""(""Id"") ON DELETE CASCADE
                             );
                         ");
-                        Console.WriteLine("✅ MSF tables recreated successfully with fixed schema");
+                        Console.WriteLine("⚠️ MSF tables recreated with emergency schema fix - DATA WAS LOST");
                         
-                        // Retry the save operation
+                        // Final retry of save operation
                         await _context.SaveChangesAsync();
-                        Console.WriteLine($"MSF: Successfully saved feedback response after schema fix");
-                    }
-                    catch (Exception recreateEx)
-                    {
-                        Console.WriteLine($"MSF: Emergency table recreation failed: {recreateEx.Message}");
-                        TempData["ErrorMessage"] = "Database schema issue. Please contact administrator.";
-                        return View(model);
+                        Console.WriteLine($"MSF: Successfully saved feedback response after emergency table recreation");
                     }
                 }
 
