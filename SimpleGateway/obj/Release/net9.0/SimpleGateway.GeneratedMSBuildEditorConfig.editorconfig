@@ -32,6 +32,26 @@ build_property.EnableCodeStyleSeverity =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxMb2dpbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/james/Desktop/trial2/SimpleGateway/Views/Admin/AssignmentManagement.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQXNzaWdubWVudE1hbmFnZW1lbnQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/james/Desktop/trial2/SimpleGateway/Views/Admin/CreateUser.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQ3JlYXRlVXNlci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/james/Desktop/trial2/SimpleGateway/Views/Admin/Dashboard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRGFzaGJvYXJkLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/james/Desktop/trial2/SimpleGateway/Views/Admin/EditUser.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRWRpdFVzZXIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/james/Desktop/trial2/SimpleGateway/Views/Admin/UserManagement.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cVXNlck1hbmFnZW1lbnQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/james/Desktop/trial2/SimpleGateway/Views/Dashboard/AdminView.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXEFkbWluVmlldy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
@@ -52,20 +72,60 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXFBlcmZvcm1lckxpc3QuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/james/Desktop/trial2/SimpleGateway/Views/Dashboard/Performer/AgreementTerms.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXFBlcmZvcm1lclxBZ3JlZW1lbnRUZXJtcy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/james/Desktop/trial2/SimpleGateway/Views/Dashboard/Performer/CPD.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXFBlcmZvcm1lclxDUEQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/james/Desktop/trial2/SimpleGateway/Views/Dashboard/Performer/EditWorkBasedAssessment.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXFBlcmZvcm1lclxFZGl0V29ya0Jhc2VkQXNzZXNzbWVudC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/james/Desktop/trial2/SimpleGateway/Views/Dashboard/Performer/MSF.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXFBlcmZvcm1lclxNU0YuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/james/Desktop/trial2/SimpleGateway/Views/Dashboard/Performer/PerformerDetails.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXFBlcmZvcm1lclxQZXJmb3JtZXJEZXRhaWxzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/james/Desktop/trial2/SimpleGateway/Views/Dashboard/Performer/PreviousExperience.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXFBlcmZvcm1lclxQcmV2aW91c0V4cGVyaWVuY2UuY3NodG1s
+[C:/Users/james/Desktop/trial2/SimpleGateway/Views/Dashboard/Performer/StructuredConversation.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXFBlcmZvcm1lclxTdHJ1Y3R1cmVkQ29udmVyc2F0aW9uLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/james/Desktop/trial2/SimpleGateway/Views/Dashboard/Performer/PreviousExperienceForm.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXFBlcmZvcm1lclxQcmV2aW91c0V4cGVyaWVuY2VGb3JtLmNzaHRtbA==
+[C:/Users/james/Desktop/trial2/SimpleGateway/Views/Dashboard/Performer/TestPractice.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXFBlcmZvcm1lclxUZXN0UHJhY3RpY2UuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/james/Desktop/trial2/SimpleGateway/Views/Dashboard/Performer/TestPractice2.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXFBlcmZvcm1lclxUZXN0UHJhY3RpY2UyLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/james/Desktop/trial2/SimpleGateway/Views/Dashboard/Performer/TestPractice2_NEW.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXFBlcmZvcm1lclxUZXN0UHJhY3RpY2UyX05FVy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/james/Desktop/trial2/SimpleGateway/Views/Dashboard/Performer/TestPractice2_Simple.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXFBlcmZvcm1lclxUZXN0UHJhY3RpY2UyX1NpbXBsZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/james/Desktop/trial2/SimpleGateway/Views/Dashboard/Performer/TestPractice2_Table.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXFBlcmZvcm1lclxUZXN0UHJhY3RpY2UyX1RhYmxlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/james/Desktop/trial2/SimpleGateway/Views/Dashboard/Performer/TestPractice_SIMPLE.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXFBlcmZvcm1lclxUZXN0UHJhY3RpY2VfU0lNUExFLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/james/Desktop/trial2/SimpleGateway/Views/Dashboard/Performer/Uploads.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXFBlcmZvcm1lclxVcGxvYWRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/james/Desktop/trial2/SimpleGateway/Views/Dashboard/Performer/WorkBasedAssessments.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXFBlcmZvcm1lclxXb3JrQmFzZWRBc3Nlc3NtZW50cy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/james/Desktop/trial2/SimpleGateway/Views/Dashboard/SuperuserView.cshtml]
@@ -84,12 +144,48 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/james/Desktop/trial2/SimpleGateway/Views/MSF/Feedback.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTVNGXEZlZWRiYWNrLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/james/Desktop/trial2/SimpleGateway/Views/MSF/FeedbackSubmitted.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTVNGXEZlZWRiYWNrU3VibWl0dGVkLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/james/Desktop/trial2/SimpleGateway/Views/MSF/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTVNGXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/james/Desktop/trial2/SimpleGateway/Views/MSF/Results.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTVNGXFJlc3VsdHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/james/Desktop/trial2/SimpleGateway/Views/MSF/_ MSFQuestionGroup.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTVNGXF8gTVNGUXVlc3Rpb25Hcm91cC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/james/Desktop/trial2/SimpleGateway/Views/MSF/_MSFQuestionGroup.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTVNGXF9NU0ZRdWVzdGlvbkdyb3VwLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/james/Desktop/trial2/SimpleGateway/Views/Shared/Error.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEVycm9yLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/james/Desktop/trial2/SimpleGateway/Views/Shared/_PerformerSidebar.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9QZXJmb3JtZXJTaWRlYmFyLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/james/Desktop/trial2/SimpleGateway/Views/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/james/Desktop/trial2/SimpleGateway/Views/Test/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGVzdFxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/james/Desktop/trial2/SimpleGateway/Views/Test/ViewAll.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGVzdFxWaWV3QWxsLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/james/Desktop/trial2/SimpleGateway/Views/_ViewImports.cshtml]

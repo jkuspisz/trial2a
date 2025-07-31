@@ -47,6 +47,10 @@ namespace SimpleGateway.Models
         public int? HealthSafetyAwarenessScore { get; set; }
         public int? ContinuousImprovementScore { get; set; }
         
+        // Additional Comments (Added July 31, 2025)
+        public string? PositiveComments { get; set; } // What the Dentist does well
+        public string? ImprovementComments { get; set; } // How the Dentist could improve
+        
         public virtual MSFQuestionnaire Questionnaire { get; set; } = null!;
     }
     
@@ -83,6 +87,10 @@ namespace SimpleGateway.Models
         public int? QualityImprovementScore { get; set; }
         public int? HealthSafetyAwarenessScore { get; set; }
         public int? ContinuousImprovementScore { get; set; }
+        
+        // Additional Comments (Added July 31, 2025)
+        public string? PositiveComments { get; set; } // What the Dentist does well
+        public string? ImprovementComments { get; set; } // How the Dentist could improve
     }
     
     // DTO for MSF results

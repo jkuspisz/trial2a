@@ -481,7 +481,11 @@ namespace SimpleGateway.Controllers
                 LeadershipSkillsScore = model.LeadershipSkillsScore,
                 QualityImprovementScore = model.QualityImprovementScore,
                 HealthSafetyAwarenessScore = model.HealthSafetyAwarenessScore,
-                ContinuousImprovementScore = model.ContinuousImprovementScore
+                ContinuousImprovementScore = model.ContinuousImprovementScore,
+                
+                // Additional Comments (Added July 31, 2025)
+                PositiveComments = model.PositiveComments,
+                ImprovementComments = model.ImprovementComments
             };
 
             try
@@ -573,6 +577,8 @@ namespace SimpleGateway.Controllers
                                 ""QualityImprovementScore"" INTEGER,
                                 ""HealthSafetyAwarenessScore"" INTEGER,
                                 ""ContinuousImprovementScore"" INTEGER,
+                                ""PositiveComments"" TEXT,
+                                ""ImprovementComments"" TEXT,
                                 FOREIGN KEY (""MSFQuestionnaireId"") REFERENCES ""MSFQuestionnaires""(""Id"") ON DELETE CASCADE
                             );
                         ");
