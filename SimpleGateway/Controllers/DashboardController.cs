@@ -734,32 +734,29 @@ namespace SimpleGateway.Controllers
 
             try
             {
-                // Check if we can query the table with the current model
-                try
+                // Database connection verification - SAFE METHOD (following Database Integration Pattern)
+                var canConnect = _context.Database.CanConnect();
+                if (!canConnect)
                 {
-                    var testQuery = _context.TestData.FirstOrDefault(x => x.Username == performerUsername);
-                    var model = testQuery ?? new TestDataModel { Username = performerUsername };
-                    return View("Performer/TestPractice", model);
+                    Console.WriteLine("TESTPRACTICE DEBUG: Database connection issue in GET");
+                    TempData["ErrorMessage"] = "Database connection issue. Please try again later.";
+                    var emptyModel = new TestDataModel { Username = performerUsername };
+                    return View("Performer/TestPractice", emptyModel);
                 }
-                catch (Exception schemaEx)
+
+                Console.WriteLine($"TESTPRACTICE DEBUG: Database connection verified for GET");
+                
+                // Try to get existing data for this performer
+                var existingData = _context.TestData.FirstOrDefaultAsync(x => x.Username == performerUsername).Result;
+                
+                if (existingData != null)
                 {
-                    Console.WriteLine($"TESTPRACTICE DEBUG: Schema mismatch detected: {schemaEx.Message}");
-                    
-                    // Schema mismatch - need to recreate table with correct structure
-                    if (schemaEx.Message.Contains("column") && schemaEx.Message.Contains("does not exist"))
-                    {
-                        Console.WriteLine($"TESTPRACTICE DEBUG: Dropping and recreating TestData table due to missing columns");
-                        
-                        // Drop the existing table and recreate it with correct schema
-                        _context.Database.ExecuteSqlRaw("DROP TABLE IF EXISTS \"TestData\"");
-                        
-                        // Recreate with correct schema
-                        _context.Database.EnsureCreated();
-                        
-                        Console.WriteLine($"TESTPRACTICE DEBUG: TestData table recreated with supervisor fields");
-                        TempData["SuccessMessage"] = "Database table recreated with updated fields. Ready to use!";
-                    }
-                    
+                    Console.WriteLine($"TESTPRACTICE DEBUG: Found existing supervisor data for {performerUsername}");
+                    return View("Performer/TestPractice", existingData);
+                }
+                else
+                {
+                    Console.WriteLine($"TESTPRACTICE DEBUG: No existing supervisor data found for {performerUsername}, creating new model");
                     var model = new TestDataModel { Username = performerUsername };
                     return View("Performer/TestPractice", model);
                 }
@@ -767,7 +764,17 @@ namespace SimpleGateway.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine($"TESTPRACTICE DEBUG: Database error in GET: {ex.Message}");
-                TempData["ErrorMessage"] = $"Database error: {ex.Message}";
+                Console.WriteLine($"TESTPRACTICE DEBUG: Inner Exception: {ex.InnerException?.Message}");
+                
+                // Provide helpful error information
+                if (ex.Message.Contains("column") || ex.Message.Contains("does not exist"))
+                {
+                    TempData["ErrorMessage"] = "Database schema issue detected. Contact administrator to update database structure.";
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = $"Database error: {ex.Message}";
+                }
                 
                 var model = new TestDataModel { Username = performerUsername };
                 return View("Performer/TestPractice", model);
@@ -810,10 +817,18 @@ namespace SimpleGateway.Controllers
             {
                 try
                 {
-                    // Check if table schema matches the model
-                    var canQuery = _context.TestData.Any(); // This will fail if schema is wrong
+                    // Database connection verification - SAFE METHOD (following Database Integration Pattern)
+                    var canConnect = _context.Database.CanConnect();
+                    if (!canConnect)
+                    {
+                        Console.WriteLine("TESTPRACTICE DEBUG: Database connection issue");
+                        TempData["ErrorMessage"] = "Database connection issue. Please try again.";
+                        return View("Performer/TestPractice", model);
+                    }
+
+                    Console.WriteLine($"TESTPRACTICE DEBUG: Database connection verified");
                     
-                    // CRITICAL: Delete all existing records for this user first
+                    // CRITICAL: Delete all existing records for this user first (Database Integration Pattern)
                     var existingRecords = _context.TestData.Where(x => x.Username == model.Username).ToList();
                     
                     if (existingRecords.Any())
@@ -838,51 +853,45 @@ namespace SimpleGateway.Controllers
                     
                     if (savedRows > 0)
                     {
-                        TempData["SuccessMessage"] = "Data saved successfully!";
+                        Console.WriteLine($"TESTPRACTICE DEBUG: Successfully saved {savedRows} records");
+                        
+                        // Get total count for verification
+                        var totalRecords = _context.TestData.Count();
+                        Console.WriteLine($"TESTPRACTICE DEBUG: Total TestData records in database: {totalRecords}");
+                        
+                        TempData["SuccessMessage"] = $"Supervisor information saved successfully! (Saved by: {currentUser})";
+                        TempData["TotalRecords"] = totalRecords;
                         return RedirectToAction("TestPractice", new { performerUsername = model.Username });
                     }
                     else
                     {
+                        Console.WriteLine($"TESTPRACTICE DEBUG: Save failed - no changes were made");
                         TempData["ErrorMessage"] = "Save failed - no changes were made.";
-                    }
-                }
-                catch (Exception schemaEx) when (schemaEx.Message.Contains("column") && schemaEx.Message.Contains("does not exist"))
-                {
-                    Console.WriteLine($"TESTPRACTICE DEBUG: Schema mismatch in POST: {schemaEx.Message}");
-                    
-                    // Drop and recreate table with correct schema
-                    _context.Database.ExecuteSqlRaw("DROP TABLE IF EXISTS \"TestData\"");
-                    _context.Database.EnsureCreated();
-                    
-                    Console.WriteLine($"TESTPRACTICE DEBUG: TestData table recreated in POST method");
-                    
-                    // Now try to save again with fresh table
-                    model.CreatedDate = DateTime.UtcNow;
-                    model.ModifiedDate = null;
-                    
-                    _context.TestData.Add(model);
-                    var savedRows = _context.SaveChanges();
-                    
-                    if (savedRows > 0)
-                    {
-                        TempData["SuccessMessage"] = "Data saved successfully! (Table recreated with updated schema)";
-                        return RedirectToAction("TestPractice", new { performerUsername = model.Username });
-                    }
-                    else
-                    {
-                        TempData["ErrorMessage"] = "Save failed after table recreation.";
                     }
                 }
                 catch (Exception ex)
                 {
-                    // ✅ SAFE ERROR HANDLING - Log errors without destroying data
-                    Console.WriteLine($"TESTPRACTICE DEBUG: Exception: {ex.Message}");
+                    // Enhanced error logging following Database Integration Pattern
+                    Console.WriteLine($"TESTPRACTICE DEBUG: Exception during save: {ex.Message}");
                     Console.WriteLine($"TESTPRACTICE DEBUG: Inner Exception: {ex.InnerException?.Message}");
-                    TempData["ErrorMessage"] = $"Error saving data: {ex.Message}";
+                    Console.WriteLine($"TESTPRACTICE DEBUG: Stack Trace: {ex.StackTrace}");
                     
-                    // 🚨 NEVER DO THIS IN CATCH BLOCKS:
-                    // _context.Database.EnsureDeleted(); // ❌ DESTROYS ALL DATA
-                    // _context.Database.EnsureCreated();  // ❌ AFTER DELETION
+                    TempData["ErrorMessage"] = $"Error saving supervisor information: {ex.Message}";
+                    
+                    // If it's a column/schema issue, try to help by noting it
+                    if (ex.Message.Contains("column") || ex.Message.Contains("does not exist"))
+                    {
+                        Console.WriteLine($"TESTPRACTICE DEBUG: Schema issue detected - may need database table update");
+                        TempData["ErrorMessage"] += " (Database schema issue - contact administrator)";
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine($"TESTPRACTICE DEBUG: ModelState is invalid");
+                foreach (var modelError in ModelState)
+                {
+                    Console.WriteLine($"TESTPRACTICE DEBUG: ModelState Error - Key: {modelError.Key}, Errors: {string.Join(", ", modelError.Value.Errors.Select(e => e.ErrorMessage))}");
                 }
             }
 
