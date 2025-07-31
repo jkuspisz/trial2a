@@ -512,8 +512,76 @@ namespace SimpleGateway.Controllers
                 Console.WriteLine($"MSF: Response added to context successfully");
                 
                 Console.WriteLine($"MSF: Saving changes to database...");
-                await _context.SaveChangesAsync();
-                Console.WriteLine($"MSF: Successfully saved feedback response");
+                try
+                {
+                    await _context.SaveChangesAsync();
+                    Console.WriteLine($"MSF: Successfully saved feedback response");
+                }
+                catch (Exception saveEx) when (saveEx.Message.Contains("AdditionalComments") || saveEx.Message.Contains("column") || saveEx.Message.Contains("does not exist"))
+                {
+                    Console.WriteLine($"MSF: Database schema error detected: {saveEx.Message}");
+                    Console.WriteLine("MSF: Triggering emergency table recreation for schema fix...");
+                    
+                    try
+                    {
+                        // Emergency MSF table recreation - Database Integration Pattern
+                        Console.WriteLine("MSF: Dropping existing tables for schema update");
+                        
+                        await _context.Database.ExecuteSqlRawAsync(@"
+                            DROP TABLE IF EXISTS ""MSFResponses"";
+                            DROP TABLE IF EXISTS ""MSFQuestionnaires"";
+                        ");
+                        Console.WriteLine("MSF: Dropped existing tables for schema update");
+                        
+                        // Create tables with correct schema including AdditionalComments
+                        await _context.Database.ExecuteSqlRawAsync(@"
+                            CREATE TABLE ""MSFQuestionnaires"" (
+                                ""Id"" SERIAL PRIMARY KEY,
+                                ""PerformerId"" INTEGER NOT NULL,
+                                ""Title"" TEXT NOT NULL,
+                                ""UniqueCode"" TEXT NOT NULL,
+                                ""IsActive"" BOOLEAN NOT NULL DEFAULT TRUE,
+                                ""CreatedAt"" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                            );
+
+                            CREATE TABLE ""MSFResponses"" (
+                                ""Id"" SERIAL PRIMARY KEY,
+                                ""MSFQuestionnaireId"" INTEGER NOT NULL,
+                                ""SubmittedAt"" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                                ""PatientCareQualityScore"" INTEGER,
+                                ""CommunicationSkillsScore"" INTEGER,
+                                ""CommunicationEmpathyScore"" INTEGER,
+                                ""HistoryTakingScore"" INTEGER,
+                                ""ConsultationManagementScore"" INTEGER,
+                                ""CulturalSensitivityScore"" INTEGER,
+                                ""EthicalProfessionalismScore"" INTEGER,
+                                ""ProfessionalDevelopmentScore"" INTEGER,
+                                ""TechnicalCompetenceScore"" INTEGER,
+                                ""DecisionMakingScore"" INTEGER,
+                                ""DocumentationScore"" INTEGER,
+                                ""TeamCollaborationScore"" INTEGER,
+                                ""TeamSupportScore"" INTEGER,
+                                ""LeadershipSkillsScore"" INTEGER,
+                                ""QualityImprovementScore"" INTEGER,
+                                ""HealthSafetyAwarenessScore"" INTEGER,
+                                ""ContinuousImprovementScore"" INTEGER,
+                                ""AdditionalComments"" TEXT,
+                                FOREIGN KEY (""MSFQuestionnaireId"") REFERENCES ""MSFQuestionnaires""(""Id"") ON DELETE CASCADE
+                            );
+                        ");
+                        Console.WriteLine("✅ MSF tables recreated successfully with fixed schema");
+                        
+                        // Retry the save operation
+                        await _context.SaveChangesAsync();
+                        Console.WriteLine($"MSF: Successfully saved feedback response after schema fix");
+                    }
+                    catch (Exception recreateEx)
+                    {
+                        Console.WriteLine($"MSF: Emergency table recreation failed: {recreateEx.Message}");
+                        TempData["ErrorMessage"] = "Database schema issue. Please contact administrator.";
+                        return View(model);
+                    }
+                }
 
                 Console.WriteLine("MSF: Returning FeedbackSubmitted view");
                 return View("FeedbackSubmitted");
