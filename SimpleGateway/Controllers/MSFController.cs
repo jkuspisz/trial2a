@@ -208,6 +208,7 @@ namespace SimpleGateway.Controllers
                     ViewBag.ShowCreateForm = true;
                     ViewBag.PerformerUsername = targetUsername;
                     ViewBag.PerformerName = user.Username;
+                    ViewBag.ActiveSection = "MSF";
                     return View((MSFQuestionnaire)null);
                 }
 
@@ -222,6 +223,9 @@ namespace SimpleGateway.Controllers
                 ViewBag.QRCodeImage = qrCodeImage;
                 ViewBag.ResponseCount = questionnaire.Responses?.Count ?? 0;
                 ViewBag.ShowCreateForm = false;
+                ViewBag.PerformerUsername = targetUsername;
+                ViewBag.PerformerName = user.Username;
+                ViewBag.ActiveSection = "MSF";
 
                 Console.WriteLine($"MSF: Successfully loaded MSF dashboard for {user.Username}");
                 return View(questionnaire);
@@ -609,6 +613,10 @@ namespace SimpleGateway.Controllers
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
             if (user == null)
                 return RedirectToAction("Login", "Account");
+
+            // Set ViewBag values for sidebar navigation
+            ViewBag.ActiveSection = "MSF";
+            ViewBag.PerformerUsername = username;
 
             var questionnaire = await _context.MSFQuestionnaires
                 .Include(q => q.Responses)
