@@ -24,6 +24,7 @@ namespace SimpleGateway.Data
         public DbSet<MSFResponse> MSFResponses { get; set; }
         public DbSet<PSQQuestionnaire> PSQQuestionnaires { get; set; }
         public DbSet<PSQResponse> PSQResponses { get; set; }
+        public DbSet<FinalSignOffModel> FinalSignOffs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -235,6 +236,18 @@ namespace SimpleGateway.Data
                     .WithMany(q => q.Responses)
                     .HasForeignKey(r => r.PSQQuestionnaireId)
                     .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Configure FinalSignOffModel
+            modelBuilder.Entity<FinalSignOffModel>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.PerformerUsername).HasMaxLength(256).IsRequired();
+                entity.HasIndex(e => e.PerformerUsername);
+                
+                entity.Property(e => e.PerformerSignedBy).HasMaxLength(256);
+                entity.Property(e => e.SupervisorSignedBy).HasMaxLength(256);
+                entity.Property(e => e.AdvisorSignedBy).HasMaxLength(256);
             });
         }
     }
