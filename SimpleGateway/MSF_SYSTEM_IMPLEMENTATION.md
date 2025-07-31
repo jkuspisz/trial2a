@@ -108,7 +108,48 @@ try {
 }
 ```
 
-### Phase 4: URL Routing Fix (July 31, 2025)
+### Phase 4: Critical UX Fix - Scoring System Confusion (July 31, 2025)
+**CRITICAL ISSUE**: The feedback form used confusing 1-4 scale where "4" meant "Not Observed" but users assumed it was the highest performance score.
+
+**Data Integrity Risk**: All feedback would be systematically corrupted with false high scores, making results meaningless.
+
+**Root Cause**: Poor UX design where "4" appeared to be the best score when it actually meant "haven't observed this competency."
+
+**Solution**: Complete UI/UX redesign with clear separation:
+```html
+<!-- NEW DESIGN: Separated Performance vs Observation -->
+<div class="mb-2">
+    <label class="form-label fw-bold">Performance Rating:</label>
+    <div class="btn-group d-flex">
+        <!-- 1-3 Performance Scale with Color Coding -->
+        <input type="radio" name="field" value="1" class="btn-check">
+        <label class="btn btn-outline-warning">1 - Working towards</label>
+        
+        <input type="radio" name="field" value="2" class="btn-check">
+        <label class="btn btn-outline-success">2 - Meets</label>
+        
+        <input type="radio" name="field" value="3" class="btn-check">
+        <label class="btn btn-outline-primary">3 - Exceeds</label>
+    </div>
+</div>
+
+<!-- Separate "Not Observed" Option -->
+<div class="form-check">
+    <input type="radio" name="field" value="4" class="form-check-input">
+    <label class="form-check-label text-muted">
+        <i class="fas fa-eye-slash"></i> Not Observed - I haven't observed this competency
+    </label>
+</div>
+```
+
+**Statistical Fix**: Updated results calculation to exclude "Not Observed" responses:
+```csharp
+// Exclude value 4 from performance averages
+var scores = responses.Where(r => r.Score.HasValue && r.Score.Value != 4)
+                     .Select(r => r.Score.Value);
+```
+
+### Phase 5: URL Routing Fix (July 31, 2025)
 **Problem**: MSF feedback URLs returned "No code provided" error.
 
 **Root Cause**: Parameter name mismatch between URL generation and action method:
@@ -245,9 +286,26 @@ try {
 - No personal information required from respondents
 - Automatic cleanup of inactive questionnaires
 
-## Competency Framework
+## Competency Framework & Improved Scoring System
 
-The MSF system evaluates 17 core competencies across three domains:
+The MSF system evaluates 17 core competencies using a **clear 1-3 performance scale** with separate "Not Observed" option to prevent scoring confusion.
+
+### Scoring System (UPDATED July 31, 2025)
+
+**Performance Scale:**
+- **1 - Working towards**: Performance below expected standard
+- **2 - Meets**: Performance meets the expected standard  
+- **3 - Exceeds**: Performance exceeds the expected standard
+
+**Observation Status:**
+- **Not Observed**: Separate option when competency hasn't been observed
+
+**Critical UX Improvement**: 
+- Separated performance ratings (1-3) from observation status ("Not Observed")
+- Color-coded buttons prevent users from thinking "4 = best score"
+- Statistical calculations exclude "Not Observed" responses for accurate performance averages
+
+### Competency Domains
 
 ### Patient Care & Communication (1-6)
 1. Patient Care Quality
