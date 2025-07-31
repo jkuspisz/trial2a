@@ -153,38 +153,27 @@ namespace SimpleGateway.Controllers
                 Console.WriteLine($"MSF: Found user {user.Username} with ID {user.Id}");
 
                 // Database connection verification - SAFE METHOD (following Database Integration Pattern)
-                var canConnect = _context.Database.CanConnect();
-                if (!canConnect)
-                {
-                    Console.WriteLine("MSF: Database connection issue");
-                    TempData["ErrorMessage"] = "Database connection issue. Contact administrator.";
-                    return RedirectToAction("Index", "Home");
-                }
-
-                Console.WriteLine("MSF: Database connection verified");
-
-                // Ensure MSF tables exist using EF Core (safe, doesn't drop existing data)
                 try
                 {
-                    // Use EF Core to ensure tables exist without dropping data
-                    _context.Database.EnsureCreated();
-                    Console.WriteLine("MSF: Ensured MSF tables exist using EF Core");
-                }
-                catch (Exception createEx)
-                {
-                    Console.WriteLine($"MSF: EF Core table creation issue: {createEx.Message}");
-                    // If EF Core fails, try a gentle check for table existence
-                    try
+                    var canConnect = _context.Database.CanConnect();
+                    if (!canConnect)
                     {
-                        var testCount = await _context.MSFQuestionnaires.CountAsync();
-                        Console.WriteLine($"MSF: Tables accessible, found {testCount} questionnaires");
-                    }
-                    catch (Exception testEx)
-                    {
-                        Console.WriteLine($"MSF: Cannot access MSF tables: {testEx.Message}");
-                        TempData["ErrorMessage"] = "MSF database tables not available. Please contact administrator.";
+                        Console.WriteLine("MSF: Database connection issue");
+                        TempData["ErrorMessage"] = "Database connection issue. Contact administrator.";
                         return RedirectToAction("Index", "Home");
                     }
+
+                    Console.WriteLine("MSF: Database connection verified");
+
+                    // Safe check for MSF tables existence without dangerous operations
+                    var testCount = await _context.MSFQuestionnaires.CountAsync();
+                    Console.WriteLine($"MSF: Tables accessible, found {testCount} questionnaires");
+                }
+                catch (Exception dbEx)
+                {
+                    Console.WriteLine($"MSF: Database error: {dbEx.Message}");
+                    TempData["ErrorMessage"] = "MSF database tables not available. Contact administrator.";
+                    return RedirectToAction("Index", "Home");
                 }
 
                 // Check if MSF questionnaire exists
@@ -518,76 +507,11 @@ namespace SimpleGateway.Controllers
                     await _context.SaveChangesAsync();
                     Console.WriteLine($"MSF: Successfully saved feedback response");
                 }
-                catch (Exception saveEx) when (saveEx.Message.Contains("column") || saveEx.Message.Contains("does not exist") || saveEx.Message.Contains("relation"))
+                catch (Exception saveEx)
                 {
-                    Console.WriteLine($"MSF: Database schema error detected: {saveEx.Message}");
-                    Console.WriteLine("MSF: Attempting to fix schema issue using EF Core migrations...");
-                    
-                    try
-                    {
-                        // First try EF Core's built-in table creation (preserves data when possible)
-                        _context.Database.EnsureCreated();
-                        Console.WriteLine("MSF: EF Core table creation completed");
-                        
-                        // Retry the save operation
-                        await _context.SaveChangesAsync();
-                        Console.WriteLine($"MSF: Successfully saved feedback response after EF Core fix");
-                    }
-                    catch (Exception efEx)
-                    {
-                        Console.WriteLine($"MSF: EF Core fix failed: {efEx.Message}");
-                        Console.WriteLine("MSF: Emergency table recreation required - THIS WILL LOSE EXISTING DATA");
-                        
-                        // Only as absolute last resort, recreate tables
-                        await _context.Database.ExecuteSqlRawAsync(@"
-                            DROP TABLE IF EXISTS ""MSFResponses"";
-                            DROP TABLE IF EXISTS ""MSFQuestionnaires"";
-                        ");
-                        Console.WriteLine("MSF: Dropped existing tables for emergency schema fix");
-                        
-                        // Create tables with correct schema
-                        await _context.Database.ExecuteSqlRawAsync(@"
-                            CREATE TABLE ""MSFQuestionnaires"" (
-                                ""Id"" SERIAL PRIMARY KEY,
-                                ""PerformerId"" INTEGER NOT NULL,
-                                ""Title"" TEXT NOT NULL,
-                                ""UniqueCode"" TEXT NOT NULL,
-                                ""IsActive"" BOOLEAN NOT NULL DEFAULT TRUE,
-                                ""CreatedAt"" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-                            );
-
-                            CREATE TABLE ""MSFResponses"" (
-                                ""Id"" SERIAL PRIMARY KEY,
-                                ""MSFQuestionnaireId"" INTEGER NOT NULL,
-                                ""SubmittedAt"" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                                ""PatientCareQualityScore"" INTEGER,
-                                ""CommunicationSkillsScore"" INTEGER,
-                                ""CommunicationEmpathyScore"" INTEGER,
-                                ""HistoryTakingScore"" INTEGER,
-                                ""ConsultationManagementScore"" INTEGER,
-                                ""CulturalSensitivityScore"" INTEGER,
-                                ""EthicalProfessionalismScore"" INTEGER,
-                                ""ProfessionalDevelopmentScore"" INTEGER,
-                                ""TechnicalCompetenceScore"" INTEGER,
-                                ""DecisionMakingScore"" INTEGER,
-                                ""DocumentationScore"" INTEGER,
-                                ""TeamCollaborationScore"" INTEGER,
-                                ""TeamSupportScore"" INTEGER,
-                                ""LeadershipSkillsScore"" INTEGER,
-                                ""QualityImprovementScore"" INTEGER,
-                                ""HealthSafetyAwarenessScore"" INTEGER,
-                                ""ContinuousImprovementScore"" INTEGER,
-                                ""PositiveComments"" TEXT,
-                                ""ImprovementComments"" TEXT,
-                                FOREIGN KEY (""MSFQuestionnaireId"") REFERENCES ""MSFQuestionnaires""(""Id"") ON DELETE CASCADE
-                            );
-                        ");
-                        Console.WriteLine("⚠️ MSF tables recreated with emergency schema fix - DATA WAS LOST");
-                        
-                        // Final retry of save operation
-                        await _context.SaveChangesAsync();
-                        Console.WriteLine($"MSF: Successfully saved feedback response after emergency table recreation");
-                    }
+                    Console.WriteLine($"MSF: Database save error: {saveEx.Message}");
+                    TempData["ErrorMessage"] = "Error saving feedback. Please try again or contact administrator.";
+                    return View(model);
                 }
 
                 Console.WriteLine("MSF: Returning FeedbackSubmitted view");
