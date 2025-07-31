@@ -137,80 +137,62 @@ namespace SimpleGateway.Controllers
 
                 Console.WriteLine("MSF: Database connection verified");
 
-                // Emergency MSF table creation - following WorkBasedAssessments pattern
+                // Emergency MSF table creation - force recreation for schema fix
                 try
                 {
-                    var testQuery = _context.MSFQuestionnaires.Take(1).ToList();
-                    Console.WriteLine("MSF: MSFQuestionnaires table exists and is accessible");
-                }
-                catch (Exception tableEx)
-                {
-                    Console.WriteLine($"MSF: MSFQuestionnaires table access failed: {tableEx.Message}");
+                    Console.WriteLine("MSF: Forcing table recreation to fix schema mismatch");
                     
-                    // Create the complete MSF tables
-                    try
-                    {
-                        Console.WriteLine("MSF: Creating MSF tables with emergency creation");
-                        
-                        // First try to drop existing tables if they exist with wrong schema
-                        try
-                        {
-                            _context.Database.ExecuteSqlRaw(@"
-                                DROP TABLE IF EXISTS ""MSFResponses"";
-                                DROP TABLE IF EXISTS ""MSFQuestionnaires"";
-                            ");
-                            Console.WriteLine("MSF: Dropped existing tables");
-                        }
-                        catch (Exception dropEx)
-                        {
-                            Console.WriteLine($"MSF: Drop tables failed (may not exist): {dropEx.Message}");
-                        }
-                        
-                        // Create tables with correct schema
-                        _context.Database.ExecuteSqlRaw(@"
-                            CREATE TABLE IF NOT EXISTS ""MSFQuestionnaires"" (
-                                ""Id"" SERIAL PRIMARY KEY,
-                                ""PerformerId"" INTEGER NOT NULL,
-                                ""Title"" TEXT NOT NULL,
-                                ""UniqueCode"" TEXT NOT NULL,
-                                ""IsActive"" BOOLEAN NOT NULL DEFAULT TRUE,
-                                ""CreatedAt"" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-                            );
+                    // Drop existing tables to fix schema mismatch
+                    _context.Database.ExecuteSqlRaw(@"
+                        DROP TABLE IF EXISTS ""MSFResponses"";
+                        DROP TABLE IF EXISTS ""MSFQuestionnaires"";
+                    ");
+                    Console.WriteLine("MSF: Dropped existing tables for schema update");
+                    
+                    // Create tables with correct simplified schema
+                    _context.Database.ExecuteSqlRaw(@"
+                        CREATE TABLE ""MSFQuestionnaires"" (
+                            ""Id"" SERIAL PRIMARY KEY,
+                            ""PerformerId"" INTEGER NOT NULL,
+                            ""Title"" TEXT NOT NULL,
+                            ""UniqueCode"" TEXT NOT NULL,
+                            ""IsActive"" BOOLEAN NOT NULL DEFAULT TRUE,
+                            ""CreatedAt"" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                        );
 
-                            CREATE TABLE IF NOT EXISTS ""MSFResponses"" (
-                                ""Id"" SERIAL PRIMARY KEY,
-                                ""MSFQuestionnaireId"" INTEGER NOT NULL,
-                                ""RespondentName"" TEXT,
-                                ""RespondentRole"" TEXT,
-                                ""SubmittedAt"" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                                ""PatientCareQualityScore"" INTEGER,
-                                ""CommunicationSkillsScore"" INTEGER,
-                                ""CommunicationEmpathyScore"" INTEGER,
-                                ""HistoryTakingScore"" INTEGER,
-                                ""ConsultationManagementScore"" INTEGER,
-                                ""CulturalSensitivityScore"" INTEGER,
-                                ""EthicalProfessionalismScore"" INTEGER,
-                                ""ProfessionalDevelopmentScore"" INTEGER,
-                                ""TechnicalCompetenceScore"" INTEGER,
-                                ""DecisionMakingScore"" INTEGER,
-                                ""DocumentationScore"" INTEGER,
-                                ""TeamCollaborationScore"" INTEGER,
-                                ""TeamSupportScore"" INTEGER,
-                                ""LeadershipSkillsScore"" INTEGER,
-                                ""QualityImprovementScore"" INTEGER,
-                                ""HealthSafetyAwarenessScore"" INTEGER,
-                                ""ContinuousImprovementScore"" INTEGER,
-                                ""AdditionalComments"" TEXT,
-                                FOREIGN KEY (""MSFQuestionnaireId"") REFERENCES ""MSFQuestionnaires""(""Id"") ON DELETE CASCADE
-                            );
-                        ");
-                        Console.WriteLine("✅ MSF tables created successfully");
-                    }
-                    catch (Exception createEx)
-                    {
-                        Console.WriteLine($"MSF: Emergency table creation failed: {createEx.Message}");
-                        _context.Database.EnsureCreated();
-                    }
+                        CREATE TABLE ""MSFResponses"" (
+                            ""Id"" SERIAL PRIMARY KEY,
+                            ""MSFQuestionnaireId"" INTEGER NOT NULL,
+                            ""RespondentName"" TEXT,
+                            ""RespondentRole"" TEXT,
+                            ""SubmittedAt"" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                            ""PatientCareQualityScore"" INTEGER,
+                            ""CommunicationSkillsScore"" INTEGER,
+                            ""CommunicationEmpathyScore"" INTEGER,
+                            ""HistoryTakingScore"" INTEGER,
+                            ""ConsultationManagementScore"" INTEGER,
+                            ""CulturalSensitivityScore"" INTEGER,
+                            ""EthicalProfessionalismScore"" INTEGER,
+                            ""ProfessionalDevelopmentScore"" INTEGER,
+                            ""TechnicalCompetenceScore"" INTEGER,
+                            ""DecisionMakingScore"" INTEGER,
+                            ""DocumentationScore"" INTEGER,
+                            ""TeamCollaborationScore"" INTEGER,
+                            ""TeamSupportScore"" INTEGER,
+                            ""LeadershipSkillsScore"" INTEGER,
+                            ""QualityImprovementScore"" INTEGER,
+                            ""HealthSafetyAwarenessScore"" INTEGER,
+                            ""ContinuousImprovementScore"" INTEGER,
+                            ""AdditionalComments"" TEXT,
+                            FOREIGN KEY (""MSFQuestionnaireId"") REFERENCES ""MSFQuestionnaires""(""Id"") ON DELETE CASCADE
+                        );
+                    ");
+                    Console.WriteLine("✅ MSF tables recreated successfully with simplified schema");
+                }
+                catch (Exception createEx)
+                {
+                    Console.WriteLine($"MSF: Emergency table recreation failed: {createEx.Message}");
+                    _context.Database.EnsureCreated();
                 }
 
                 // Check if MSF questionnaire exists
