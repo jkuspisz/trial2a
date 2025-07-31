@@ -181,7 +181,6 @@ namespace SimpleGateway.Controllers
                             ""QualityImprovementScore"" INTEGER,
                             ""HealthSafetyAwarenessScore"" INTEGER,
                             ""ContinuousImprovementScore"" INTEGER,
-                            ""AdditionalComments"" TEXT,
                             FOREIGN KEY (""MSFQuestionnaireId"") REFERENCES ""MSFQuestionnaires""(""Id"") ON DELETE CASCADE
                         );
                     ");
@@ -482,9 +481,7 @@ namespace SimpleGateway.Controllers
                 LeadershipSkillsScore = model.LeadershipSkillsScore,
                 QualityImprovementScore = model.QualityImprovementScore,
                 HealthSafetyAwarenessScore = model.HealthSafetyAwarenessScore,
-                ContinuousImprovementScore = model.ContinuousImprovementScore,
-
-                AdditionalComments = model.AdditionalComments
+                ContinuousImprovementScore = model.ContinuousImprovementScore
             };
 
             try
@@ -517,7 +514,7 @@ namespace SimpleGateway.Controllers
                     await _context.SaveChangesAsync();
                     Console.WriteLine($"MSF: Successfully saved feedback response");
                 }
-                catch (Exception saveEx) when (saveEx.Message.Contains("AdditionalComments") || saveEx.Message.Contains("column") || saveEx.Message.Contains("does not exist"))
+                catch (Exception saveEx) when (saveEx.Message.Contains("column") || saveEx.Message.Contains("does not exist") || saveEx.Message.Contains("relation"))
                 {
                     Console.WriteLine($"MSF: Database schema error detected: {saveEx.Message}");
                     Console.WriteLine("MSF: Triggering emergency table recreation for schema fix...");
@@ -565,7 +562,6 @@ namespace SimpleGateway.Controllers
                                 ""QualityImprovementScore"" INTEGER,
                                 ""HealthSafetyAwarenessScore"" INTEGER,
                                 ""ContinuousImprovementScore"" INTEGER,
-                                ""AdditionalComments"" TEXT,
                                 FOREIGN KEY (""MSFQuestionnaireId"") REFERENCES ""MSFQuestionnaires""(""Id"") ON DELETE CASCADE
                             );
                         ");
@@ -748,12 +744,8 @@ namespace SimpleGateway.Controllers
                     q => Math.Round(q.Item2.Average(), 2)
                 );
 
-            // Collect all comments
-            results.AllComments = responses
-                .Select(r => r.AdditionalComments)
-                .Where(c => !string.IsNullOrWhiteSpace(c))
-                .Select(c => c!) // Convert nullable to non-nullable
-                .ToList();
+            // No comments collection since AdditionalComments removed
+            results.AllComments = new List<string>();
 
             return results;
         }

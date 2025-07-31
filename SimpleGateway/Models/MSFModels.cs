@@ -46,8 +46,6 @@ namespace SimpleGateway.Models
         public int? QualityImprovementScore { get; set; }
         public int? HealthSafetyAwarenessScore { get; set; }
         public int? ContinuousImprovementScore { get; set; }
-
-        public string? AdditionalComments { get; set; }
         
         public virtual MSFQuestionnaire Questionnaire { get; set; } = null!;
     }
@@ -85,8 +83,6 @@ namespace SimpleGateway.Models
         public int? QualityImprovementScore { get; set; }
         public int? HealthSafetyAwarenessScore { get; set; }
         public int? ContinuousImprovementScore { get; set; }
-
-        public string? AdditionalComments { get; set; }
     }
     
     // DTO for MSF results
