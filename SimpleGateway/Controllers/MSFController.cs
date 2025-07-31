@@ -429,6 +429,19 @@ namespace SimpleGateway.Controllers
         [HttpPost]
         public async Task<IActionResult> Feedback(SubmitMSFResponseDto model)
         {
+            Console.WriteLine($"=== MSF FEEDBACK POST DEBUG ===");
+            Console.WriteLine($"Model received - QuestionnaireCode: '{model?.QuestionnaireCode}'");
+            Console.WriteLine($"ModelState IsValid: {ModelState.IsValid}");
+            
+            if (!ModelState.IsValid)
+            {
+                Console.WriteLine("ModelState is invalid:");
+                foreach (var modelError in ModelState)
+                {
+                    Console.WriteLine($"Key: {modelError.Key}, Errors: {string.Join(", ", modelError.Value.Errors.Select(e => e.ErrorMessage))}");
+                }
+            }
+            
             if (!ModelState.IsValid)
             {
                 var questionnaire = await _context.MSFQuestionnaires
@@ -441,6 +454,7 @@ namespace SimpleGateway.Controllers
                     ViewBag.QuestionnaireTitle = questionnaire.Title;
                 }
 
+                Console.WriteLine("Returning view due to ModelState invalid");
                 return View(model);
             }
 
@@ -517,25 +531,28 @@ namespace SimpleGateway.Controllers
                 await _context.SaveChangesAsync();
                 Console.WriteLine($"MSF: Successfully saved feedback response");
 
+                Console.WriteLine("MSF: Returning FeedbackSubmitted view");
                 return View("FeedbackSubmitted");
             }
             catch (Exception ex)
             {
                 // ✅ SAFE ERROR HANDLING - Log errors without destroying data
                 Console.WriteLine($"MSF: Database error saving feedback: {ex.Message}");
+                Console.WriteLine($"MSF: Stack trace: {ex.StackTrace}");
                 TempData["ErrorMessage"] = "Error saving feedback. Please try again.";
                 
                 // Reload questionnaire info for the view
                 var questionnaire = await _context.MSFQuestionnaires
-                    .Include(q => q.Performer)
                     .FirstOrDefaultAsync(q => q.UniqueCode == model.QuestionnaireCode && q.IsActive);
 
                 if (questionnaire != null)
                 {
-                    ViewBag.PerformerName = questionnaire.Performer.Username;
+                    var performer = await _context.Users.FindAsync(questionnaire.PerformerId);
+                    ViewBag.PerformerName = performer?.Username ?? "Unknown";
                     ViewBag.QuestionnaireTitle = questionnaire.Title;
                 }
 
+                Console.WriteLine("MSF: Returning view due to exception");
                 return View(model);
             }
         }
