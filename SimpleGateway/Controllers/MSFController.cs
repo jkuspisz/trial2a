@@ -711,8 +711,21 @@ namespace SimpleGateway.Controllers
                     q => Math.Round(q.Item2.Average(), 2)
                 );
 
-            // No comments collection since AdditionalComments removed
+            // Collect both positive and improvement comments
             results.AllComments = new List<string>();
+            
+            foreach (var response in responses)
+            {
+                if (!string.IsNullOrWhiteSpace(response.PositiveComments))
+                {
+                    results.AllComments.Add($"✅ What they do well: {response.PositiveComments}");
+                }
+                
+                if (!string.IsNullOrWhiteSpace(response.ImprovementComments))
+                {
+                    results.AllComments.Add($"📈 How they could improve: {response.ImprovementComments}");
+                }
+            }
 
             return results;
         }

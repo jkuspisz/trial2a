@@ -2,44 +2,45 @@
 @{
     ViewData["Title"] = "MSF Results";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var performerUsername = Model?.PerformerUsername ?? ViewBag.PerformerUsername ?? User.Identity?.Name ?? "";
 }
 
 <div class="row">
     <div class="col-3">
         <ul class="list-group">
             <li class="list-group-item">
-                <a href="/Dashboard/ViewPerformerDashboard?performerUsername=@(User.Identity?.Name ?? "")">
+                <a href="/Dashboard/ViewPerformerDashboard?performerUsername=@performerUsername">
                     <i class="bi bi-speedometer2"></i> Dashboard Overview
                 </a>
             </li>
             <li class="list-group-item">
-                <a href="/Dashboard/PerformerDetails?performerUsername=@(User.Identity?.Name ?? "")">Performer Details</a>
+                <a href="/Dashboard/PerformerDetails?performerUsername=@performerUsername">Performer Details</a>
             </li>
             <li class="list-group-item">
-                <a href="/Dashboard/TestPractice?performerUsername=@(User.Identity?.Name ?? "")">Test Practice</a>
+                <a href="/Dashboard/TestPractice?performerUsername=@performerUsername">Test Practice</a>
             </li>
             <li class="list-group-item">
-                <a href="/Dashboard/TestPractice2?performerUsername=@(User.Identity?.Name ?? "")">Test Practice 2</a>
+                <a href="/Dashboard/TestPractice2?performerUsername=@performerUsername">Test Practice 2</a>
             </li>
             <li class="list-group-item">
-                <a href="/Dashboard/Uploads?performerUsername=@(User.Identity?.Name ?? "")">Uploads</a>
+                <a href="/Dashboard/Uploads?performerUsername=@performerUsername">Uploads</a>
             </li>
             <li class="list-group-item active">
-                <a href="@Url.Action("Index", "MSF")" style="color: white;">
+                <a href="@Url.Action("Index", "MSF", new { performerUsername = performerUsername })" style="color: white;">
                     <i class="fas fa-comments"></i> MSF Assessment
                 </a>
             </li>
             <li class="list-group-item">
-                <a href="/Dashboard/StructuredConversation?performerUsername=@(User.Identity?.Name ?? "")">Structured Conversation</a>
+                <a href="/Dashboard/StructuredConversation?performerUsername=@performerUsername">Structured Conversation</a>
             </li>
             <li class="list-group-item">
-                <a href="/Dashboard/AgreementTerms?performerUsername=@(User.Identity?.Name ?? "")">Agreement Terms</a>
+                <a href="/Dashboard/AgreementTerms?performerUsername=@performerUsername">Agreement Terms</a>
             </li>
             <li class="list-group-item">
-                <a href="/Dashboard/WorkBasedAssessment?performerUsername=@(User.Identity?.Name ?? "")">Work Based Assessment</a>
+                <a href="/Dashboard/WorkBasedAssessment?performerUsername=@performerUsername">Work Based Assessment</a>
             </li>
             <li class="list-group-item">
-                <a href="/Dashboard/CPD?performerUsername=@(User.Identity?.Name ?? "")">CPD</a>
+                <a href="/Dashboard/CPD?performerUsername=@performerUsername">CPD</a>
             </li>
         </ul>
     </div>
@@ -49,7 +50,7 @@
                     <h4 class="mb-0">
                         <i class="fas fa-chart-bar me-2"></i>MSF Results
                     </h4>
-                    <a href="@Url.Action("Index", "MSF")" class="btn btn-secondary">
+                    <a href="@Url.Action("Index", "MSF", new { performerUsername = performerUsername })" class="btn btn-secondary">
                         <i class="fas fa-arrow-left me-1"></i>Back to MSF Dashboard
                     </a>
                 </div>
