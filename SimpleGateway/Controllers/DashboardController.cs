@@ -746,6 +746,43 @@ namespace SimpleGateway.Controllers
 
                 Console.WriteLine($"TESTPRACTICE DEBUG: Database connection verified for GET");
                 
+                // Emergency schema verification - Check if supervisor fields exist (Database Integration Pattern)
+                try
+                {
+                    var testQuery = _context.TestData.Where(x => x.GDCNumber != null).Count();
+                    Console.WriteLine($"TESTPRACTICE DEBUG: Schema verification passed - supervisor fields exist");
+                }
+                catch (Exception schemaEx)
+                {
+                    Console.WriteLine($"TESTPRACTICE DEBUG: Schema verification failed - {schemaEx.Message}");
+                    if (schemaEx.Message.Contains("column") || schemaEx.Message.Contains("does not exist"))
+                    {
+                        Console.WriteLine("TESTPRACTICE DEBUG: Missing supervisor columns detected - applying emergency schema fix");
+                        
+                        // Emergency schema fix for Railway PostgreSQL (Database Integration Pattern)
+                        try
+                        {
+                            _context.Database.ExecuteSqlRaw(@"
+                                ALTER TABLE ""TestData"" 
+                                ADD COLUMN IF NOT EXISTS ""GDCNumber"" text,
+                                ADD COLUMN IF NOT EXISTS ""YearsOnPerformersList"" text,
+                                ADD COLUMN IF NOT EXISTS ""TrainingCoursesAttended"" text,
+                                ADD COLUMN IF NOT EXISTS ""CurrentSupervisionExperience"" text,
+                                ADD COLUMN IF NOT EXISTS ""CurrentConditionsRestrictions"" text,
+                                ADD COLUMN IF NOT EXISTS ""CPDCompliance"" text,
+                                ADD COLUMN IF NOT EXISTS ""DeclarationSigned"" boolean,
+                                ADD COLUMN IF NOT EXISTS ""DeclarationSignedDate"" timestamp with time zone,
+                                ADD COLUMN IF NOT EXISTS ""DeclarationSignedBy"" text;
+                            ");
+                            Console.WriteLine("TESTPRACTICE DEBUG: Emergency schema fix applied successfully");
+                        }
+                        catch (Exception fixEx)
+                        {
+                            Console.WriteLine($"TESTPRACTICE DEBUG: Emergency schema fix failed - {fixEx.Message}");
+                        }
+                    }
+                }
+                
                 // Try to get existing data for this performer
                 var existingData = _context.TestData.FirstOrDefaultAsync(x => x.Username == performerUsername).Result;
                 
@@ -827,6 +864,59 @@ namespace SimpleGateway.Controllers
                     }
 
                     Console.WriteLine($"TESTPRACTICE DEBUG: Database connection verified");
+                    
+                    // EMERGENCY SCHEMA VERIFICATION AND FIXING (Database Integration Pattern for Railway PostgreSQL)
+                    try
+                    {
+                        Console.WriteLine("TESTPRACTICE POST DEBUG: Verifying supervisor field schema exists");
+                        
+                        // Test if supervisor fields exist by attempting a basic query
+                        var testQuery = _context.TestData.Where(x => x.GDCNumber != null).Take(1).ToList();
+                        Console.WriteLine("TESTPRACTICE POST DEBUG: Supervisor fields schema verification successful");
+                    }
+                    catch (Exception schemaEx)
+                    {
+                        if (schemaEx.Message.Contains("column") && (schemaEx.Message.Contains("does not exist") || schemaEx.Message.Contains("GDCNumber")))
+                        {
+                            Console.WriteLine("TESTPRACTICE POST DEBUG: Supervisor fields missing - applying emergency schema fix");
+                            
+                            try
+                            {
+                                // PostgreSQL syntax for Railway environment
+                                var sqlCommands = new[]
+                                {
+                                    "ALTER TABLE \"TestData\" ADD COLUMN IF NOT EXISTS \"GDCNumber\" text",
+                                    "ALTER TABLE \"TestData\" ADD COLUMN IF NOT EXISTS \"YearsOnPerformersList\" integer",
+                                    "ALTER TABLE \"TestData\" ADD COLUMN IF NOT EXISTS \"TrainingCoursesAttended\" text",
+                                    "ALTER TABLE \"TestData\" ADD COLUMN IF NOT EXISTS \"CurrentSupervisionExperience\" text",
+                                    "ALTER TABLE \"TestData\" ADD COLUMN IF NOT EXISTS \"CurrentConditionsRestrictions\" text",
+                                    "ALTER TABLE \"TestData\" ADD COLUMN IF NOT EXISTS \"CPDCompliance\" text",
+                                    "ALTER TABLE \"TestData\" ADD COLUMN IF NOT EXISTS \"DeclarationSigned\" boolean",
+                                    "ALTER TABLE \"TestData\" ADD COLUMN IF NOT EXISTS \"DeclarationSignedDate\" timestamp with time zone",
+                                    "ALTER TABLE \"TestData\" ADD COLUMN IF NOT EXISTS \"DeclarationSignedBy\" text"
+                                };
+                                
+                                foreach (var sql in sqlCommands)
+                                {
+                                    _context.Database.ExecuteSqlRaw(sql);
+                                    Console.WriteLine($"TESTPRACTICE POST DEBUG: Executed emergency SQL: {sql}");
+                                }
+                                
+                                Console.WriteLine("TESTPRACTICE POST DEBUG: Emergency supervisor fields schema fix completed");
+                            }
+                            catch (Exception fixEx)
+                            {
+                                Console.WriteLine($"TESTPRACTICE POST DEBUG: Emergency schema fix failed: {fixEx.Message}");
+                                TempData["ErrorMessage"] = "Database schema issue detected. Please try again or contact administrator.";
+                                return View("Performer/TestPractice", model);
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine($"TESTPRACTICE POST DEBUG: Non-schema database error: {schemaEx.Message}");
+                            throw; // Re-throw if not a schema issue
+                        }
+                    }
                     
                     // CRITICAL: Delete all existing records for this user first (Database Integration Pattern)
                     var existingRecords = _context.TestData.Where(x => x.Username == model.Username).ToList();
