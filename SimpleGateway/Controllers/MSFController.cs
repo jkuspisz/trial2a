@@ -507,6 +507,30 @@ namespace SimpleGateway.Controllers
                     await _context.SaveChangesAsync();
                     Console.WriteLine($"MSF: Successfully saved feedback response");
                 }
+                catch (Exception saveEx) when (saveEx.Message.Contains("column") || saveEx.Message.Contains("PositiveComments") || saveEx.Message.Contains("ImprovementComments"))
+                {
+                    Console.WriteLine($"MSF: Missing comment columns detected - adding them now");
+                    try
+                    {
+                        // Add the missing columns manually
+                        await _context.Database.ExecuteSqlRawAsync(@"
+                            ALTER TABLE ""MSFResponses"" 
+                            ADD COLUMN IF NOT EXISTS ""PositiveComments"" TEXT,
+                            ADD COLUMN IF NOT EXISTS ""ImprovementComments"" TEXT;
+                        ");
+                        Console.WriteLine($"MSF: Successfully added comment columns");
+                        
+                        // Retry the save operation
+                        await _context.SaveChangesAsync();
+                        Console.WriteLine($"MSF: Successfully saved feedback response after adding columns");
+                    }
+                    catch (Exception sqlEx)
+                    {
+                        Console.WriteLine($"MSF: Failed to add columns: {sqlEx.Message}");
+                        TempData["ErrorMessage"] = "Database schema issue. Please contact administrator.";
+                        return View(model);
+                    }
+                }
                 catch (Exception saveEx)
                 {
                     Console.WriteLine($"MSF: Database save error: {saveEx.Message}");
