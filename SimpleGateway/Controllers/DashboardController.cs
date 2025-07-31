@@ -2111,7 +2111,8 @@ namespace SimpleGateway.Controllers
 
         public IActionResult PSQ(string performerUsername)
         {
-            return HandlePerformerSection(performerUsername, "PSQ");
+            // Redirect to the dedicated PSQ controller
+            return RedirectToAction("Index", "PSQ");
         }
 
         public IActionResult ClinicalNoteAudit(string performerUsername)
