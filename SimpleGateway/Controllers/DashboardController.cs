@@ -746,11 +746,17 @@ namespace SimpleGateway.Controllers
 
                 Console.WriteLine($"TESTPRACTICE DEBUG: Database connection verified for GET");
                 
-                // Emergency schema verification - Check if supervisor fields exist (Database Integration Pattern)
+                // Emergency schema verification - Check if ALL required fields exist (Database Integration Pattern)
                 try
                 {
-                    var testQuery = _context.TestData.Where(x => x.GDCNumber != null).Count();
-                    Console.WriteLine($"TESTPRACTICE DEBUG: Schema verification passed - supervisor fields exist");
+                    Console.WriteLine("TESTPRACTICE DEBUG: Verifying ALL required fields schema exists");
+                    
+                    // Test if ALL required fields exist by attempting a comprehensive query
+                    var testQuery = _context.TestData.Where(x => 
+                        x.UKWorkExperience != null && 
+                        x.LastPatientTreatment != null && 
+                        x.GDCNumber != null).Count();
+                    Console.WriteLine($"TESTPRACTICE DEBUG: Schema verification passed - ALL required fields exist");
                 }
                 catch (Exception schemaEx)
                 {
@@ -819,8 +825,56 @@ namespace SimpleGateway.Controllers
                     }
                 }
                 
-                // Try to get existing data for this performer
-                var existingData = _context.TestData.FirstOrDefaultAsync(x => x.Username == performerUsername).Result;
+                // Try to get existing data for this performer - with column error handling
+                TestDataModel? existingData = null;
+                try
+                {
+                    Console.WriteLine($"TESTPRACTICE DEBUG: Attempting to retrieve existing data for {performerUsername}");
+                    existingData = _context.TestData.FirstOrDefaultAsync(x => x.Username == performerUsername).Result;
+                    Console.WriteLine($"TESTPRACTICE DEBUG: Data retrieval successful for {performerUsername}");
+                }
+                catch (Exception dataEx)
+                {
+                    Console.WriteLine($"TESTPRACTICE DEBUG: Data retrieval failed: {dataEx.Message}");
+                    if (dataEx.Message.Contains("column") && dataEx.Message.Contains("does not exist"))
+                    {
+                        Console.WriteLine("TESTPRACTICE DEBUG: Column missing during data retrieval - applying emergency column fix");
+                        
+                        // Apply emergency column fix immediately
+                        try
+                        {
+                            _context.Database.ExecuteSqlRaw(@"
+                                ALTER TABLE ""TestData"" 
+                                ADD COLUMN IF NOT EXISTS ""UKWorkExperience"" text NOT NULL DEFAULT '',
+                                ADD COLUMN IF NOT EXISTS ""LastPatientTreatment"" text NOT NULL DEFAULT '',
+                                ADD COLUMN IF NOT EXISTS ""GDCNumber"" text,
+                                ADD COLUMN IF NOT EXISTS ""YearsOnPerformersList"" text,
+                                ADD COLUMN IF NOT EXISTS ""TrainingCoursesAttended"" text,
+                                ADD COLUMN IF NOT EXISTS ""CurrentSupervisionExperience"" text,
+                                ADD COLUMN IF NOT EXISTS ""CurrentConditionsRestrictions"" text,
+                                ADD COLUMN IF NOT EXISTS ""CPDCompliance"" text,
+                                ADD COLUMN IF NOT EXISTS ""DeclarationSigned"" boolean,
+                                ADD COLUMN IF NOT EXISTS ""DeclarationSignedDate"" timestamp with time zone,
+                                ADD COLUMN IF NOT EXISTS ""DeclarationSignedBy"" text;
+                            ");
+                            Console.WriteLine("TESTPRACTICE DEBUG: Emergency column fix applied - retrying data retrieval");
+                            
+                            // Retry data retrieval after column fix
+                            existingData = _context.TestData.FirstOrDefaultAsync(x => x.Username == performerUsername).Result;
+                            Console.WriteLine($"TESTPRACTICE DEBUG: Data retrieval retry successful for {performerUsername}");
+                        }
+                        catch (Exception retryEx)
+                        {
+                            Console.WriteLine($"TESTPRACTICE DEBUG: Emergency column fix and retry failed: {retryEx.Message}");
+                            existingData = null; // Ensure we create new model
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine($"TESTPRACTICE DEBUG: Non-column data retrieval error: {dataEx.Message}");
+                        existingData = null; // Ensure we create new model
+                    }
+                }
                 
                 if (existingData != null)
                 {
