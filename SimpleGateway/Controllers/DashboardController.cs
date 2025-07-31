@@ -1020,6 +1020,18 @@ namespace SimpleGateway.Controllers
                                     Console.WriteLine($"TESTPRACTICE POST DEBUG: Executed emergency SQL: {sql}");
                                 }
                                 
+                                // Fix column types if they were created with wrong types
+                                try 
+                                {
+                                    Console.WriteLine("TESTPRACTICE POST DEBUG: Checking and fixing column types");
+                                    _context.Database.ExecuteSqlRaw("ALTER TABLE \"TestData\" ALTER COLUMN \"YearsOnPerformersList\" TYPE text USING \"YearsOnPerformersList\"::text");
+                                    Console.WriteLine("TESTPRACTICE POST DEBUG: YearsOnPerformersList column type corrected to text");
+                                }
+                                catch (Exception typeEx)
+                                {
+                                    Console.WriteLine($"TESTPRACTICE POST DEBUG: Column type fix info: {typeEx.Message}");
+                                }
+                                
                                 Console.WriteLine("TESTPRACTICE POST DEBUG: Emergency schema fix completed - ALL required fields added");
                             }
                             catch (Exception fixEx)
