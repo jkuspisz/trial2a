@@ -163,8 +163,6 @@ namespace SimpleGateway.Controllers
                         CREATE TABLE ""MSFResponses"" (
                             ""Id"" SERIAL PRIMARY KEY,
                             ""MSFQuestionnaireId"" INTEGER NOT NULL,
-                            ""RespondentName"" TEXT,
-                            ""RespondentRole"" TEXT,
                             ""SubmittedAt"" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                             ""PatientCareQualityScore"" INTEGER,
                             ""CommunicationSkillsScore"" INTEGER,
@@ -417,8 +415,6 @@ namespace SimpleGateway.Controllers
             Console.WriteLine($"=== MSF FEEDBACK POST DEBUG ===");
             Console.WriteLine($"POST action called at: {DateTime.Now}");
             Console.WriteLine($"Model received - QuestionnaireCode: '{model?.QuestionnaireCode}'");
-            Console.WriteLine($"RespondentName: '{model?.RespondentName}'");
-            Console.WriteLine($"RespondentRole: '{model?.RespondentRole}'");
             Console.WriteLine($"ModelState IsValid: {ModelState.IsValid}");
             
             if (!ModelState.IsValid)
@@ -463,8 +459,6 @@ namespace SimpleGateway.Controllers
             var response = new MSFResponse
             {
                 MSFQuestionnaireId = targetQuestionnaire.Id,
-                RespondentName = model.RespondentName,
-                RespondentRole = model.RespondentRole,
                 SubmittedAt = DateTime.UtcNow,
 
                 // Patient Care & Communication (1-6)
@@ -509,7 +503,7 @@ namespace SimpleGateway.Controllers
                     return View(model);
                 }
 
-                Console.WriteLine($"MSF: Submitting feedback for questionnaire {targetQuestionnaire.Id} from {model.RespondentName}");
+                Console.WriteLine($"MSF: Submitting feedback for questionnaire {targetQuestionnaire.Id}");
                 Console.WriteLine($"MSF: Creating response object...");
                 Console.WriteLine($"MSF: Response object created successfully");
                 
@@ -653,7 +647,6 @@ namespace SimpleGateway.Controllers
                 TotalResponses = responses.Count,
                 ResponseSummary = responses.Select(r => new ResponseSummary
                 {
-                    RespondentRole = r.RespondentRole ?? "Not specified",
                     SubmittedAt = r.SubmittedAt
                 }).ToList()
             };

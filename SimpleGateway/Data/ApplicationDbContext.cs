@@ -207,8 +207,6 @@ namespace SimpleGateway.Data
             modelBuilder.Entity<MSFResponse>(entity =>
             {
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.RespondentName).HasMaxLength(100);
-                entity.Property(e => e.RespondentRole).HasMaxLength(100);
                 
                 entity.HasOne(r => r.Questionnaire)
                     .WithMany(q => q.Responses)

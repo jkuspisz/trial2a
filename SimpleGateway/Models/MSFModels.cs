@@ -22,8 +22,6 @@ namespace SimpleGateway.Models
     {
         public int Id { get; set; }
         public int MSFQuestionnaireId { get; set; }
-        public string? RespondentName { get; set; }
-        public string? RespondentRole { get; set; }
         public DateTime SubmittedAt { get; set; } = DateTime.UtcNow;
         
         // Patient Care & Communication (1-6)
@@ -64,8 +62,6 @@ namespace SimpleGateway.Models
     public class SubmitMSFResponseDto
     {
         public string QuestionnaireCode { get; set; } = string.Empty;
-        public string? RespondentName { get; set; }
-        public string? RespondentRole { get; set; }
         
         // Patient Care & Communication (1-6)
         public int? PatientCareQualityScore { get; set; }
@@ -149,7 +145,6 @@ namespace SimpleGateway.Models
 
     public class ResponseSummary
     {
-        public string RespondentRole { get; set; } = string.Empty;
         public DateTime SubmittedAt { get; set; }
     }
 }

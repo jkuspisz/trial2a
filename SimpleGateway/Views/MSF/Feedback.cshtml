@@ -28,29 +28,6 @@
                     <form method="post" action="@Url.Action("Feedback", "MSF")">
                         @Html.HiddenFor(m => m.QuestionnaireCode)
                         
-                        <!-- Respondent Information -->
-                        <div class="card mb-4">
-                            <div class="card-header">
-                                <h5 class="mb-0">Your Information (Optional)</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="RespondentName" class="form-label">Your Name</label>
-                                            @Html.TextBoxFor(m => m.RespondentName, new { @class = "form-control", placeholder = "Optional" })
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="RespondentRole" class="form-label">Your Role</label>
-                                            @Html.TextBoxFor(m => m.RespondentRole, new { @class = "form-control", placeholder = "e.g., Consultant, Nurse, etc." })
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
                         <!-- Patient Care & Communication -->
                         <div class="card mb-4">
                             <div class="card-header">
