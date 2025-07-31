@@ -195,10 +195,21 @@ namespace SimpleGateway.Controllers
                                 ""TechnicalCompetenceComment"" TEXT,
                                 ""DecisionMakingScore"" INTEGER,
                                 ""DecisionMakingComment"" TEXT,
+                                ""DocumentationScore"" INTEGER,
+                                ""DocumentationComment"" TEXT,
+                                ""TeamCollaborationScore"" INTEGER,
+                                ""TeamCollaborationComment"" TEXT,
+                                ""TeamSupportScore"" INTEGER,
+                                ""TeamSupportComment"" TEXT,
                                 ""LeadershipSkillsScore"" INTEGER,
                                 ""LeadershipSkillsComment"" TEXT,
-                                ""OverallScore"" INTEGER,
-                                ""OverallComment"" TEXT,
+                                ""QualityImprovementScore"" INTEGER,
+                                ""QualityImprovementComment"" TEXT,
+                                ""HealthSafetyAwarenessScore"" INTEGER,
+                                ""HealthSafetyAwarenessComment"" TEXT,
+                                ""ContinuousImprovementScore"" INTEGER,
+                                ""ContinuousImprovementComment"" TEXT,
+                                ""AdditionalComments"" TEXT,
                                 FOREIGN KEY (""MSFQuestionnaireId"") REFERENCES ""MSFQuestionnaires""(""Id"") ON DELETE CASCADE
                             );
                         ");
