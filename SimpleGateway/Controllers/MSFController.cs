@@ -355,14 +355,10 @@ namespace SimpleGateway.Controllers
 
         // Anonymous feedback form
         [HttpGet]
-        public async Task<IActionResult> Feedback(string id)
+        public async Task<IActionResult> Feedback(string code)
         {
-            // Convert id parameter to code for clarity
-            string code = id;
-            
             Console.WriteLine($"=== MSF FEEDBACK DEBUG ===");
-            Console.WriteLine($"ID parameter received: '{id}'");
-            Console.WriteLine($"Code (converted from id): '{code}'");
+            Console.WriteLine($"Code parameter received: '{code}'");
             Console.WriteLine($"Code is null or empty: {string.IsNullOrEmpty(code)}");
             
             if (string.IsNullOrEmpty(code))
