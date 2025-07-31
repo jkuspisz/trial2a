@@ -372,21 +372,53 @@ namespace SimpleGateway.Controllers
         [HttpGet]
         public async Task<IActionResult> Feedback(string code)
         {
+            Console.WriteLine($"=== MSF FEEDBACK DEBUG ===");
+            Console.WriteLine($"Code received: '{code}'");
+            Console.WriteLine($"Code is null or empty: {string.IsNullOrEmpty(code)}");
+            
             if (string.IsNullOrEmpty(code))
-                return NotFound();
+            {
+                Console.WriteLine("FEEDBACK: Returning NotFound - code is null or empty");
+                return NotFound("No code provided");
+            }
 
-            var questionnaire = await _context.MSFQuestionnaires
-                .FirstOrDefaultAsync(q => q.UniqueCode == code && q.IsActive);
+            try
+            {
+                // Check if MSFQuestionnaires table exists and has data
+                var allQuestionnaires = await _context.MSFQuestionnaires.ToListAsync();
+                Console.WriteLine($"FEEDBACK: Total questionnaires in database: {allQuestionnaires.Count}");
+                foreach (var q in allQuestionnaires)
+                {
+                    Console.WriteLine($"FEEDBACK: Found questionnaire - ID: {q.Id}, Code: {q.UniqueCode}, PerformerId: {q.PerformerId}, IsActive: {q.IsActive}");
+                }
 
-            if (questionnaire == null)
-                return NotFound("Questionnaire not found or no longer active.");
+                var questionnaire = await _context.MSFQuestionnaires
+                    .FirstOrDefaultAsync(q => q.UniqueCode == code && q.IsActive);
 
-            // Get performer info by ID since we may not have navigation property
-            var performer = await _context.Users.FindAsync(questionnaire.PerformerId);
-            ViewBag.PerformerName = performer?.Username ?? "Unknown";
-            ViewBag.QuestionnaireTitle = questionnaire.Title;
+                Console.WriteLine($"FEEDBACK: Questionnaire found for code '{code}': {questionnaire != null}");
+                
+                if (questionnaire == null)
+                {
+                    Console.WriteLine($"FEEDBACK: No questionnaire found with code '{code}' and IsActive=true");
+                    return NotFound("Questionnaire not found or no longer active.");
+                }
 
-            return View(new SubmitMSFResponseDto { QuestionnaireCode = code });
+                // Get performer info by ID since we may not have navigation property
+                var performer = await _context.Users.FindAsync(questionnaire.PerformerId);
+                Console.WriteLine($"FEEDBACK: Performer found: {performer != null}, Username: {performer?.Username}");
+                
+                ViewBag.PerformerName = performer?.Username ?? "Unknown";
+                ViewBag.QuestionnaireTitle = questionnaire.Title;
+
+                Console.WriteLine($"FEEDBACK: Returning view with performer: {ViewBag.PerformerName}");
+                return View(new SubmitMSFResponseDto { QuestionnaireCode = code });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"FEEDBACK ERROR: {ex.Message}");
+                Console.WriteLine($"FEEDBACK STACK: {ex.StackTrace}");
+                return NotFound($"Error accessing questionnaire: {ex.Message}");
+            }
         }
 
         // Submit anonymous feedback
