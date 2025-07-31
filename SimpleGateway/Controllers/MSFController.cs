@@ -184,39 +184,22 @@ namespace SimpleGateway.Controllers
                                 ""RespondentRole"" TEXT,
                                 ""SubmittedAt"" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                                 ""PatientCareQualityScore"" INTEGER,
-                                ""PatientCareQualityComment"" TEXT,
                                 ""CommunicationSkillsScore"" INTEGER,
-                                ""CommunicationSkillsComment"" TEXT,
                                 ""CommunicationEmpathyScore"" INTEGER,
-                                ""CommunicationEmpathyComment"" TEXT,
                                 ""HistoryTakingScore"" INTEGER,
-                                ""HistoryTakingComment"" TEXT,
                                 ""ConsultationManagementScore"" INTEGER,
-                                ""ConsultationManagementComment"" TEXT,
                                 ""CulturalSensitivityScore"" INTEGER,
-                                ""CulturalSensitivityComment"" TEXT,
                                 ""EthicalProfessionalismScore"" INTEGER,
-                                ""EthicalProfessionalismComment"" TEXT,
                                 ""ProfessionalDevelopmentScore"" INTEGER,
-                                ""ProfessionalDevelopmentComment"" TEXT,
                                 ""TechnicalCompetenceScore"" INTEGER,
-                                ""TechnicalCompetenceComment"" TEXT,
                                 ""DecisionMakingScore"" INTEGER,
-                                ""DecisionMakingComment"" TEXT,
                                 ""DocumentationScore"" INTEGER,
-                                ""DocumentationComment"" TEXT,
                                 ""TeamCollaborationScore"" INTEGER,
-                                ""TeamCollaborationComment"" TEXT,
                                 ""TeamSupportScore"" INTEGER,
-                                ""TeamSupportComment"" TEXT,
                                 ""LeadershipSkillsScore"" INTEGER,
-                                ""LeadershipSkillsComment"" TEXT,
                                 ""QualityImprovementScore"" INTEGER,
-                                ""QualityImprovementComment"" TEXT,
                                 ""HealthSafetyAwarenessScore"" INTEGER,
-                                ""HealthSafetyAwarenessComment"" TEXT,
                                 ""ContinuousImprovementScore"" INTEGER,
-                                ""ContinuousImprovementComment"" TEXT,
                                 ""AdditionalComments"" TEXT,
                                 FOREIGN KEY (""MSFQuestionnaireId"") REFERENCES ""MSFQuestionnaires""(""Id"") ON DELETE CASCADE
                             );
@@ -504,43 +487,26 @@ namespace SimpleGateway.Controllers
 
                 // Patient Care & Communication (1-6)
                 PatientCareQualityScore = model.PatientCareQualityScore,
-                PatientCareQualityComment = model.PatientCareQualityComment,
                 CommunicationSkillsScore = model.CommunicationSkillsScore,
-                CommunicationSkillsComment = model.CommunicationSkillsComment,
                 CommunicationEmpathyScore = model.CommunicationEmpathyScore,
-                CommunicationEmpathyComment = model.CommunicationEmpathyComment,
                 HistoryTakingScore = model.HistoryTakingScore,
-                HistoryTakingComment = model.HistoryTakingComment,
                 ConsultationManagementScore = model.ConsultationManagementScore,
-                ConsultationManagementComment = model.ConsultationManagementComment,
                 CulturalSensitivityScore = model.CulturalSensitivityScore,
-                CulturalSensitivityComment = model.CulturalSensitivityComment,
 
                 // Professional Integrity & Development (7-11)
                 EthicalProfessionalismScore = model.EthicalProfessionalismScore,
-                EthicalProfessionalismComment = model.EthicalProfessionalismComment,
                 ProfessionalDevelopmentScore = model.ProfessionalDevelopmentScore,
-                ProfessionalDevelopmentComment = model.ProfessionalDevelopmentComment,
                 TechnicalCompetenceScore = model.TechnicalCompetenceScore,
-                TechnicalCompetenceComment = model.TechnicalCompetenceComment,
                 DecisionMakingScore = model.DecisionMakingScore,
-                DecisionMakingComment = model.DecisionMakingComment,
                 DocumentationScore = model.DocumentationScore,
-                DocumentationComment = model.DocumentationComment,
 
                 // Team Working & Quality Improvement (12-17)
                 TeamCollaborationScore = model.TeamCollaborationScore,
-                TeamCollaborationComment = model.TeamCollaborationComment,
                 TeamSupportScore = model.TeamSupportScore,
-                TeamSupportComment = model.TeamSupportComment,
                 LeadershipSkillsScore = model.LeadershipSkillsScore,
-                LeadershipSkillsComment = model.LeadershipSkillsComment,
                 QualityImprovementScore = model.QualityImprovementScore,
-                QualityImprovementComment = model.QualityImprovementComment,
                 HealthSafetyAwarenessScore = model.HealthSafetyAwarenessScore,
-                HealthSafetyAwarenessComment = model.HealthSafetyAwarenessComment,
                 ContinuousImprovementScore = model.ContinuousImprovementScore,
-                ContinuousImprovementComment = model.ContinuousImprovementComment,
 
                 AdditionalComments = model.AdditionalComments
             };
@@ -741,27 +707,7 @@ namespace SimpleGateway.Controllers
 
             // Collect all comments
             results.AllComments = responses
-                .SelectMany(r => new[]
-                {
-                    r.PatientCareQualityComment,
-                    r.CommunicationSkillsComment,
-                    r.CommunicationEmpathyComment,
-                    r.HistoryTakingComment,
-                    r.ConsultationManagementComment,
-                    r.CulturalSensitivityComment,
-                    r.EthicalProfessionalismComment,
-                    r.ProfessionalDevelopmentComment,
-                    r.TechnicalCompetenceComment,
-                    r.DecisionMakingComment,
-                    r.DocumentationComment,
-                    r.TeamCollaborationComment,
-                    r.TeamSupportComment,
-                    r.LeadershipSkillsComment,
-                    r.QualityImprovementComment,
-                    r.HealthSafetyAwarenessComment,
-                    r.ContinuousImprovementComment,
-                    r.AdditionalComments
-                })
+                .Select(r => r.AdditionalComments)
                 .Where(c => !string.IsNullOrWhiteSpace(c))
                 .Select(c => c!) // Convert nullable to non-nullable
                 .ToList();

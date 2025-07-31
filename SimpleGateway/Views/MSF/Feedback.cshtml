@@ -59,12 +59,12 @@
                             <div class="card-body">
                                 @await Html.PartialAsync("_MSFQuestionGroup", new ViewDataDictionary(ViewData) {
                                     ["GroupQuestions"] = new[] {
-                                        new { Field = "PatientCareQualityScore", CommentField = "PatientCareQualityComment", Question = "1. Quality of patient care provided" },
-                                        new { Field = "CommunicationSkillsScore", CommentField = "CommunicationSkillsComment", Question = "2. Communication skills with patients and families" },
-                                        new { Field = "CommunicationEmpathyScore", CommentField = "CommunicationEmpathyComment", Question = "3. Shows empathy and understanding in communication" },
-                                        new { Field = "HistoryTakingScore", CommentField = "HistoryTakingComment", Question = "4. Ability to take comprehensive patient history" },
-                                        new { Field = "ConsultationManagementScore", CommentField = "ConsultationManagementComment", Question = "5. Management of patient consultations" },
-                                        new { Field = "CulturalSensitivityScore", CommentField = "CulturalSensitivityComment", Question = "6. Cultural sensitivity and awareness" }
+                                        new { Field = "PatientCareQualityScore", Question = "1. Quality of patient care provided" },
+                                        new { Field = "CommunicationSkillsScore", Question = "2. Communication skills with patients and families" },
+                                        new { Field = "CommunicationEmpathyScore", Question = "3. Shows empathy and understanding in communication" },
+                                        new { Field = "HistoryTakingScore", Question = "4. Ability to take comprehensive patient history" },
+                                        new { Field = "ConsultationManagementScore", Question = "5. Management of patient consultations" },
+                                        new { Field = "CulturalSensitivityScore", Question = "6. Cultural sensitivity and awareness" }
                                     }
                                 })
                             </div>
@@ -78,11 +78,11 @@
                             <div class="card-body">
                                 @await Html.PartialAsync("_MSFQuestionGroup", new ViewDataDictionary(ViewData) {
                                     ["GroupQuestions"] = new[] {
-                                        new { Field = "EthicalProfessionalismScore", CommentField = "EthicalProfessionalismComment", Question = "7. Ethical behavior and professionalism" },
-                                        new { Field = "ProfessionalDevelopmentScore", CommentField = "ProfessionalDevelopmentComment", Question = "8. Commitment to professional development" },
-                                        new { Field = "TechnicalCompetenceScore", CommentField = "TechnicalCompetenceComment", Question = "9. Technical competence and clinical skills" },
-                                        new { Field = "DecisionMakingScore", CommentField = "DecisionMakingComment", Question = "10. Clinical decision-making abilities" },
-                                        new { Field = "DocumentationScore", CommentField = "DocumentationComment", Question = "11. Quality of documentation and record keeping" }
+                                        new { Field = "EthicalProfessionalismScore", Question = "7. Ethical behavior and professionalism" },
+                                        new { Field = "ProfessionalDevelopmentScore", Question = "8. Commitment to professional development" },
+                                        new { Field = "TechnicalCompetenceScore", Question = "9. Technical competence and clinical skills" },
+                                        new { Field = "DecisionMakingScore", Question = "10. Clinical decision-making abilities" },
+                                        new { Field = "DocumentationScore", Question = "11. Quality of documentation and record keeping" }
                                     }
                                 })
                             </div>
@@ -96,12 +96,12 @@
                             <div class="card-body">
                                 @await Html.PartialAsync("_MSFQuestionGroup", new ViewDataDictionary(ViewData) {
                                     ["GroupQuestions"] = new[] {
-                                        new { Field = "TeamCollaborationScore", CommentField = "TeamCollaborationComment", Question = "12. Collaboration and teamwork skills" },
-                                        new { Field = "TeamSupportScore", CommentField = "TeamSupportComment", Question = "13. Support provided to team members" },
-                                        new { Field = "LeadershipSkillsScore", CommentField = "LeadershipSkillsComment", Question = "14. Leadership and guidance abilities" },
-                                        new { Field = "QualityImprovementScore", CommentField = "QualityImprovementComment", Question = "15. Contribution to quality improvement" },
-                                        new { Field = "HealthSafetyAwarenessScore", CommentField = "HealthSafetyAwarenessComment", Question = "16. Health and safety awareness" },
-                                        new { Field = "ContinuousImprovementScore", CommentField = "ContinuousImprovementComment", Question = "17. Commitment to continuous improvement" }
+                                        new { Field = "TeamCollaborationScore", Question = "12. Collaboration and teamwork skills" },
+                                        new { Field = "TeamSupportScore", Question = "13. Support provided to team members" },
+                                        new { Field = "LeadershipSkillsScore", Question = "14. Leadership and guidance abilities" },
+                                        new { Field = "QualityImprovementScore", Question = "15. Contribution to quality improvement" },
+                                        new { Field = "HealthSafetyAwarenessScore", Question = "16. Health and safety awareness" },
+                                        new { Field = "ContinuousImprovementScore", Question = "17. Commitment to continuous improvement" }
                                     }
                                 })
                             </div>

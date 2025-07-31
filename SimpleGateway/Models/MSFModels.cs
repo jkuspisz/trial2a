@@ -28,43 +28,26 @@ namespace SimpleGateway.Models
         
         // Patient Care & Communication (1-6)
         public int? PatientCareQualityScore { get; set; }
-        public string? PatientCareQualityComment { get; set; }
         public int? CommunicationSkillsScore { get; set; }
-        public string? CommunicationSkillsComment { get; set; }
         public int? CommunicationEmpathyScore { get; set; }
-        public string? CommunicationEmpathyComment { get; set; }
         public int? HistoryTakingScore { get; set; }
-        public string? HistoryTakingComment { get; set; }
         public int? ConsultationManagementScore { get; set; }
-        public string? ConsultationManagementComment { get; set; }
         public int? CulturalSensitivityScore { get; set; }
-        public string? CulturalSensitivityComment { get; set; }
 
         // Professional Integrity & Development (7-11)
         public int? EthicalProfessionalismScore { get; set; }
-        public string? EthicalProfessionalismComment { get; set; }
         public int? ProfessionalDevelopmentScore { get; set; }
-        public string? ProfessionalDevelopmentComment { get; set; }
         public int? TechnicalCompetenceScore { get; set; }
-        public string? TechnicalCompetenceComment { get; set; }
         public int? DecisionMakingScore { get; set; }
-        public string? DecisionMakingComment { get; set; }
         public int? DocumentationScore { get; set; }
-        public string? DocumentationComment { get; set; }
 
         // Team Working & Quality Improvement (12-17)
         public int? TeamCollaborationScore { get; set; }
-        public string? TeamCollaborationComment { get; set; }
         public int? TeamSupportScore { get; set; }
-        public string? TeamSupportComment { get; set; }
         public int? LeadershipSkillsScore { get; set; }
-        public string? LeadershipSkillsComment { get; set; }
         public int? QualityImprovementScore { get; set; }
-        public string? QualityImprovementComment { get; set; }
         public int? HealthSafetyAwarenessScore { get; set; }
-        public string? HealthSafetyAwarenessComment { get; set; }
         public int? ContinuousImprovementScore { get; set; }
-        public string? ContinuousImprovementComment { get; set; }
 
         public string? AdditionalComments { get; set; }
         
@@ -86,43 +69,26 @@ namespace SimpleGateway.Models
         
         // Patient Care & Communication (1-6)
         public int? PatientCareQualityScore { get; set; }
-        public string? PatientCareQualityComment { get; set; }
         public int? CommunicationSkillsScore { get; set; }
-        public string? CommunicationSkillsComment { get; set; }
         public int? CommunicationEmpathyScore { get; set; }
-        public string? CommunicationEmpathyComment { get; set; }
         public int? HistoryTakingScore { get; set; }
-        public string? HistoryTakingComment { get; set; }
         public int? ConsultationManagementScore { get; set; }
-        public string? ConsultationManagementComment { get; set; }
         public int? CulturalSensitivityScore { get; set; }
-        public string? CulturalSensitivityComment { get; set; }
 
         // Professional Integrity & Development (7-11)
         public int? EthicalProfessionalismScore { get; set; }
-        public string? EthicalProfessionalismComment { get; set; }
         public int? ProfessionalDevelopmentScore { get; set; }
-        public string? ProfessionalDevelopmentComment { get; set; }
         public int? TechnicalCompetenceScore { get; set; }
-        public string? TechnicalCompetenceComment { get; set; }
         public int? DecisionMakingScore { get; set; }
-        public string? DecisionMakingComment { get; set; }
         public int? DocumentationScore { get; set; }
-        public string? DocumentationComment { get; set; }
 
         // Team Working & Quality Improvement (12-17)
         public int? TeamCollaborationScore { get; set; }
-        public string? TeamCollaborationComment { get; set; }
         public int? TeamSupportScore { get; set; }
-        public string? TeamSupportComment { get; set; }
         public int? LeadershipSkillsScore { get; set; }
-        public string? LeadershipSkillsComment { get; set; }
         public int? QualityImprovementScore { get; set; }
-        public string? QualityImprovementComment { get; set; }
         public int? HealthSafetyAwarenessScore { get; set; }
-        public string? HealthSafetyAwarenessComment { get; set; }
         public int? ContinuousImprovementScore { get; set; }
-        public string? ContinuousImprovementComment { get; set; }
 
         public string? AdditionalComments { get; set; }
     }

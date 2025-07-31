@@ -10,7 +10,7 @@
             <div class="col-12">
                 <h6>@question.Question</h6>
             </div>
-            <div class="col-md-6">
+            <div class="col-12">
                 <div class="btn-group d-flex" role="group" aria-label="Rating">
                     @for (int i = 1; i <= 4; i++)
                     {
@@ -30,9 +30,6 @@
                 <div class="form-text">
                     <small>1=Working towards | 2=Meets | 3=Exceeds | 4=Not observed</small>
                 </div>
-            </div>
-            <div class="col-md-6">
-                <textarea name="@question.CommentField" class="form-control" rows="2" placeholder="Optional comments..."></textarea>
             </div>
         </div>
         <hr>
