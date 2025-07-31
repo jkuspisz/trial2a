@@ -949,6 +949,18 @@ namespace SimpleGateway.Controllers
 
                     Console.WriteLine($"TESTPRACTICE DEBUG: Database connection verified");
                     
+                    // PROACTIVE COLUMN TYPE FIX - Ensure all text fields are correct type
+                    try 
+                    {
+                        Console.WriteLine("TESTPRACTICE DEBUG: Proactively fixing column types before operations");
+                        _context.Database.ExecuteSqlRaw("ALTER TABLE \"TestData\" ALTER COLUMN \"YearsOnPerformersList\" TYPE text USING \"YearsOnPerformersList\"::text");
+                        Console.WriteLine("TESTPRACTICE DEBUG: YearsOnPerformersList column type corrected to text");
+                    }
+                    catch (Exception proactiveTypeEx)
+                    {
+                        Console.WriteLine($"TESTPRACTICE DEBUG: Proactive column type fix info: {proactiveTypeEx.Message}");
+                    }
+                    
                     // EMERGENCY SCHEMA VERIFICATION AND FIXING (Database Integration Pattern for Railway PostgreSQL)
                     try
                     {
@@ -1023,13 +1035,37 @@ namespace SimpleGateway.Controllers
                                 // Fix column types if they were created with wrong types
                                 try 
                                 {
-                                    Console.WriteLine("TESTPRACTICE POST DEBUG: Checking and fixing column types");
-                                    _context.Database.ExecuteSqlRaw("ALTER TABLE \"TestData\" ALTER COLUMN \"YearsOnPerformersList\" TYPE text USING \"YearsOnPerformersList\"::text");
-                                    Console.WriteLine("TESTPRACTICE POST DEBUG: YearsOnPerformersList column type corrected to text");
+                                    Console.WriteLine("TESTPRACTICE POST DEBUG: Checking and fixing column types for all text fields");
+                                    
+                                    var columnTypeFixes = new[]
+                                    {
+                                        "ALTER TABLE \"TestData\" ALTER COLUMN \"GDCNumber\" TYPE text USING \"GDCNumber\"::text",
+                                        "ALTER TABLE \"TestData\" ALTER COLUMN \"YearsOnPerformersList\" TYPE text USING \"YearsOnPerformersList\"::text", 
+                                        "ALTER TABLE \"TestData\" ALTER COLUMN \"TrainingCoursesAttended\" TYPE text USING \"TrainingCoursesAttended\"::text",
+                                        "ALTER TABLE \"TestData\" ALTER COLUMN \"CurrentSupervisionExperience\" TYPE text USING \"CurrentSupervisionExperience\"::text",
+                                        "ALTER TABLE \"TestData\" ALTER COLUMN \"CurrentConditionsRestrictions\" TYPE text USING \"CurrentConditionsRestrictions\"::text",
+                                        "ALTER TABLE \"TestData\" ALTER COLUMN \"CPDCompliance\" TYPE text USING \"CPDCompliance\"::text",
+                                        "ALTER TABLE \"TestData\" ALTER COLUMN \"DeclarationSignedBy\" TYPE text USING \"DeclarationSignedBy\"::text"
+                                    };
+                                    
+                                    foreach (var typeFix in columnTypeFixes)
+                                    {
+                                        try
+                                        {
+                                            _context.Database.ExecuteSqlRaw(typeFix);
+                                            Console.WriteLine($"TESTPRACTICE POST DEBUG: Column type fix applied: {typeFix.Split(' ')[5]}");
+                                        }
+                                        catch (Exception individualTypeEx)
+                                        {
+                                            Console.WriteLine($"TESTPRACTICE POST DEBUG: Column type fix note for {typeFix.Split(' ')[5]}: {individualTypeEx.Message}");
+                                        }
+                                    }
+                                    
+                                    Console.WriteLine("TESTPRACTICE POST DEBUG: All column type fixes attempted");
                                 }
                                 catch (Exception typeEx)
                                 {
-                                    Console.WriteLine($"TESTPRACTICE POST DEBUG: Column type fix info: {typeEx.Message}");
+                                    Console.WriteLine($"TESTPRACTICE POST DEBUG: Column type fix process info: {typeEx.Message}");
                                 }
                                 
                                 Console.WriteLine("TESTPRACTICE POST DEBUG: Emergency schema fix completed - ALL required fields added");
