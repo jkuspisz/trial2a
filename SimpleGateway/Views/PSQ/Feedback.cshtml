@@ -1,0 +1,369 @@
+@model SimpleGateway.Models.SubmitPSQResponseDto
+@{
+    ViewData["Title"] = "Patient Satisfaction Questionnaire";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var performerName = ViewBag.PerformerName ?? "Unknown Dentist";
+    var questionnaireName = ViewBag.QuestionnaireName ?? "PSQ Assessment";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-star"></i> Patient Satisfaction Questionnaire
+                    </h3>
+                    <p class="mb-0">Your feedback about: <strong>@performerName</strong></p>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <h5><i class="fas fa-info-circle"></i> Your Feedback Matters</h5>
+                        <p class="mb-0">Please rate your experience with this dentist. Your responses are <strong>completely anonymous</strong> and will help improve patient care.</p>
+                    </div>
+
+                    <form asp-action="Feedback" method="post">
+                        <input type="hidden" asp-for="QuestionnaireCode" />
+
+                        <!-- PSQ Question 1: Put me at ease -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">1. The Dentist put me at ease</label>
+                            <div class="mb-2">
+                                <div class="btn-group d-flex">
+                                    <input type="radio" name="PutMeAtEaseScore" value="-1" class="btn-check" id="q1_n1">
+                                    <label class="btn btn-outline-danger" for="q1_n1">-1 - Strongly Disagree</label>
+                                    
+                                    <input type="radio" name="PutMeAtEaseScore" value="-2" class="btn-check" id="q1_n2">
+                                    <label class="btn btn-outline-warning" for="q1_n2">-2 - Disagree</label>
+                                    
+                                    <input type="radio" name="PutMeAtEaseScore" value="3" class="btn-check" id="q1_3">
+                                    <label class="btn btn-outline-success" for="q1_3">3 - Agree</label>
+                                    
+                                    <input type="radio" name="PutMeAtEaseScore" value="4" class="btn-check" id="q1_4">
+                                    <label class="btn btn-outline-primary" for="q1_4">4 - Strongly Agree</label>
+                                </div>
+                            </div>
+                            <div class="form-check">
+                                <input type="radio" name="PutMeAtEaseScore" value="999" class="form-check-input" id="q1_no">
+                                <label class="form-check-label text-muted" for="q1_no">
+                                    <i class="fas fa-eye-slash"></i> Not observed
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- PSQ Question 2: Treated with dignity -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">2. The Dentist treated me with dignity and respect</label>
+                            <div class="mb-2">
+                                <div class="btn-group d-flex">
+                                    <input type="radio" name="TreatedWithDignityScore" value="-1" class="btn-check" id="q2_n1">
+                                    <label class="btn btn-outline-danger" for="q2_n1">-1 - Strongly Disagree</label>
+                                    
+                                    <input type="radio" name="TreatedWithDignityScore" value="-2" class="btn-check" id="q2_n2">
+                                    <label class="btn btn-outline-warning" for="q2_n2">-2 - Disagree</label>
+                                    
+                                    <input type="radio" name="TreatedWithDignityScore" value="3" class="btn-check" id="q2_3">
+                                    <label class="btn btn-outline-success" for="q2_3">3 - Agree</label>
+                                    
+                                    <input type="radio" name="TreatedWithDignityScore" value="4" class="btn-check" id="q2_4">
+                                    <label class="btn btn-outline-primary" for="q2_4">4 - Strongly Agree</label>
+                                </div>
+                            </div>
+                            <div class="form-check">
+                                <input type="radio" name="TreatedWithDignityScore" value="999" class="form-check-input" id="q2_no">
+                                <label class="form-check-label text-muted" for="q2_no">
+                                    <i class="fas fa-eye-slash"></i> Not observed
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- PSQ Question 3: Listened to concerns -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">3. The Dentist listened and responded to my concerns</label>
+                            <div class="mb-2">
+                                <div class="btn-group d-flex">
+                                    <input type="radio" name="ListenedToConcernsScore" value="-1" class="btn-check" id="q3_n1">
+                                    <label class="btn btn-outline-danger" for="q3_n1">-1 - Strongly Disagree</label>
+                                    
+                                    <input type="radio" name="ListenedToConcernsScore" value="-2" class="btn-check" id="q3_n2">
+                                    <label class="btn btn-outline-warning" for="q3_n2">-2 - Disagree</label>
+                                    
+                                    <input type="radio" name="ListenedToConcernsScore" value="3" class="btn-check" id="q3_3">
+                                    <label class="btn btn-outline-success" for="q3_3">3 - Agree</label>
+                                    
+                                    <input type="radio" name="ListenedToConcernsScore" value="4" class="btn-check" id="q3_4">
+                                    <label class="btn btn-outline-primary" for="q3_4">4 - Strongly Agree</label>
+                                </div>
+                            </div>
+                            <div class="form-check">
+                                <input type="radio" name="ListenedToConcernsScore" value="999" class="form-check-input" id="q3_no">
+                                <label class="form-check-label text-muted" for="q3_no">
+                                    <i class="fas fa-eye-slash"></i> Not observed
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- PSQ Question 4: Explained treatment options -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">4. The Dentist clearly explained available treatment options including costs</label>
+                            <div class="mb-2">
+                                <div class="btn-group d-flex">
+                                    <input type="radio" name="ExplainedTreatmentOptionsScore" value="-1" class="btn-check" id="q4_n1">
+                                    <label class="btn btn-outline-danger" for="q4_n1">-1 - Strongly Disagree</label>
+                                    
+                                    <input type="radio" name="ExplainedTreatmentOptionsScore" value="-2" class="btn-check" id="q4_n2">
+                                    <label class="btn btn-outline-warning" for="q4_n2">-2 - Disagree</label>
+                                    
+                                    <input type="radio" name="ExplainedTreatmentOptionsScore" value="3" class="btn-check" id="q4_3">
+                                    <label class="btn btn-outline-success" for="q4_3">3 - Agree</label>
+                                    
+                                    <input type="radio" name="ExplainedTreatmentOptionsScore" value="4" class="btn-check" id="q4_4">
+                                    <label class="btn btn-outline-primary" for="q4_4">4 - Strongly Agree</label>
+                                </div>
+                            </div>
+                            <div class="form-check">
+                                <input type="radio" name="ExplainedTreatmentOptionsScore" value="999" class="form-check-input" id="q4_no">
+                                <label class="form-check-label text-muted" for="q4_no">
+                                    <i class="fas fa-eye-slash"></i> Not observed
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- PSQ Question 5: Involved in decisions -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">5. The Dentist involved me as much as I wanted to be in decision about my care</label>
+                            <div class="mb-2">
+                                <div class="btn-group d-flex">
+                                    <input type="radio" name="InvolvedInDecisionsScore" value="-1" class="btn-check" id="q5_n1">
+                                    <label class="btn btn-outline-danger" for="q5_n1">-1 - Strongly Disagree</label>
+                                    
+                                    <input type="radio" name="InvolvedInDecisionsScore" value="-2" class="btn-check" id="q5_n2">
+                                    <label class="btn btn-outline-warning" for="q5_n2">-2 - Disagree</label>
+                                    
+                                    <input type="radio" name="InvolvedInDecisionsScore" value="3" class="btn-check" id="q5_3">
+                                    <label class="btn btn-outline-success" for="q5_3">3 - Agree</label>
+                                    
+                                    <input type="radio" name="InvolvedInDecisionsScore" value="4" class="btn-check" id="q5_4">
+                                    <label class="btn btn-outline-primary" for="q5_4">4 - Strongly Agree</label>
+                                </div>
+                            </div>
+                            <div class="form-check">
+                                <input type="radio" name="InvolvedInDecisionsScore" value="999" class="form-check-input" id="q5_no">
+                                <label class="form-check-label text-muted" for="q5_no">
+                                    <i class="fas fa-eye-slash"></i> Not observed
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- PSQ Question 6: Involved family -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">6. The Dentist involved my family/carers appropriately</label>
+                            <div class="mb-2">
+                                <div class="btn-group d-flex">
+                                    <input type="radio" name="InvolvedFamilyScore" value="-1" class="btn-check" id="q6_n1">
+                                    <label class="btn btn-outline-danger" for="q6_n1">-1 - Strongly Disagree</label>
+                                    
+                                    <input type="radio" name="InvolvedFamilyScore" value="-2" class="btn-check" id="q6_n2">
+                                    <label class="btn btn-outline-warning" for="q6_n2">-2 - Disagree</label>
+                                    
+                                    <input type="radio" name="InvolvedFamilyScore" value="3" class="btn-check" id="q6_3">
+                                    <label class="btn btn-outline-success" for="q6_3">3 - Agree</label>
+                                    
+                                    <input type="radio" name="InvolvedFamilyScore" value="4" class="btn-check" id="q6_4">
+                                    <label class="btn btn-outline-primary" for="q6_4">4 - Strongly Agree</label>
+                                </div>
+                            </div>
+                            <div class="form-check">
+                                <input type="radio" name="InvolvedFamilyScore" value="999" class="form-check-input" id="q6_no">
+                                <label class="form-check-label text-muted" for="q6_no">
+                                    <i class="fas fa-eye-slash"></i> Not observed
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- PSQ Question 7: Tailored approach -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">7. The Dentist tailored their approach to meet my needs</label>
+                            <div class="mb-2">
+                                <div class="btn-group d-flex">
+                                    <input type="radio" name="TailoredApproachScore" value="-1" class="btn-check" id="q7_n1">
+                                    <label class="btn btn-outline-danger" for="q7_n1">-1 - Strongly Disagree</label>
+                                    
+                                    <input type="radio" name="TailoredApproachScore" value="-2" class="btn-check" id="q7_n2">
+                                    <label class="btn btn-outline-warning" for="q7_n2">-2 - Disagree</label>
+                                    
+                                    <input type="radio" name="TailoredApproachScore" value="3" class="btn-check" id="q7_3">
+                                    <label class="btn btn-outline-success" for="q7_3">3 - Agree</label>
+                                    
+                                    <input type="radio" name="TailoredApproachScore" value="4" class="btn-check" id="q7_4">
+                                    <label class="btn btn-outline-primary" for="q7_4">4 - Strongly Agree</label>
+                                </div>
+                            </div>
+                            <div class="form-check">
+                                <input type="radio" name="TailoredApproachScore" value="999" class="form-check-input" id="q7_no">
+                                <label class="form-check-label text-muted" for="q7_no">
+                                    <i class="fas fa-eye-slash"></i> Not observed
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- PSQ Question 8: Explained next steps -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">8. The Dentist explained what will happen next with my treatment</label>
+                            <div class="mb-2">
+                                <div class="btn-group d-flex">
+                                    <input type="radio" name="ExplainedNextStepsScore" value="-1" class="btn-check" id="q8_n1">
+                                    <label class="btn btn-outline-danger" for="q8_n1">-1 - Strongly Disagree</label>
+                                    
+                                    <input type="radio" name="ExplainedNextStepsScore" value="-2" class="btn-check" id="q8_n2">
+                                    <label class="btn btn-outline-warning" for="q8_n2">-2 - Disagree</label>
+                                    
+                                    <input type="radio" name="ExplainedNextStepsScore" value="3" class="btn-check" id="q8_3">
+                                    <label class="btn btn-outline-success" for="q8_3">3 - Agree</label>
+                                    
+                                    <input type="radio" name="ExplainedNextStepsScore" value="4" class="btn-check" id="q8_4">
+                                    <label class="btn btn-outline-primary" for="q8_4">4 - Strongly Agree</label>
+                                </div>
+                            </div>
+                            <div class="form-check">
+                                <input type="radio" name="ExplainedNextStepsScore" value="999" class="form-check-input" id="q8_no">
+                                <label class="form-check-label text-muted" for="q8_no">
+                                    <i class="fas fa-eye-slash"></i> Not observed
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- PSQ Question 9: Provided guidance -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">9. The Dentist provided guidance on how to take care of my teeth and gums</label>
+                            <div class="mb-2">
+                                <div class="btn-group d-flex">
+                                    <input type="radio" name="ProvidedGuidanceScore" value="-1" class="btn-check" id="q9_n1">
+                                    <label class="btn btn-outline-danger" for="q9_n1">-1 - Strongly Disagree</label>
+                                    
+                                    <input type="radio" name="ProvidedGuidanceScore" value="-2" class="btn-check" id="q9_n2">
+                                    <label class="btn btn-outline-warning" for="q9_n2">-2 - Disagree</label>
+                                    
+                                    <input type="radio" name="ProvidedGuidanceScore" value="3" class="btn-check" id="q9_3">
+                                    <label class="btn btn-outline-success" for="q9_3">3 - Agree</label>
+                                    
+                                    <input type="radio" name="ProvidedGuidanceScore" value="4" class="btn-check" id="q9_4">
+                                    <label class="btn btn-outline-primary" for="q9_4">4 - Strongly Agree</label>
+                                </div>
+                            </div>
+                            <div class="form-check">
+                                <input type="radio" name="ProvidedGuidanceScore" value="999" class="form-check-input" id="q9_no">
+                                <label class="form-check-label text-muted" for="q9_no">
+                                    <i class="fas fa-eye-slash"></i> Not observed
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- PSQ Question 10: Allocated time -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">10. The Dentist allocated the right amount of time for my treatment</label>
+                            <div class="mb-2">
+                                <div class="btn-group d-flex">
+                                    <input type="radio" name="AllocatedTimeScore" value="-1" class="btn-check" id="q10_n1">
+                                    <label class="btn btn-outline-danger" for="q10_n1">-1 - Strongly Disagree</label>
+                                    
+                                    <input type="radio" name="AllocatedTimeScore" value="-2" class="btn-check" id="q10_n2">
+                                    <label class="btn btn-outline-warning" for="q10_n2">-2 - Disagree</label>
+                                    
+                                    <input type="radio" name="AllocatedTimeScore" value="3" class="btn-check" id="q10_3">
+                                    <label class="btn btn-outline-success" for="q10_3">3 - Agree</label>
+                                    
+                                    <input type="radio" name="AllocatedTimeScore" value="4" class="btn-check" id="q10_4">
+                                    <label class="btn btn-outline-primary" for="q10_4">4 - Strongly Agree</label>
+                                </div>
+                            </div>
+                            <div class="form-check">
+                                <input type="radio" name="AllocatedTimeScore" value="999" class="form-check-input" id="q10_no">
+                                <label class="form-check-label text-muted" for="q10_no">
+                                    <i class="fas fa-eye-slash"></i> Not observed
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- PSQ Question 11: Worked with team -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">11. The Dentist worked well with other team members</label>
+                            <div class="mb-2">
+                                <div class="btn-group d-flex">
+                                    <input type="radio" name="WorkedWithTeamScore" value="-1" class="btn-check" id="q11_n1">
+                                    <label class="btn btn-outline-danger" for="q11_n1">-1 - Strongly Disagree</label>
+                                    
+                                    <input type="radio" name="WorkedWithTeamScore" value="-2" class="btn-check" id="q11_n2">
+                                    <label class="btn btn-outline-warning" for="q11_n2">-2 - Disagree</label>
+                                    
+                                    <input type="radio" name="WorkedWithTeamScore" value="3" class="btn-check" id="q11_3">
+                                    <label class="btn btn-outline-success" for="q11_3">3 - Agree</label>
+                                    
+                                    <input type="radio" name="WorkedWithTeamScore" value="4" class="btn-check" id="q11_4">
+                                    <label class="btn btn-outline-primary" for="q11_4">4 - Strongly Agree</label>
+                                </div>
+                            </div>
+                            <div class="form-check">
+                                <input type="radio" name="WorkedWithTeamScore" value="999" class="form-check-input" id="q11_no">
+                                <label class="form-check-label text-muted" for="q11_no">
+                                    <i class="fas fa-eye-slash"></i> Not observed
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- PSQ Question 12: Can trust dentist -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">12. I feel I can trust this dentist with my dental care</label>
+                            <div class="mb-2">
+                                <div class="btn-group d-flex">
+                                    <input type="radio" name="CanTrustDentistScore" value="-1" class="btn-check" id="q12_n1">
+                                    <label class="btn btn-outline-danger" for="q12_n1">-1 - Strongly Disagree</label>
+                                    
+                                    <input type="radio" name="CanTrustDentistScore" value="-2" class="btn-check" id="q12_n2">
+                                    <label class="btn btn-outline-warning" for="q12_n2">-2 - Disagree</label>
+                                    
+                                    <input type="radio" name="CanTrustDentistScore" value="3" class="btn-check" id="q12_3">
+                                    <label class="btn btn-outline-success" for="q12_3">3 - Agree</label>
+                                    
+                                    <input type="radio" name="CanTrustDentistScore" value="4" class="btn-check" id="q12_4">
+                                    <label class="btn btn-outline-primary" for="q12_4">4 - Strongly Agree</label>
+                                </div>
+                            </div>
+                            <div class="form-check">
+                                <input type="radio" name="CanTrustDentistScore" value="999" class="form-check-input" id="q12_no">
+                                <label class="form-check-label text-muted" for="q12_no">
+                                    <i class="fas fa-eye-slash"></i> Not observed
+                                </label>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Open-ended Questions -->
+                        <div class="mb-4">
+                            <label for="DoesWellComment" class="form-label fw-bold">
+                                <i class="fas fa-thumbs-up text-success"></i> Anything you feel this dentist does particularly well?
+                            </label>
+                            <textarea asp-for="DoesWellComment" class="form-control" rows="3" 
+                                      placeholder="Please share what this dentist does well..."></textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="CouldImproveComment" class="form-label fw-bold">
+                                <i class="fas fa-lightbulb text-warning"></i> Anything you feel this dentist could improve upon?
+                            </label>
+                            <textarea asp-for="CouldImproveComment" class="form-control" rows="3" 
+                                      placeholder="Please share any suggestions for improvement..."></textarea>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-paper-plane"></i> Submit Patient Feedback
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

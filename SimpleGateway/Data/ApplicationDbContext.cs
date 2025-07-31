@@ -22,6 +22,8 @@ namespace SimpleGateway.Data
         public DbSet<AgreementTermsModel> AgreementTerms { get; set; }
         public DbSet<MSFQuestionnaire> MSFQuestionnaires { get; set; }
         public DbSet<MSFResponse> MSFResponses { get; set; }
+        public DbSet<PSQQuestionnaire> PSQQuestionnaires { get; set; }
+        public DbSet<PSQResponse> PSQResponses { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -209,6 +211,29 @@ namespace SimpleGateway.Data
                 entity.HasOne(r => r.Questionnaire)
                     .WithMany(q => q.Responses)
                     .HasForeignKey(r => r.MSFQuestionnaireId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Configure PSQQuestionnaire
+            modelBuilder.Entity<PSQQuestionnaire>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.HasIndex(e => e.UniqueCode).IsUnique();
+                
+                entity.HasOne(q => q.Performer)
+                    .WithMany()
+                    .HasForeignKey(q => q.PerformerId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Configure PSQResponse
+            modelBuilder.Entity<PSQResponse>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                
+                entity.HasOne(r => r.Questionnaire)
+                    .WithMany(q => q.Responses)
+                    .HasForeignKey(r => r.PSQQuestionnaireId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
         }

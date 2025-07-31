@@ -1,0 +1,236 @@
+@model SimpleGateway.Models.PSQResultsDto
+@{
+    ViewData["Title"] = "PSQ Results";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var performerUsername = Model?.PerformerUsername ?? ViewBag.PerformerUsername ?? User.Identity?.Name ?? "";
+}
+
+<div class="row">
+    <div class="col-3">
+        <ul class="list-group">
+            <li class="list-group-item @(ViewBag.ActiveSection == "Dashboard" ? "active" : "")">
+                <a href="/Dashboard/ViewPerformerDashboard?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "Dashboard" ? "color: white;" : "")">
+                    <i class="bi bi-speedometer2"></i> Dashboard Overview
+                </a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "PerformerDetails" ? "active" : "")">
+                <a href="/Dashboard/PerformerDetails?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "PerformerDetails" ? "color: white;" : "")">Performer Details</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "TestPractice" ? "active" : "")">
+                <a href="/Dashboard/TestPractice?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "TestPractice" ? "color: white;" : "")">Test Practice</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "TestPractice2" ? "active" : "")">
+                <a href="/Dashboard/TestPractice2?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "TestPractice2" ? "color: white;" : "")">Test Practice 2</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "Uploads" ? "active" : "")">
+                <a href="/Dashboard/Uploads?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "Uploads" ? "color: white;" : "")">Uploads</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "StructuredConversation" ? "active" : "")">
+                <a href="/Dashboard/StructuredConversation?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "StructuredConversation" ? "color: white;" : "")">Structured Conversation</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "AgreementTerms" ? "active" : "")">
+                <a href="/Dashboard/AgreementTerms?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "AgreementTerms" ? "color: white;" : "")">Agreement Terms</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "WorkBasedAssessments" ? "active" : "")">
+                <a href="/Dashboard/WorkBasedAssessments?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "WorkBasedAssessments" ? "color: white;" : "")">Work Based Assessments</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "CPD" ? "active" : "")">
+                <a href="/Dashboard/CPD?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "CPD" ? "color: white;" : "")">CPD</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "MSF" ? "active" : "")">
+                <a href="@Url.Action("Index", "MSF", new { performerUsername = ViewBag.PerformerUsername })" style="@(ViewBag.ActiveSection == "MSF" ? "color: white;" : "")">
+                    <i class="fas fa-comments"></i> MSF Assessment
+                </a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "PSQ" ? "active" : "")">
+                <a href="@Url.Action("Index", "PSQ", new { performerUsername = ViewBag.PerformerUsername })" style="@(ViewBag.ActiveSection == "PSQ" ? "color: white;" : "")">
+                    <i class="fas fa-star"></i> PSQ Assessment
+                </a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "ClinicalNoteAudit" ? "active" : "")">
+                <a href="/Dashboard/ClinicalNoteAudit?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "ClinicalNoteAudit" ? "color: white;" : "")">Clinical Note Audit</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "HelpGuidance" ? "active" : "")">
+                <a href="/Dashboard/HelpGuidance?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "HelpGuidance" ? "color: white;" : "")">Help & Guidance</a>
+            </li>
+            <li class="list-group-item @(ViewBag.ActiveSection == "FinalSignOff" ? "active" : "")">
+                <a href="/Dashboard/FinalSignOff?performerUsername=@ViewBag.PerformerUsername" style="@(ViewBag.ActiveSection == "FinalSignOff" ? "color: white;" : "")">Final Sign off</a>
+            </li>
+        </ul>
+    </div>
+    <div class="col-9">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">
+                        <i class="fas fa-chart-bar text-primary"></i> PSQ Results Dashboard
+                    </h4>
+                    <span class="badge bg-info">@Model.PerformerName</span>
+                </div>
+                <div class="card-body">
+                    @if (!Model.HasActiveQuestionnaire)
+                    {
+                        <div class="alert alert-warning">
+                            <h5><i class="fas fa-exclamation-triangle"></i> No Active PSQ</h5>
+                            <p>No PSQ questionnaire has been created yet. <a href="@Url.Action("Index", "PSQ", new { performerUsername = performerUsername })">Create one here</a> to start collecting patient feedback.</p>
+                        </div>
+                    }
+                    else if (Model.TotalResponses == 0)
+                    {
+                        <div class="alert alert-info">
+                            <h5><i class="fas fa-info-circle"></i> No Responses Yet</h5>
+                            <p>Your PSQ questionnaire is active but no patient responses have been received yet.</p>
+                            <p><strong>Share your PSQ:</strong></p>
+                            <div class="input-group">
+                                <input type="text" class="form-control" value="@Model.FeedbackUrl" readonly>
+                                <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard(this)">
+                                    <i class="fas fa-copy"></i> Copy
+                                </button>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <!-- Response Summary -->
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <div class="card border-primary">
+                                    <div class="card-body text-center">
+                                        <h2 class="text-primary">@Model.TotalResponses</h2>
+                                        <p class="text-muted mb-0">Patient Responses</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card border-success">
+                                    <div class="card-body text-center">
+                                        <h2 class="text-success">@Model.QuestionAverages.Count</h2>
+                                        <p class="text-muted mb-0">Questions Rated</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card border-info">
+                                    <div class="card-body text-center">
+                                        <h2 class="text-info">@(Model.DoesWellComments.Count + Model.CouldImproveComments.Count)</h2>
+                                        <p class="text-muted mb-0">Written Comments</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Patient Satisfaction Scores -->
+                        @if (Model.QuestionAverages.Any())
+                        {
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h5 class="mb-0"><i class="fas fa-star"></i> Patient Satisfaction Scores</h5>
+                                    <small class="text-muted">Average scores from patient feedback (Scale: -2 to 4)</small>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        @foreach (var avg in Model.QuestionAverages)
+                                        {
+                                            var scoreClass = avg.Value >= 3 ? "success" : avg.Value >= 0 ? "warning" : "danger";
+                                            var percentage = Math.Max(0, Math.Min(100, ((avg.Value + 2) / 6) * 100));
+                                            
+                                            <div class="col-12 mb-3">
+                                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                                    <span class="fw-bold">@avg.Key</span>
+                                                    <span class="badge bg-@scoreClass fs-6">@avg.Value.ToString("F2")</span>
+                                                </div>
+                                                <div class="progress" style="height: 8px;">
+                                                    <div class="progress-bar bg-@scoreClass" role="progressbar" 
+                                                         style="width: @percentage%" 
+                                                         aria-valuenow="@avg.Value" aria-valuemin="-2" aria-valuemax="4">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- Patient Comments -->
+                        <div class="row">
+                            @if (Model.DoesWellComments.Any())
+                            {
+                                <div class="col-md-6">
+                                    <div class="card border-success">
+                                        <div class="card-header bg-success text-white">
+                                            <h6 class="mb-0">
+                                                <i class="fas fa-thumbs-up"></i> What Patients Say You Do Well
+                                                <span class="badge bg-light text-success">@Model.DoesWellComments.Count</span>
+                                            </h6>
+                                        </div>
+                                        <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                                            @foreach (var comment in Model.DoesWellComments)
+                                            {
+                                                <div class="alert alert-success">
+                                                    <i class="fas fa-quote-left text-muted"></i>
+                                                    @comment
+                                                    <i class="fas fa-quote-right text-muted"></i>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            @if (Model.CouldImproveComments.Any())
+                            {
+                                <div class="col-md-6">
+                                    <div class="card border-warning">
+                                        <div class="card-header bg-warning text-dark">
+                                            <h6 class="mb-0">
+                                                <i class="fas fa-lightbulb"></i> Suggestions for Improvement
+                                                <span class="badge bg-light text-warning">@Model.CouldImproveComments.Count</span>
+                                            </h6>
+                                        </div>
+                                        <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                                            @foreach (var comment in Model.CouldImproveComments)
+                                            {
+                                                <div class="alert alert-warning">
+                                                    <i class="fas fa-quote-left text-muted"></i>
+                                                    @comment
+                                                    <i class="fas fa-quote-right text-muted"></i>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Back to Main PSQ Page -->
+                        <div class="mt-4 text-center">
+                            <a href="@Url.Action("Index", "PSQ", new { performerUsername = performerUsername })" 
+                               class="btn btn-primary">
+                                <i class="fas fa-arrow-left"></i> Back to PSQ Dashboard
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+    </div>
+</div>
+
+<script>
+function copyToClipboard(button) {
+    var input = button.parentNode.querySelector('input');
+    input.select();
+    input.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(input.value);
+    
+    var originalText = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-check"></i> Copied!';
+    button.classList.add('btn-success');
+    button.classList.remove('btn-outline-secondary');
+    
+    setTimeout(function() {
+        button.innerHTML = originalText;
+        button.classList.remove('btn-success');
+        button.classList.add('btn-outline-secondary');
+    }, 2000);
+}
+</script>
