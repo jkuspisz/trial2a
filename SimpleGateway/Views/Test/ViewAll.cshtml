@@ -37,8 +37,6 @@
                                     <tr>
                                         <th>ID</th>
                                         <th>Username</th>
-                                        <th>UK Work Experience</th>
-                                        <th>Last Patient Treatment</th>
                                         <th>Created Date</th>
                                     </tr>
                                 </thead>
@@ -48,16 +46,6 @@
                                         <tr>
                                             <td><span class="badge bg-primary">@item.Id</span></td>
                                             <td><strong>@item.Username</strong></td>
-                                            <td>
-                                                <div class="text-wrap" style="max-width: 300px;">
-                                                    @item.UKWorkExperience
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <div class="text-wrap" style="max-width: 300px;">
-                                                    @item.LastPatientTreatment
-                                                </div>
-                                            </td>
                                             <td>
                                                 <small class="text-muted">
                                                     @item.CreatedDate.ToString("yyyy-MM-dd HH:mm:ss")

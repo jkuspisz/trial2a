@@ -753,8 +753,6 @@ namespace SimpleGateway.Controllers
                     
                     // Test if ALL required fields exist by attempting a comprehensive query
                     var testQuery = _context.TestData.Where(x => 
-                        x.UKWorkExperience != null && 
-                        x.LastPatientTreatment != null && 
                         x.GDCNumber != null).Count();
                     Console.WriteLine($"TESTPRACTICE DEBUG: Schema verification passed - ALL required fields exist");
                 }

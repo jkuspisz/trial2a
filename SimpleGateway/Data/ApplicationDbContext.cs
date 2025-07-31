@@ -51,8 +51,6 @@ namespace SimpleGateway.Data
             modelBuilder.Entity<TestDataModel>(entity =>
             {
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.UKWorkExperience).HasColumnType("text");
-                entity.Property(e => e.LastPatientTreatment).HasColumnType("text");
             });
 
             // Configure TestDataModel2

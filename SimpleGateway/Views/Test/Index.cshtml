@@ -39,24 +39,9 @@
                     <form asp-action="Index" method="post">
                         <input type="hidden" asp-for="Username" />
                         
-                        <!-- Question 1 -->
-                        <div class="mb-4">
-                            <label asp-for="UKWorkExperience" class="form-label">
-                                <strong>Question 1:</strong> @Html.DisplayNameFor(m => m.UKWorkExperience)
-                            </label>
-                            <textarea asp-for="UKWorkExperience" class="form-control" rows="3" 
-                                     placeholder="Please describe your work experience in the UK, if any. For example: '5 years as a dentist in London' or 'No UK work experience yet'"></textarea>
-                            <span asp-validation-for="UKWorkExperience" class="text-danger"></span>
-                        </div>
-                        
-                        <!-- Question 2 -->
-                        <div class="mb-4">
-                            <label asp-for="LastPatientTreatment" class="form-label">
-                                <strong>Question 2:</strong> @Html.DisplayNameFor(m => m.LastPatientTreatment)
-                            </label>
-                            <textarea asp-for="LastPatientTreatment" class="form-control" rows="3" 
-                                     placeholder="Please describe when you last treated a patient. For example: 'Yesterday - routine cleaning' or 'Last month - filling procedure'"></textarea>
-                            <span asp-validation-for="LastPatientTreatment" class="text-danger"></span>
+                        <!-- Test form now only shows supervisor fields since UKWorkExperience and LastPatientTreatment were removed -->
+                        <div class="alert alert-info">
+                            <p><strong>Note:</strong> This test form now uses the supervisor data fields only.</p>
                         </div>
                         
                         <!-- Submit Button -->
