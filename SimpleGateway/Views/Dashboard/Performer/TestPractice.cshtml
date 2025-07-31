@@ -179,10 +179,6 @@
                             <span asp-validation-for="CPDCompliance" class="text-danger"></span>
                         </div>
 
-                        <!-- Legacy Fields (hidden but preserved for data continuity) -->
-                        <input type="hidden" asp-for="UKWorkExperience" value="@(Model?.UKWorkExperience ?? "Legacy data - see supervisor information above")" />
-                        <input type="hidden" asp-for="LastPatientTreatment" value="@(Model?.LastPatientTreatment ?? "Legacy data - see supervisor information above")" />
-                        
                         <!-- Declaration Section -->
                         <div class="card mb-4" style="border: 2px solid #dc3545;">
                             <div class="card-header" style="background-color: #f8d7da; color: #721c24;">

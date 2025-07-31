@@ -352,8 +352,6 @@ try
                                 ""Username"" text NOT NULL,
                                 ""CreatedDate"" timestamp with time zone NOT NULL DEFAULT NOW(),
                                 ""ModifiedDate"" timestamp with time zone,
-                                ""UKWorkExperience"" text NOT NULL DEFAULT '',
-                                ""LastPatientTreatment"" text NOT NULL DEFAULT '',
                                 ""GDCNumber"" text,
                                 ""YearsOnPerformersList"" text,
                                 ""TrainingCoursesAttended"" text,

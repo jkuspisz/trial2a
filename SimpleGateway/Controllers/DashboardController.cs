@@ -774,8 +774,6 @@ namespace SimpleGateway.Controllers
                                     ""Username"" text NOT NULL,
                                     ""CreatedDate"" timestamp with time zone NOT NULL DEFAULT NOW(),
                                     ""ModifiedDate"" timestamp with time zone,
-                                    ""UKWorkExperience"" text NOT NULL DEFAULT '',
-                                    ""LastPatientTreatment"" text NOT NULL DEFAULT '',
                                     ""GDCNumber"" text,
                                     ""YearsOnPerformersList"" text,
                                     ""TrainingCoursesAttended"" text,
@@ -804,8 +802,6 @@ namespace SimpleGateway.Controllers
                         {
                             _context.Database.ExecuteSqlRaw(@"
                                 ALTER TABLE ""TestData"" 
-                                ADD COLUMN IF NOT EXISTS ""UKWorkExperience"" text NOT NULL DEFAULT '',
-                                ADD COLUMN IF NOT EXISTS ""LastPatientTreatment"" text NOT NULL DEFAULT '',
                                 ADD COLUMN IF NOT EXISTS ""GDCNumber"" text,
                                 ADD COLUMN IF NOT EXISTS ""YearsOnPerformersList"" text,
                                 ADD COLUMN IF NOT EXISTS ""TrainingCoursesAttended"" text,
@@ -979,8 +975,6 @@ namespace SimpleGateway.Controllers
                                         ""Username"" text NOT NULL,
                                         ""CreatedDate"" timestamp with time zone NOT NULL DEFAULT NOW(),
                                         ""ModifiedDate"" timestamp with time zone,
-                                        ""UKWorkExperience"" text NOT NULL DEFAULT '',
-                                        ""LastPatientTreatment"" text NOT NULL DEFAULT '',
                                         ""GDCNumber"" text,
                                         ""YearsOnPerformersList"" text,
                                         ""TrainingCoursesAttended"" text,
@@ -1011,8 +1005,6 @@ namespace SimpleGateway.Controllers
                                 // PostgreSQL syntax for Railway environment - ALL required fields
                                 var sqlCommands = new[]
                                 {
-                                    "ALTER TABLE \"TestData\" ADD COLUMN IF NOT EXISTS \"UKWorkExperience\" text NOT NULL DEFAULT ''",
-                                    "ALTER TABLE \"TestData\" ADD COLUMN IF NOT EXISTS \"LastPatientTreatment\" text NOT NULL DEFAULT ''",
                                     "ALTER TABLE \"TestData\" ADD COLUMN IF NOT EXISTS \"GDCNumber\" text",
                                     "ALTER TABLE \"TestData\" ADD COLUMN IF NOT EXISTS \"YearsOnPerformersList\" text",
                                     "ALTER TABLE \"TestData\" ADD COLUMN IF NOT EXISTS \"TrainingCoursesAttended\" text",

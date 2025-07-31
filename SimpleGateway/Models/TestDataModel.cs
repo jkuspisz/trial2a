@@ -6,16 +6,7 @@ namespace SimpleGateway.Models
     {
         public int Id { get; set; }
 
-        // Original fields - keeping for backward compatibility
-        [Required(ErrorMessage = "Please specify how long you have worked in the UK")]
-        [Display(Name = "How long have you worked in the UK (if any)?")]
-        public string UKWorkExperience { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "Please specify when you last treated a patient")]
-        [Display(Name = "When was the last time you treated a patient?")]
-        public string LastPatientTreatment { get; set; } = string.Empty;
-
-        // New Supervisor/Supporting Dentist Information Fields
+        // Supervisor/Supporting Dentist Information Fields
         [Display(Name = "GDC Number")]
         public string? GDCNumber { get; set; }
         
