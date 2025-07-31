@@ -23,6 +23,14 @@ namespace SimpleGateway.Controllers
             return Content("MSF Controller is working! Current time: " + DateTime.Now.ToString());
         }
 
+        // Test POST action
+        [HttpPost]
+        public IActionResult TestPost()
+        {
+            Console.WriteLine("MSF: TestPost action called successfully");
+            return Content("MSF POST is working! Time: " + DateTime.Now.ToString());
+        }
+
         // Test feedback URL generation
         public IActionResult TestFeedback()
         {
@@ -440,8 +448,12 @@ namespace SimpleGateway.Controllers
         [HttpPost]
         public async Task<IActionResult> Feedback(SubmitMSFResponseDto model)
         {
+            Console.WriteLine($"🎯🎯🎯 MSF FEEDBACK POST ACTION REACHED! 🎯🎯🎯");
             Console.WriteLine($"=== MSF FEEDBACK POST DEBUG ===");
+            Console.WriteLine($"POST action called at: {DateTime.Now}");
             Console.WriteLine($"Model received - QuestionnaireCode: '{model?.QuestionnaireCode}'");
+            Console.WriteLine($"RespondentName: '{model?.RespondentName}'");
+            Console.WriteLine($"RespondentRole: '{model?.RespondentRole}'");
             Console.WriteLine($"ModelState IsValid: {ModelState.IsValid}");
             
             if (!ModelState.IsValid)
@@ -451,10 +463,7 @@ namespace SimpleGateway.Controllers
                 {
                     Console.WriteLine($"Key: {modelError.Key}, Errors: {string.Join(", ", modelError.Value.Errors.Select(e => e.ErrorMessage))}");
                 }
-            }
-            
-            if (!ModelState.IsValid)
-            {
+                
                 var questionnaire = await _context.MSFQuestionnaires
                     .FirstOrDefaultAsync(q => q.UniqueCode == model.QuestionnaireCode && q.IsActive);
 
@@ -469,8 +478,18 @@ namespace SimpleGateway.Controllers
                 return View(model);
             }
 
+            Console.WriteLine("ModelState is valid, proceeding with save...");
+            
             var targetQuestionnaire = await _context.MSFQuestionnaires
                 .FirstOrDefaultAsync(q => q.UniqueCode == model.QuestionnaireCode && q.IsActive);
+
+            if (targetQuestionnaire == null)
+            {
+                Console.WriteLine($"ERROR: No questionnaire found with code '{model.QuestionnaireCode}' and IsActive=true");
+                return NotFound("Questionnaire not found or no longer active.");
+            }
+
+            Console.WriteLine($"Found questionnaire ID: {targetQuestionnaire.Id}");
 
             if (targetQuestionnaire == null)
                 return NotFound("Questionnaire not found or no longer active.");
@@ -528,8 +547,13 @@ namespace SimpleGateway.Controllers
 
             try
             {
+                Console.WriteLine($"MSF: Starting database operations...");
+                
                 // Database connection verification - SAFE METHOD (following Database Integration Pattern)
+                Console.WriteLine($"MSF: Testing database connection...");
                 var canConnect = _context.Database.CanConnect();
+                Console.WriteLine($"MSF: Database can connect: {canConnect}");
+                
                 if (!canConnect)
                 {
                     Console.WriteLine("MSF: Database connection issue during feedback submission");
@@ -538,7 +562,14 @@ namespace SimpleGateway.Controllers
                 }
 
                 Console.WriteLine($"MSF: Submitting feedback for questionnaire {targetQuestionnaire.Id} from {model.RespondentName}");
+                Console.WriteLine($"MSF: Creating response object...");
+                Console.WriteLine($"MSF: Response object created successfully");
+                
+                Console.WriteLine($"MSF: Adding response to context...");
                 _context.MSFResponses.Add(response);
+                Console.WriteLine($"MSF: Response added to context successfully");
+                
+                Console.WriteLine($"MSF: Saving changes to database...");
                 await _context.SaveChangesAsync();
                 Console.WriteLine($"MSF: Successfully saved feedback response");
 
@@ -547,20 +578,47 @@ namespace SimpleGateway.Controllers
             }
             catch (Exception ex)
             {
-                // ✅ SAFE ERROR HANDLING - Log errors without destroying data
-                Console.WriteLine($"MSF: Database error saving feedback: {ex.Message}");
-                Console.WriteLine($"MSF: Stack trace: {ex.StackTrace}");
-                TempData["ErrorMessage"] = "Error saving feedback. Please try again.";
+                // ✅ ENHANCED ERROR HANDLING - Detailed logging for debugging
+                Console.WriteLine($"=== MSF FEEDBACK EXCEPTION DETAILS ===");
+                Console.WriteLine($"Exception Type: {ex.GetType().Name}");
+                Console.WriteLine($"Exception Message: {ex.Message}");
+                Console.WriteLine($"Inner Exception: {ex.InnerException?.Message ?? "None"}");
+                Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+                Console.WriteLine($"=== END EXCEPTION DETAILS ===");
+                
+                // Check if it's a database-specific error
+                if (ex.Message.Contains("column") || ex.Message.Contains("table") || ex.Message.Contains("relation"))
+                {
+                    Console.WriteLine($"MSF: DATABASE SCHEMA ERROR - {ex.Message}");
+                    TempData["ErrorMessage"] = "Database schema mismatch. Please contact administrator.";
+                }
+                else if (ex.Message.Contains("connection") || ex.Message.Contains("network"))
+                {
+                    Console.WriteLine($"MSF: DATABASE CONNECTION ERROR - {ex.Message}");
+                    TempData["ErrorMessage"] = "Database connection issue. Please try again.";
+                }
+                else
+                {
+                    Console.WriteLine($"MSF: GENERAL ERROR - {ex.Message}");
+                    TempData["ErrorMessage"] = "Error saving feedback. Please try again.";
+                }
                 
                 // Reload questionnaire info for the view
-                var questionnaire = await _context.MSFQuestionnaires
-                    .FirstOrDefaultAsync(q => q.UniqueCode == model.QuestionnaireCode && q.IsActive);
-
-                if (questionnaire != null)
+                try
                 {
-                    var performer = await _context.Users.FindAsync(questionnaire.PerformerId);
-                    ViewBag.PerformerName = performer?.Username ?? "Unknown";
-                    ViewBag.QuestionnaireTitle = questionnaire.Title;
+                    var questionnaire = await _context.MSFQuestionnaires
+                        .FirstOrDefaultAsync(q => q.UniqueCode == model.QuestionnaireCode && q.IsActive);
+
+                    if (questionnaire != null)
+                    {
+                        var performer = await _context.Users.FindAsync(questionnaire.PerformerId);
+                        ViewBag.PerformerName = performer?.Username ?? "Unknown";
+                        ViewBag.QuestionnaireTitle = questionnaire.Title;
+                    }
+                }
+                catch (Exception reloadEx)
+                {
+                    Console.WriteLine($"MSF: Error reloading questionnaire info: {reloadEx.Message}");
                 }
 
                 Console.WriteLine("MSF: Returning view due to exception");
