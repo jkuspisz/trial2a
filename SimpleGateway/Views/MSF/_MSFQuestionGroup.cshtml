@@ -11,24 +11,44 @@
                 <h6>@question.Question</h6>
             </div>
             <div class="col-12">
-                <div class="btn-group d-flex" role="group" aria-label="Rating">
-                    @for (int i = 1; i <= 4; i++)
-                    {
-                        var ratingText = i switch {
-                            1 => "Working towards",
-                            2 => "Meets",
-                            3 => "Exceeds",
-                            4 => "Not observed",
-                            _ => ""
-                        };
-                        <input type="radio" class="btn-check" name="@question.Field" value="@i" id="@(question.Field)_@i" autocomplete="off">
-                        <label class="btn btn-outline-primary flex-fill" for="@(question.Field)_@i" title="@ratingText">
-                            @i
-                        </label>
-                    }
+                <!-- Performance Rating Scale 1-3 -->
+                <div class="mb-2">
+                    <label class="form-label fw-bold">Performance Rating:</label>
+                    <div class="btn-group d-flex" role="group" aria-label="Performance Rating">
+                        @for (int i = 1; i <= 3; i++)
+                        {
+                            var ratingText = i switch {
+                                1 => "Working towards",
+                                2 => "Meets",
+                                3 => "Exceeds",
+                                _ => ""
+                            };
+                            var badgeClass = i switch {
+                                1 => "btn-outline-warning",
+                                2 => "btn-outline-success", 
+                                3 => "btn-outline-primary",
+                                _ => "btn-outline-secondary"
+                            };
+                            <input type="radio" class="btn-check" name="@question.Field" value="@i" id="@(question.Field)_@i" autocomplete="off">
+                            <label class="btn @badgeClass flex-fill" for="@(question.Field)_@i" title="@ratingText">
+                                @i - @ratingText
+                            </label>
+                        }
+                    </div>
                 </div>
+                
+                <!-- Not Observed Option -->
+                <div class="mb-2">
+                    <div class="form-check">
+                        <input type="radio" class="form-check-input" name="@question.Field" value="4" id="@(question.Field)_not_observed" autocomplete="off">
+                        <label class="form-check-label text-muted" for="@(question.Field)_not_observed">
+                            <i class="fas fa-eye-slash me-1"></i> Not Observed - I haven't observed this competency area
+                        </label>
+                    </div>
+                </div>
+                
                 <div class="form-text">
-                    <small>1=Working towards | 2=Meets | 3=Exceeds | 4=Not observed</small>
+                    <small class="text-muted">Rate the performance level you've observed, or select "Not Observed" if you haven't seen this competency demonstrated.</small>
                 </div>
             </div>
         </div>

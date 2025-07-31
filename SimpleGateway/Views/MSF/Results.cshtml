@@ -112,7 +112,7 @@
                         <div class="card mb-4">
                             <div class="card-header">
                                 <h5 class="mb-0">Average Ratings by Question</h5>
-                                <small class="text-muted">Scale: 1=Working towards, 2=Meets, 3=Exceeds, 4=Not observed</small>
+                                <small class="text-muted">Performance Scale: 1=Working towards, 2=Meets, 3=Exceeds (Not Observed responses excluded from averages)</small>
                             </div>
                             <div class="card-body">
                                 <div class="row">
@@ -120,22 +120,29 @@
                                     {
                                         var rating = kvp.Value;
                                         var colorClass = rating switch {
-                                            >= 2.5 => "success",
-                                            >= 2.0 => "warning",
-                                            _ => "danger"
+                                            >= 2.5 => "success",    // Exceeds territory (2.5-3.0)
+                                            >= 1.8 => "warning",    // Meets territory (1.8-2.5)  
+                                            _ => "danger"           // Working towards (1.0-1.8)
+                                        };
+                                        
+                                        var performanceLabel = rating switch {
+                                            >= 2.5 => "Exceeds",
+                                            >= 1.8 => "Meets", 
+                                            _ => "Working Towards"
                                         };
                                         
                                         <div class="col-md-6 mb-3">
                                             <div class="card border-@colorClass">
                                                 <div class="card-body">
                                                     <h6 class="card-title">@kvp.Key</h6>
-                                                    <div class="d-flex justify-content-between align-items-center">
+                                                    <div class="d-flex justify-content-between align-items-center mb-2">
                                                         <span class="text-@colorClass h5 mb-0">@rating.ToString("F2")</span>
-                                                        <div class="progress flex-fill ms-3" style="height: 20px;">
-                                                            <div class="progress-bar bg-@colorClass" role="progressbar" 
-                                                                 style="width: @((rating / 4.0) * 100)%" 
-                                                                 aria-valuenow="@rating" aria-valuemin="0" aria-valuemax="4">
-                                                            </div>
+                                                        <small class="text-muted">@performanceLabel</small>
+                                                    </div>
+                                                    <div class="progress" style="height: 20px;">
+                                                        <div class="progress-bar bg-@colorClass" role="progressbar" 
+                                                             style="width: @(((rating - 1) / 2.0) * 100)%" 
+                                                             aria-valuenow="@rating" aria-valuemin="1" aria-valuemax="3">
                                                         </div>
                                                     </div>
                                                 </div>

@@ -720,26 +720,26 @@ namespace SimpleGateway.Controllers
                 }).ToList()
             };
 
-            // Calculate averages for each question (only include responses that have scores)
+            // Calculate averages for each question (exclude "Not Observed" responses - value 4)
             var questions = new[]
             {
-                ("Patient Care Quality", responses.Where(r => r.PatientCareQualityScore.HasValue).Select(r => r.PatientCareQualityScore!.Value)),
-                ("Communication Skills", responses.Where(r => r.CommunicationSkillsScore.HasValue).Select(r => r.CommunicationSkillsScore!.Value)),
-                ("Communication & Empathy", responses.Where(r => r.CommunicationEmpathyScore.HasValue).Select(r => r.CommunicationEmpathyScore!.Value)),
-                ("History Taking", responses.Where(r => r.HistoryTakingScore.HasValue).Select(r => r.HistoryTakingScore!.Value)),
-                ("Consultation Management", responses.Where(r => r.ConsultationManagementScore.HasValue).Select(r => r.ConsultationManagementScore!.Value)),
-                ("Cultural Sensitivity", responses.Where(r => r.CulturalSensitivityScore.HasValue).Select(r => r.CulturalSensitivityScore!.Value)),
-                ("Ethical Professionalism", responses.Where(r => r.EthicalProfessionalismScore.HasValue).Select(r => r.EthicalProfessionalismScore!.Value)),
-                ("Professional Development", responses.Where(r => r.ProfessionalDevelopmentScore.HasValue).Select(r => r.ProfessionalDevelopmentScore!.Value)),
-                ("Technical Competence", responses.Where(r => r.TechnicalCompetenceScore.HasValue).Select(r => r.TechnicalCompetenceScore!.Value)),
-                ("Decision Making", responses.Where(r => r.DecisionMakingScore.HasValue).Select(r => r.DecisionMakingScore!.Value)),
-                ("Documentation", responses.Where(r => r.DocumentationScore.HasValue).Select(r => r.DocumentationScore!.Value)),
-                ("Team Collaboration", responses.Where(r => r.TeamCollaborationScore.HasValue).Select(r => r.TeamCollaborationScore!.Value)),
-                ("Team Support", responses.Where(r => r.TeamSupportScore.HasValue).Select(r => r.TeamSupportScore!.Value)),
-                ("Leadership Skills", responses.Where(r => r.LeadershipSkillsScore.HasValue).Select(r => r.LeadershipSkillsScore!.Value)),
-                ("Quality Improvement", responses.Where(r => r.QualityImprovementScore.HasValue).Select(r => r.QualityImprovementScore!.Value)),
-                ("Health & Safety Awareness", responses.Where(r => r.HealthSafetyAwarenessScore.HasValue).Select(r => r.HealthSafetyAwarenessScore!.Value)),
-                ("Continuous Improvement", responses.Where(r => r.ContinuousImprovementScore.HasValue).Select(r => r.ContinuousImprovementScore!.Value))
+                ("Patient Care Quality", responses.Where(r => r.PatientCareQualityScore.HasValue && r.PatientCareQualityScore.Value != 4).Select(r => r.PatientCareQualityScore!.Value)),
+                ("Communication Skills", responses.Where(r => r.CommunicationSkillsScore.HasValue && r.CommunicationSkillsScore.Value != 4).Select(r => r.CommunicationSkillsScore!.Value)),
+                ("Communication & Empathy", responses.Where(r => r.CommunicationEmpathyScore.HasValue && r.CommunicationEmpathyScore.Value != 4).Select(r => r.CommunicationEmpathyScore!.Value)),
+                ("History Taking", responses.Where(r => r.HistoryTakingScore.HasValue && r.HistoryTakingScore.Value != 4).Select(r => r.HistoryTakingScore!.Value)),
+                ("Consultation Management", responses.Where(r => r.ConsultationManagementScore.HasValue && r.ConsultationManagementScore.Value != 4).Select(r => r.ConsultationManagementScore!.Value)),
+                ("Cultural Sensitivity", responses.Where(r => r.CulturalSensitivityScore.HasValue && r.CulturalSensitivityScore.Value != 4).Select(r => r.CulturalSensitivityScore!.Value)),
+                ("Ethical Professionalism", responses.Where(r => r.EthicalProfessionalismScore.HasValue && r.EthicalProfessionalismScore.Value != 4).Select(r => r.EthicalProfessionalismScore!.Value)),
+                ("Professional Development", responses.Where(r => r.ProfessionalDevelopmentScore.HasValue && r.ProfessionalDevelopmentScore.Value != 4).Select(r => r.ProfessionalDevelopmentScore!.Value)),
+                ("Technical Competence", responses.Where(r => r.TechnicalCompetenceScore.HasValue && r.TechnicalCompetenceScore.Value != 4).Select(r => r.TechnicalCompetenceScore!.Value)),
+                ("Decision Making", responses.Where(r => r.DecisionMakingScore.HasValue && r.DecisionMakingScore.Value != 4).Select(r => r.DecisionMakingScore!.Value)),
+                ("Documentation", responses.Where(r => r.DocumentationScore.HasValue && r.DocumentationScore.Value != 4).Select(r => r.DocumentationScore!.Value)),
+                ("Team Collaboration", responses.Where(r => r.TeamCollaborationScore.HasValue && r.TeamCollaborationScore.Value != 4).Select(r => r.TeamCollaborationScore!.Value)),
+                ("Team Support", responses.Where(r => r.TeamSupportScore.HasValue && r.TeamSupportScore.Value != 4).Select(r => r.TeamSupportScore!.Value)),
+                ("Leadership Skills", responses.Where(r => r.LeadershipSkillsScore.HasValue && r.LeadershipSkillsScore.Value != 4).Select(r => r.LeadershipSkillsScore!.Value)),
+                ("Quality Improvement", responses.Where(r => r.QualityImprovementScore.HasValue && r.QualityImprovementScore.Value != 4).Select(r => r.QualityImprovementScore!.Value)),
+                ("Health & Safety Awareness", responses.Where(r => r.HealthSafetyAwarenessScore.HasValue && r.HealthSafetyAwarenessScore.Value != 4).Select(r => r.HealthSafetyAwarenessScore!.Value)),
+                ("Continuous Improvement", responses.Where(r => r.ContinuousImprovementScore.HasValue && r.ContinuousImprovementScore.Value != 4).Select(r => r.ContinuousImprovementScore!.Value))
             };
 
             results.QuestionAverages = questions
