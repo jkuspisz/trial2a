@@ -768,8 +768,10 @@ namespace SimpleGateway.Controllers
                                     ""Username"" text NOT NULL,
                                     ""CreatedDate"" timestamp with time zone NOT NULL DEFAULT NOW(),
                                     ""ModifiedDate"" timestamp with time zone,
+                                    ""UKWorkExperience"" text NOT NULL DEFAULT '',
+                                    ""LastPatientTreatment"" text NOT NULL DEFAULT '',
                                     ""GDCNumber"" text,
-                                    ""YearsOnPerformersList"" integer,
+                                    ""YearsOnPerformersList"" text,
                                     ""TrainingCoursesAttended"" text,
                                     ""CurrentSupervisionExperience"" text,
                                     ""CurrentConditionsRestrictions"" text,
@@ -780,7 +782,7 @@ namespace SimpleGateway.Controllers
                                     CONSTRAINT ""PK_TestData"" PRIMARY KEY (""Id"")
                                 );
                             ");
-                            Console.WriteLine("TESTPRACTICE DEBUG: Emergency TestData table creation completed");
+                            Console.WriteLine("TESTPRACTICE DEBUG: Emergency TestData table creation completed WITH all required fields");
                         }
                         catch (Exception fixEx)
                         {
@@ -796,8 +798,10 @@ namespace SimpleGateway.Controllers
                         {
                             _context.Database.ExecuteSqlRaw(@"
                                 ALTER TABLE ""TestData"" 
+                                ADD COLUMN IF NOT EXISTS ""UKWorkExperience"" text NOT NULL DEFAULT '',
+                                ADD COLUMN IF NOT EXISTS ""LastPatientTreatment"" text NOT NULL DEFAULT '',
                                 ADD COLUMN IF NOT EXISTS ""GDCNumber"" text,
-                                ADD COLUMN IF NOT EXISTS ""YearsOnPerformersList"" integer,
+                                ADD COLUMN IF NOT EXISTS ""YearsOnPerformersList"" text,
                                 ADD COLUMN IF NOT EXISTS ""TrainingCoursesAttended"" text,
                                 ADD COLUMN IF NOT EXISTS ""CurrentSupervisionExperience"" text,
                                 ADD COLUMN IF NOT EXISTS ""CurrentConditionsRestrictions"" text,
@@ -806,7 +810,7 @@ namespace SimpleGateway.Controllers
                                 ADD COLUMN IF NOT EXISTS ""DeclarationSignedDate"" timestamp with time zone,
                                 ADD COLUMN IF NOT EXISTS ""DeclarationSignedBy"" text;
                             ");
-                            Console.WriteLine("TESTPRACTICE DEBUG: Emergency schema fix applied successfully");
+                            Console.WriteLine("TESTPRACTICE DEBUG: Emergency schema fix applied successfully - ALL required fields added");
                         }
                         catch (Exception fixEx)
                         {
@@ -921,8 +925,10 @@ namespace SimpleGateway.Controllers
                                         ""Username"" text NOT NULL,
                                         ""CreatedDate"" timestamp with time zone NOT NULL DEFAULT NOW(),
                                         ""ModifiedDate"" timestamp with time zone,
+                                        ""UKWorkExperience"" text NOT NULL DEFAULT '',
+                                        ""LastPatientTreatment"" text NOT NULL DEFAULT '',
                                         ""GDCNumber"" text,
-                                        ""YearsOnPerformersList"" integer,
+                                        ""YearsOnPerformersList"" text,
                                         ""TrainingCoursesAttended"" text,
                                         ""CurrentSupervisionExperience"" text,
                                         ""CurrentConditionsRestrictions"" text,
@@ -933,7 +939,7 @@ namespace SimpleGateway.Controllers
                                         CONSTRAINT ""PK_TestData"" PRIMARY KEY (""Id"")
                                     );
                                 ");
-                                Console.WriteLine("TESTPRACTICE POST DEBUG: Emergency TestData table creation completed");
+                                Console.WriteLine("TESTPRACTICE POST DEBUG: Emergency TestData table creation completed WITH all required fields");
                             }
                             catch (Exception fixEx)
                             {
@@ -948,11 +954,13 @@ namespace SimpleGateway.Controllers
                             
                             try
                             {
-                                // PostgreSQL syntax for Railway environment
+                                // PostgreSQL syntax for Railway environment - ALL required fields
                                 var sqlCommands = new[]
                                 {
+                                    "ALTER TABLE \"TestData\" ADD COLUMN IF NOT EXISTS \"UKWorkExperience\" text NOT NULL DEFAULT ''",
+                                    "ALTER TABLE \"TestData\" ADD COLUMN IF NOT EXISTS \"LastPatientTreatment\" text NOT NULL DEFAULT ''",
                                     "ALTER TABLE \"TestData\" ADD COLUMN IF NOT EXISTS \"GDCNumber\" text",
-                                    "ALTER TABLE \"TestData\" ADD COLUMN IF NOT EXISTS \"YearsOnPerformersList\" integer",
+                                    "ALTER TABLE \"TestData\" ADD COLUMN IF NOT EXISTS \"YearsOnPerformersList\" text",
                                     "ALTER TABLE \"TestData\" ADD COLUMN IF NOT EXISTS \"TrainingCoursesAttended\" text",
                                     "ALTER TABLE \"TestData\" ADD COLUMN IF NOT EXISTS \"CurrentSupervisionExperience\" text",
                                     "ALTER TABLE \"TestData\" ADD COLUMN IF NOT EXISTS \"CurrentConditionsRestrictions\" text",
@@ -968,7 +976,7 @@ namespace SimpleGateway.Controllers
                                     Console.WriteLine($"TESTPRACTICE POST DEBUG: Executed emergency SQL: {sql}");
                                 }
                                 
-                                Console.WriteLine("TESTPRACTICE POST DEBUG: Emergency supervisor fields schema fix completed");
+                                Console.WriteLine("TESTPRACTICE POST DEBUG: Emergency schema fix completed - ALL required fields added");
                             }
                             catch (Exception fixEx)
                             {
@@ -984,51 +992,73 @@ namespace SimpleGateway.Controllers
                         }
                     }
                     
-                    // CRITICAL: Delete all existing records for this user first (Database Integration Pattern)
-                    var existingRecords = _context.TestData.Where(x => x.Username == model.Username).ToList();
-                    
-                    if (existingRecords.Any())
+                    // DATABASE OPERATIONS - with additional error handling (Database Integration Pattern)
+                    try
                     {
-                        Console.WriteLine($"TESTPRACTICE DEBUG: Found {existingRecords.Count} existing records for {model.Username} - deleting all");
-                        _context.TestData.RemoveRange(existingRecords);
+                        // CRITICAL: Delete all existing records for this user first (Database Integration Pattern)
+                        var existingRecords = _context.TestData.Where(x => x.Username == model.Username).ToList();
                         
-                        // Save deletions first
-                        var deletedRows = _context.SaveChanges();
-                        Console.WriteLine($"TESTPRACTICE DEBUG: Deleted {deletedRows} existing records");
+                        if (existingRecords.Any())
+                        {
+                            Console.WriteLine($"TESTPRACTICE DEBUG: Found {existingRecords.Count} existing records for {model.Username} - deleting all");
+                            _context.TestData.RemoveRange(existingRecords);
+                            
+                            // Save deletions first
+                            var deletedRows = _context.SaveChanges();
+                            Console.WriteLine($"TESTPRACTICE DEBUG: Deleted {deletedRows} existing records");
+                        }
+                        
+                        // Create new record with latest data
+                        Console.WriteLine($"TESTPRACTICE DEBUG: Creating new record for {model.Username}");
+                        
+                        model.CreatedDate = DateTime.UtcNow;
+                        model.ModifiedDate = null;
+                        
+                        _context.TestData.Add(model);
+                        
+                        var savedRows = _context.SaveChanges();
+                        
+                        if (savedRows > 0)
+                        {
+                            Console.WriteLine($"TESTPRACTICE DEBUG: Successfully saved {savedRows} records");
+                            
+                            // Get total count for verification
+                            var totalRecords = _context.TestData.Count();
+                            Console.WriteLine($"TESTPRACTICE DEBUG: Total TestData records in database: {totalRecords}");
+                            
+                            TempData["SuccessMessage"] = $"Supervisor information saved successfully! (Saved by: {currentUser})";
+                            TempData["TotalRecords"] = totalRecords;
+                            return RedirectToAction("TestPractice", new { performerUsername = model.Username });
+                        }
+                        else
+                        {
+                            Console.WriteLine($"TESTPRACTICE DEBUG: Save failed - no changes were made");
+                            TempData["ErrorMessage"] = "Save failed - no changes were made.";
+                        }
                     }
-                    
-                    // Create new record with latest data
-                    Console.WriteLine($"TESTPRACTICE DEBUG: Creating new record for {model.Username}");
-                    
-                    model.CreatedDate = DateTime.UtcNow;
-                    model.ModifiedDate = null;
-                    
-                    _context.TestData.Add(model);
-                    
-                    var savedRows = _context.SaveChanges();
-                    
-                    if (savedRows > 0)
+                    catch (Exception dbEx)
                     {
-                        Console.WriteLine($"TESTPRACTICE DEBUG: Successfully saved {savedRows} records");
+                        Console.WriteLine($"TESTPRACTICE POST DEBUG: Database operation failed: {dbEx.Message}");
+                        Console.WriteLine($"TESTPRACTICE POST DEBUG: Database Inner Exception: {dbEx.InnerException?.Message}");
                         
-                        // Get total count for verification
-                        var totalRecords = _context.TestData.Count();
-                        Console.WriteLine($"TESTPRACTICE DEBUG: Total TestData records in database: {totalRecords}");
+                        // Check if it's still a schema issue that slipped through
+                        if (dbEx.Message.Contains("column") || dbEx.Message.Contains("does not exist") || dbEx.Message.Contains("relation"))
+                        {
+                            Console.WriteLine("TESTPRACTICE POST DEBUG: Additional schema issue detected during database operations");
+                            TempData["ErrorMessage"] = "Database schema issue detected. Contact administrator to update database structure.";
+                        }
+                        else
+                        {
+                            TempData["ErrorMessage"] = $"Database error: {dbEx.Message}";
+                        }
                         
-                        TempData["SuccessMessage"] = $"Supervisor information saved successfully! (Saved by: {currentUser})";
-                        TempData["TotalRecords"] = totalRecords;
-                        return RedirectToAction("TestPractice", new { performerUsername = model.Username });
-                    }
-                    else
-                    {
-                        Console.WriteLine($"TESTPRACTICE DEBUG: Save failed - no changes were made");
-                        TempData["ErrorMessage"] = "Save failed - no changes were made.";
+                        return View("Performer/TestPractice", model);
                     }
                 }
                 catch (Exception ex)
                 {
                     // Enhanced error logging following Database Integration Pattern
-                    Console.WriteLine($"TESTPRACTICE DEBUG: Exception during save: {ex.Message}");
+                    Console.WriteLine($"TESTPRACTICE DEBUG: General exception: {ex.Message}");
                     Console.WriteLine($"TESTPRACTICE DEBUG: Inner Exception: {ex.InnerException?.Message}");
                     Console.WriteLine($"TESTPRACTICE DEBUG: Stack Trace: {ex.StackTrace}");
                     
@@ -1038,7 +1068,7 @@ namespace SimpleGateway.Controllers
                     if (ex.Message.Contains("column") || ex.Message.Contains("does not exist"))
                     {
                         Console.WriteLine($"TESTPRACTICE DEBUG: Schema issue detected - may need database table update");
-                        TempData["ErrorMessage"] += " (Database schema issue - contact administrator)";
+                        TempData["ErrorMessage"] = "Database schema issue detected. Contact administrator to update database structure.";
                     }
                 }
             }
