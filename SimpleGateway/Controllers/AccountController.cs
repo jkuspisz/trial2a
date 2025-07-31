@@ -22,6 +22,10 @@ namespace SimpleGateway.Controllers
         [HttpPost]
         public IActionResult Login(string username, string password)
         {
+            Console.WriteLine($"=== LOGIN ATTEMPT ===");
+            Console.WriteLine($"Username: {username}");
+            Console.WriteLine($"Session ID: {HttpContext.Session.Id}");
+            
             var user = _context.Users.FirstOrDefault(u => u.Username == username && u.Password == password && u.IsActive);
             if (user != null)
             {
@@ -29,8 +33,17 @@ namespace SimpleGateway.Controllers
                 HttpContext.Session.SetString("username", user.Username);
                 HttpContext.Session.SetString("displayName", user.DisplayName);
                 HttpContext.Session.SetString("role", user.Role);
+                
+                Console.WriteLine($"✅ Login successful for {user.Username}");
+                Console.WriteLine($"Session variables set:");
+                Console.WriteLine($"  - username: {HttpContext.Session.GetString("username")}");
+                Console.WriteLine($"  - displayName: {HttpContext.Session.GetString("displayName")}");
+                Console.WriteLine($"  - role: {HttpContext.Session.GetString("role")}");
+                
                 return RedirectToAction("Index", "Dashboard");
             }
+            
+            Console.WriteLine($"❌ Login failed for {username}");
             ViewBag.Error = "Invalid login";
             return View();
         }

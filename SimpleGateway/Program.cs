@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.DataProtection;
 using SimpleGateway.Models;
 using SimpleGateway.Data;
 
@@ -32,7 +33,21 @@ builder.Logging.AddConsole();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.Services.AddSession();
+
+// Enhanced session configuration for better reliability
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30); // 30 minutes session timeout
+    options.Cookie.HttpOnly = true; // Security: prevent JavaScript access
+    options.Cookie.IsEssential = true; // Required for GDPR compliance
+    options.Cookie.Name = "SimpleGateway.Session";
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest; // Use HTTPS in production
+});
+
+// Add data protection with persistent key storage for session reliability
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(Environment.CurrentDirectory, "keys")))
+    .SetApplicationName("SimpleGateway");
 
 // Add Entity Framework - Railway PostgreSQL database with SEPARATE CONTEXTS
 // Main context for critical data (Users, PerformerDetails, etc.)

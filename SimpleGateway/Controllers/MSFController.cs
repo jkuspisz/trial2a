@@ -16,6 +16,32 @@ namespace SimpleGateway.Controllers
             _context = context;
         }
 
+        // Helper method for robust session validation
+        private bool IsSessionValid(out string? username)
+        {
+            username = HttpContext.Session.GetString("username");
+            
+            Console.WriteLine($"=== SESSION VALIDATION ===");
+            Console.WriteLine($"Session ID: {HttpContext.Session.Id}");
+            Console.WriteLine($"Session IsAvailable: {HttpContext.Session.IsAvailable}");
+            Console.WriteLine($"Username from session: '{username}'");
+            
+            // Check if session has all required data
+            var displayName = HttpContext.Session.GetString("displayName");
+            var role = HttpContext.Session.GetString("role");
+            
+            Console.WriteLine($"Session contents:");
+            Console.WriteLine($"  - username: '{username}'");
+            Console.WriteLine($"  - displayName: '{displayName}'");
+            Console.WriteLine($"  - role: '{role}'");
+            
+            bool isValid = !string.IsNullOrEmpty(username);
+            Console.WriteLine($"Session valid: {isValid}");
+            Console.WriteLine($"=== END SESSION VALIDATION ===");
+            
+            return isValid;
+        }
+
         // Simple test action to verify controller is working
         public IActionResult Test()
         {
@@ -105,11 +131,11 @@ namespace SimpleGateway.Controllers
         {
             try
             {
-                // Get current user from session
-                var currentUser = HttpContext.Session.GetString("username");
-                if (string.IsNullOrEmpty(currentUser))
+                // Enhanced session validation
+                if (!IsSessionValid(out string? currentUser))
                 {
-                    Console.WriteLine("MSF: No current user in session, redirecting to login");
+                    Console.WriteLine("MSF: Session validation failed, redirecting to login");
+                    TempData["ErrorMessage"] = "Your session has expired. Please log in again.";
                     return RedirectToAction("Login", "Account");
                 }
 
@@ -250,14 +276,23 @@ namespace SimpleGateway.Controllers
             Console.WriteLine($"=== MSF CREATE QUESTIONNAIRE START ===");
             Console.WriteLine($"Received performerUsername: {performerUsername}");
             
+            // Enhanced session debugging
+            Console.WriteLine($"=== SESSION DEBUG ===");
+            Console.WriteLine($"Session ID: {HttpContext.Session.Id}");
+            Console.WriteLine($"Session IsAvailable: {HttpContext.Session.IsAvailable}");
+            foreach (var key in HttpContext.Session.Keys)
+            {
+                Console.WriteLine($"Session Key: {key} = {HttpContext.Session.GetString(key)}");
+            }
+            Console.WriteLine($"=== END SESSION DEBUG ===");
+            
             try
             {
-                var currentUser = HttpContext.Session.GetString("username");
-                Console.WriteLine($"Current user from session: {currentUser}");
-                
-                if (string.IsNullOrEmpty(currentUser))
+                // Enhanced session validation
+                if (!IsSessionValid(out string? currentUser))
                 {
-                    Console.WriteLine("ERROR: No current user in session, redirecting to login");
+                    Console.WriteLine("ERROR: Session validation failed - session expired or invalid");
+                    TempData["ErrorMessage"] = "Your session has expired. Please log in again.";
                     return RedirectToAction("Login", "Account");
                 }
 
