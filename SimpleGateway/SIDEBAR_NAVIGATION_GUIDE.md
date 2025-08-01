@@ -19,13 +19,13 @@ The sidebar navigation follows this exact order for all performer pages:
 - **ViewBag.ActiveSection**: `"PerformerDetails"`
 - **Purpose**: Basic performer information and details
 
-### 3. **Test Practice**
+### 3. **Supporting Dentist Declaration**
 - **Link**: `/Dashboard/TestPractice?performerUsername={username}`
 - **Icon**: None
 - **ViewBag.ActiveSection**: `"TestPractice"`
 - **Purpose**: Supervisor form for editing performer data (6 questions)
 
-### 4. **Test Practice 2**
+### 4. **Previous Experience**
 - **Link**: `/Dashboard/TestPractice2?performerUsername={username}`
 - **Icon**: None
 - **ViewBag.ActiveSection**: `"TestPractice2"`
@@ -157,8 +157,8 @@ Any other performer-related views should follow this exact structure and order.
 
 ## Database Tables Referenced
 
-- **TestPractice**: Uses `TestData` table (supervisor questions)
-- **TestPractice2**: Uses `TestData2` table (performer questions with UKWorkExperience/LastPatientTreatment)
+- **Supporting Dentist Declaration**: Uses `TestData` table (supervisor questions)
+- **Previous Experience**: Uses `TestData2` table (performer questions with UKWorkExperience/LastPatientTreatment)
 - **MSF**: Uses `MSFQuestionnaires` and `MSFResponses` tables
 
 ## Related Documentation
